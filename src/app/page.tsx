@@ -5,7 +5,7 @@ import { authOptions } from "../lib/auth";
 
 
 export default async function Home() {
-  const session  = await getServerSession(authOptions);
+  const session  = await getServerSession();
   console.log(session?.user?.name);
   return (
     <div className="flex flex-col justify-center items-center h-screen">
