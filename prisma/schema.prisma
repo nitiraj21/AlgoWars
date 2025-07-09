@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User{
+  id          String            @id  @default(cuid())
+  username    String            @unique
+  email       String            @unique
+  password    String
+  createdAt   DateTime           @default(now())
+  matches     MatchParticipant[]
+  isAdmin     Boolean             @default(false) //added admin field to manage problems
+}
+
+model Room{
+  id            String          @id @default(cuid())
+  name          String    
+  isPrivate     Boolean         @default(false)
+  code          String?         @unique
+  status        RoomStatus      @default(WAITING)
+  createdAt     DateTime        @default(now())
+  participants  MatchParticipant[]
+  problems      Problems[] 
+}
+
+model MatchParticipant {
+      id        String          @id @default(cuid())
+      user      User            @relation(fields: [userId], references: [id])
+      userId    String
+      room      Room            @relation(fields: [roomId], references: [id])
+      roomId    String
+      score     Int             @default(0)
+      joinedAt  DateTime        @default(now())
+}
+
+model Problems{
+  id          String          @id @default(cuid())
+  title       String
+  slug        String          @unique 
+  description String
+  StarterCode String
+  testCases   Json
+  room        Room            @relation(fields: [roomId], references: [id])
+  roomId      String
+
+  difficulty Difficulty       @default(EASY) //added Difficulty
+}
+
+enum RoomStatus{
+  WAITING
+  IN_PROGRESS
+  FINISHED
+}
+
+enum Difficulty{
+  EASY
+  MEDIUM
+  HARD
+}
