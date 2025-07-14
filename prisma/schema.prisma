@@ -41,6 +41,7 @@ model MatchParticipant {
   id        String   @id @default(cuid())
   user      User     @relation("UserRoomsJoined", fields: [userId], references: [id])
   userId    String
+  role      role     @default(PARTICIPANT)     
   room      Room     @relation("ParticipantsInRoom", fields: [roomId], references: [id])
   roomId    String
   score     Int      @default(0)
@@ -72,4 +73,9 @@ enum Difficulty{
   EASY
   MEDIUM
   HARD
+}
+
+enum role{
+  host
+  PARTICIPANT
 }

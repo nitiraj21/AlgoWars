@@ -48,5 +48,13 @@ export async function POST (req :Request){
         }
     })
 
+    await prisma.matchParticipant.create({
+        data :{
+            userId : user.id,
+            roomId : room.id
+            
+        }
+    })
+
     return NextResponse.json({room, roomcode}, {status : 201});
 }
