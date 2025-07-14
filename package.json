@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@prisma/client": "^6.11.1",
+    "@types/nanoid": "^3.0.0",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
+    "nanoid": "^5.1.5",
     "next": "15.3.5",
     "next-auth": "^4.24.11",
     "prisma": "^6.11.1",

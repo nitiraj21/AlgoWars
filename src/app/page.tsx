@@ -1,3 +1,4 @@
+
 import { get } from "http";
 import { getServerSession } from "next-auth";
 import Image from "next/image";
@@ -12,7 +13,7 @@ export default async function Home() {
       <div className="grid grid-rows-2 justify-center items-center">
         <div>Code Clash</div>
         <div>{session?.user?.name}</div>
-      </div>
+      </div>  
     </div>
   );
 }
