@@ -1,8 +1,10 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function JoinRoom() {
   const [code, setCode] = useState('')
+  const router = useRouter();
 
   const handleJoin = async () => {
     const res = await fetch('/api/room/join', {
@@ -13,7 +15,7 @@ export default function JoinRoom() {
 
     const data = await res.json()
     if (res.ok) {
-      alert(`Joined Room: ${data.room.name}`)
+      router.push(`/Room/${data.room.code}`)
     } else {
       alert(data.error)
     }
