@@ -1,12 +1,23 @@
 'use client'
 
-import { useSession } from "next-auth/react";
+import authOptions from "@/src/lib/auth";
+import { getSession, useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function RoomPage() {
   const params = useParams();
   const [roomid, setRoomid] = useState<string | null>(null);
+  const [session, setSession] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      const sessionData = await getSession();
+      setSession(sessionData);
+    };
+
+    fetchSession();
+  }, []);
   
   interface Room {
     name: string;
@@ -52,11 +63,16 @@ export default function RoomPage() {
   }, [roomid]);
 
   if (!room) return <div className="text-center mt-10">Loading room...</div>;
+  const currUser = session?.user?.name;
+  const currentParticipant = room.participants.find(p => p.user.username === currUser);
+  const isHost = currentParticipant?.role === 'host';
+
 
   return  (
     <div  >
         <div className="flex justify-center">
             <h1>Room: {room.name}</h1>
+            <h1>Room: {session?.user?.name}</h1>
         </div>
         <div>
             <ul>
@@ -71,7 +87,7 @@ export default function RoomPage() {
             </ul>
         </div>
         <div className="flex justify-center">
-             <button className="cursor-pointer">Start Match</button>
+             {isHost && <button className="cursor-pointer">Start Match</button>}
         </div>
     </div>
   )}
