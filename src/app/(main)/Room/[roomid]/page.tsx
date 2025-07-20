@@ -1,139 +1,97 @@
 'use client'
 
 import { useParams } from "next/navigation";
-import { useEffect, useRef, useState, useCallback }
- from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { getSession } from "next-auth/react";
 import { io, Socket } from "socket.io-client";
+
+interface Participant {
+  id: string;
+  user: { username: string };
+  role: string;
+}
+
+interface Room {
+  name: string;
+  host: { name: string };
+  participants: Participant[];
+  questions: {
+    id: string;
+    title: string;
+    description?: string;
+    difficulty?: string;
+    testcase : {
+      Input : string,
+      Output : string,
+      target? : string
+    }
+  }[];
+  status?: string; 
+}
 
 export default function RoomPage() {
   const params = useParams();
   const [roomid, setRoomid] = useState<string | null>(null);
   const [session, setSession] = useState<any>(null);
   const socketRef = useRef<Socket | null>(null);
-  const [socketStatus, setSocketStatus] = useState<string>('Disconnected');
-  const [lastUpdate, setLastUpdate] = useState<string>('Never');
-
-  interface Participant {
-    id: string;
-    user: { username: string };
-    role: string;
-  }
-
-  interface Room {
-    name: string;
-    host: { name: string };
-    participants: Participant[];
-    questions: {
-      id: string;
-      title: string;
-      description?: string;
-      difficulty?: string;
-    }[];
-  }
-
   const [room, setRoom] = useState<Room | null>(null);
+  const [currentQuestion, setQuestion] = useState(0);
 
-  const latestSocketParticipants = useRef<string[] | null>(null);
-
-  // Callback to fetch room data (memoized)
+  // Callback to fetch initial room data
   const fetchRoom = useCallback(async (currentRoomId: string) => {
-    console.log("📡 Fetching room data for:", currentRoomId);
     try {
       const res = await fetch(`/api/findroom/${currentRoomId}`);
       const data = await res.json();
       if (data.error) {
-        console.error("❌ Room not found:", data.error);
         setRoom(null);
         return;
       }
-      console.log("✅ Room data fetched:", data);
-
-      const initialParticipants = data.participants;
-      let finalParticipants = initialParticipants;
-
-      if (latestSocketParticipants.current) {
-          console.log("Merging initial participants with latest socket participants:", latestSocketParticipants.current);
-          const socketUsernames = new Set(latestSocketParticipants.current);
-          const mergedParticipants: Participant[] = [];
-
-          initialParticipants.forEach((p: Participant) => {
-              if (socketUsernames.has(p.user.username)) {
-                  mergedParticipants.push(p);
-                  socketUsernames.delete(p.user.username);
-              }
-          });
-
-          socketUsernames.forEach(username => {
-              mergedParticipants.push({
-                  id: username,
-                  user: { username },
-                  role: username === data.host.name ? "host" : "participant"
-              });
-          });
-
-          finalParticipants = mergedParticipants;
-      }
-      
-      setRoom({ ...data, participants: finalParticipants });
-
+  
+      setRoom(data); 
     } catch (err) {
-      console.error("❌ Failed to fetch room:", err);
       setRoom(null);
     }
   }, []);
 
-  // Get session data once
+  // Get session data once on component mount
   useEffect(() => {
     const retrieveSession = async () => {
-      console.log("🔍 Fetching session...");
       const sessionData = await getSession();
-      console.log("📋 Session data:", sessionData);
       setSession(sessionData);
     };
     retrieveSession();
   }, []);
 
-  // Get room ID from params
+  // Get room ID from URL parameters
   useEffect(() => {
-    const resolvedParams = async () => {
+    const resolveRoomId = async () => {
       const resolved = await params;
       const roomId = resolved.roomid as string;
-      console.log("🏠 Room ID from params:", roomId);
       setRoomid(roomId);
     };
-    resolvedParams();
+    resolveRoomId();
   }, [params]);
 
-  // Trigger initial fetch of room data when roomid is available
+  // Trigger initial room data fetch when roomid is available
   useEffect(() => {
     if (roomid) {
       fetchRoom(roomid);
     }
   }, [roomid, fetchRoom]);
 
-  // Socket connection
+  // Socket connection and event listeners
   useEffect(() => {
-    console.log("🔄 Socket effect triggered");
-    console.log("- roomid:", roomid);
-    console.log("- session user:", session?.user?.name);
-
     if (!roomid || !session?.user?.name) {
-      console.log("⏳ Waiting for roomid and session to connect socket...");
-      return;
+      return; // Do not connect socket until roomid and session are available
     }
 
-    console.log("🚀 Starting socket connection...");
-    setSocketStatus('Connecting...');
-
-    // MODIFIED: Only create a new socket if one doesn't exist or is disconnected
-    // This addresses the `socket = io(...)` from previous thought
     let currentSocket = socketRef.current;
+
+    // Initialize or re-use socket instance
     if (!currentSocket || !currentSocket.connected) {
-      console.log("🆕 Creating new socket instance or reconnecting...");
-      if (currentSocket) { // If it exists but is not connected, clean up listeners first
-        currentSocket.removeAllListeners();
-        currentSocket.disconnect();
+      if (currentSocket) {
+        currentSocket.removeAllListeners(); // Clean up old listeners
+        currentSocket.disconnect(); // Disconnect if existing but not connected
       }
       currentSocket = io("http://localhost:5000", {
         transports: ['websocket'],
@@ -141,153 +99,107 @@ export default function RoomPage() {
       });
       socketRef.current = currentSocket;
     } else {
-      console.log("✅ Socket already connected, re-registering listeners if needed.");
-      // If the socket is already connected, just ensure listeners are re-registered
-      // and re-emit join-room to confirm membership if component re-renders
+      // If already connected, just ensure join-room is emitted in case of re-renders
       currentSocket.emit("join-room", roomid, session.user.name);
-      return; // Exit as socket is already managed
+      return; // Exit to avoid re-registering listeners on an active socket
     }
 
-
-    // ADDED: General Socket Event Listeners (for debugging)
-    // Log all incoming events
-    currentSocket.onAny((event, ...args) => {
-        console.log(`🔍 Received socket event: ${event}`, args);
-    });
-    // Log all outgoing events
-    currentSocket.onAnyOutgoing((event, ...args) => {
-        console.log(`📤 Emitting socket event: ${event}`, args);
-    });
-
-
+    // Event: Socket connected
     currentSocket.on("connect", () => {
-      console.log("✅ Socket connected with ID:", currentSocket?.id);
-      setSocketStatus('Connected');
-      console.log(`🚪 Emitting join-room: ${roomid}, ${session.user.name}`);
+      // Once connected, immediately join the room on the server
       currentSocket?.emit("join-room", roomid, session.user.name);
-      console.log("DEBUG: After emitting join-room. Socket ID for this client:", currentSocket?.id);
     });
-    
+
+    // Event: Room user list updated by server
     currentSocket.on("room-users-updated", (usernames: string[]) => {
-      const timestamp = new Date().toLocaleTimeString();
-      console.log(`👥 [${timestamp}] Received room-users-updated:`, usernames);
-      setLastUpdate(timestamp);
-    
-      latestSocketParticipants.current = usernames;
-    
       setRoom(prevRoom => {
         if (!prevRoom) {
-          console.warn("⚠️ room-users-updated received but room data is not yet available, waiting for initial fetch. Current prevRoom:", prevRoom);
-          return prevRoom;
+          return prevRoom; // Room data not available yet, wait for initial fetch
         }
-    
-        console.log("DEBUG: Updating room participants from socket event.");
+
+        // Map usernames from socket event to Participant objects, preserving existing roles/ids
         const newParticipants = usernames.map(username => {
           const existing = prevRoom.participants.find(p => p.user.username === username);
           if (existing) {
-            return existing;
+            return existing; // Use existing participant object if found
           } else {
+            // Create new participant object for a newly joined user
             return {
-              id: username,
+              id: username, // Using username as id for simplicity for new participants
               user: { username },
-              role: username === prevRoom.host.name ? "host" : "participant"
+              role: username === prevRoom.host.name ? "host" : "participant" // Assign role based on host name
             };
           }
         });
-    
-        const updatedRoom = {
+
+        // Update the room state, triggering a re-render of the participant list
+        return {
           ...prevRoom,
           participants: newParticipants
         };
-    
-        console.log("✅ Successfully updated room participants via socket event.");
-        return updatedRoom;
       });
     });
-    
+
+    // Event: Connection errors
     currentSocket.on("connect_error", (error) => {
-      console.error("❌ Connection error:", error);
-      setSocketStatus('Connection Error');
-      console.log("DEBUG: connect_error fired for socket ID:", currentSocket?.id);
+      console.error("Connection error:", error); // Keeping this for critical errors
     });
-    
+
+    // Event: Socket disconnected
     currentSocket.on("disconnect", (reason) => {
-      console.log("❌ Socket disconnected:", reason);
-      setSocketStatus('Disconnected');
-      console.log("DEBUG: disconnect fired for socket ID:", currentSocket?.id, "Reason:", reason);
+      console.log("Socket disconnected:", reason); // Keeping this for important status changes
     });
-    
+
+    // Event: Socket reconnected
     currentSocket.on("reconnect", (attemptNumber) => {
-      console.log("🔄 Reconnected after", attemptNumber, "attempts");
-      setSocketStatus('Reconnected');
+      // Re-emit join-room on reconnect to ensure server updates room membership
       if (roomid && session?.user?.name) {
-        console.log("DEBUG: Re-emitting join-room on reconnect for socket ID:", currentSocket?.id);
         currentSocket.emit("join-room", roomid, session.user.name);
       }
     });
 
-    // ADDED: Listener for 'match-started' if your server emits it
+    // Event: Match started (if your game logic emits this)
     currentSocket.on('match-started', () => {
-      console.log('🎮 Match started received from socket.');
       setRoom(prevRoom => prevRoom ? { ...prevRoom, status: 'STARTED' } : null);
     });
 
-
-    // Cleanup
+    // Cleanup function for useEffect (runs when component unmounts or dependencies change)
     return () => {
-      console.log(`🧹 Socket effect cleanup for ID: ${currentSocket?.id}`); // MODIFIED log
-      if (currentSocket) { // Ensure socket exists before attempting to remove listeners/disconnect
-        currentSocket.offAny(); // Remove onAny listener
-        currentSocket.offAnyOutgoing(); // Remove onAnyOutgoing listener
-        currentSocket.off("connect");
-        currentSocket.off("room-users-updated");
-        currentSocket.off("connect_error");
-        currentSocket.off("disconnect");
-        currentSocket.off("reconnect");
-        currentSocket.off("match-started"); // ADDED: Cleanup for new listener
-        
-        // MODIFIED: Only disconnect if it's currently connected to avoid errors on already disconnected sockets
+      if (currentSocket) {
+        currentSocket.removeAllListeners(); // Remove all listeners to prevent memory leaks
         if (currentSocket.connected) {
-          currentSocket.disconnect();
+          currentSocket.disconnect(); // Disconnect only if currently connected
         }
       }
       socketRef.current = null;
-      setSocketStatus('Disconnected');
-      console.log(`✅ Socket disconnected and cleaned up for ID: ${currentSocket?.id}`); // ADDED log
     };
-  }, [roomid, session?.user?.name, fetchRoom]); // Added fetchRoom to dependencies
+  }, [roomid, session?.user?.name, fetchRoom]); // Dependencies for useEffect
 
+  // Display loading state if room data is not yet available
   if (!room) return <div className="text-center mt-10">Loading room...</div>;
 
   const currUser = session?.user?.name;
   const currentParticipant = room.participants.find(p => p.user.username === currUser);
   const isHost = currentParticipant?.role === 'host';
 
+  // Handler for "Start Match" button
   const handleStartMatch = () => {
     if (socketRef.current && roomid) {
-      console.log("🎮 Starting match for room:", roomid);
+      console.log("🎮 Starting match for room:", roomid); 
       socketRef.current.emit('start-match', roomid);
+      ()=>{
+        console.log("match started");
+        setRoom(prevRoom => prevRoom ? {...prevRoom, status : "STARTED"}: null);
+      }
     }
   };
 
-  const forceReconnect = () => {
-    console.log("🔄 Force reconnecting...");
-    if (socketRef.current) {
-      socketRef.current.disconnect(); // Disconnects and triggers auto-reconnect due to default Socket.IO behavior
-    } else {
-      // If socket is not initialized, trigger a re-render to re-run the effect
-      console.log("Socket not initialized, forcing re-render to connect.");
-      setSocketStatus('Attempting Reconnect...'); // Just to show a status update
-      // A more robust way might be to change a key on the component or similar,
-      // but for debugging, a full page reload might be quicker if nothing else works.
-      window.location.reload(); 
-    }
-  };
-
+  if(room.status == 'WAITING'){
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex justify-center gap-4 mb-6">
         <h1 className="text-2xl font-bold">Room: {room.name}</h1>
+        <h1 className="text-2xl font-bold">Status: {room.status}</h1>
         <h1 className="text-xl">User: {session?.user?.name}</h1>
       </div>
 
@@ -316,8 +228,8 @@ export default function RoomPage() {
                 <div className="font-medium">{q.title}</div>
                 {q.difficulty && (
                   <span className={`inline-block px-2 py-1 rounded text-xs mt-1 ${
-                    q.difficulty === 'easy' ? 'bg-green-200 text-green-800' :
-                    q.difficulty === 'medium' ? 'bg-yellow-200 text-yellow-800' :
+                    q.difficulty === 'EASY' ? 'bg-green-200 text-green-800' :
+                    q.difficulty === 'MEDIUM' ? 'bg-yellow-200 text-yellow-800' :
                     'bg-red-200 text-red-800'
                   }`}>
                     {q.difficulty}
@@ -338,36 +250,41 @@ export default function RoomPage() {
             Start Match
           </button>
         )}
-        
-        <button 
-          onClick={forceReconnect}
-          className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm"
-        >
-          Force Reconnect
-        </button>
-      </div>
-
-      {/* Enhanced Debug Info */}
-      <div className="mt-6 p-4 bg-gray-50 rounded text-sm space-y-2">
-        <div className="font-bold">Debug Information:</div>
-        <div>Socket Status: 
-          <span className={`ml-2 px-2 py-1 rounded text-xs ${
-            socketStatus === 'Connected' ? 'bg-green-200 text-green-800' : 
-            socketStatus === 'Connecting...' ? 'bg-yellow-200 text-yellow-800' :
-            'bg-red-200 text-red-800'
-          }`}>
-            {socketStatus}
-          </span>
-        </div>
-        <div>Socket ID: {socketRef.current?.id || 'None'}</div>
-        <div>Room ID: {roomid}</div>
-        <div>Current User: {currUser}</div>
-        <div>Is Host: {isHost ? 'Yes' : 'No'}</div>
-        <div>Last Update: {lastUpdate}</div>
-        <div>Participants Count: {room.participants.length}</div>
-        <div>Session Available: {session ? 'Yes' : 'No'}</div>
-        <div>Room Data Available: {room ? 'Yes' : 'No'}</div>
       </div>
     </div>
   );
+}
+
+if(room.status == "STARTED"){
+  console.log(room.questions[currentQuestion].testcase);
+  return(
+  <div>
+    <div>
+        <div key={room.questions[currentQuestion].id}>
+          <h2>{room.questions[currentQuestion].title}</h2>
+          <p>{room.questions[currentQuestion].description}</p>
+          <span>{room.questions[currentQuestion].difficulty}</span>
+          <br/>
+          <pre className="bg-gray-100 p-4 rounded-md overflow-auto text-sm">
+            {JSON.stringify(room.questions[currentQuestion].testcase, null, 2)}
+          </pre>
+        </div>
+        <div>
+          <button
+            onClick={()=>{
+              setQuestion(currentQuestion+1)
+            }}
+          >next</button>
+          {currentQuestion>0 && (<div>
+            <button
+              onClick={()=>{
+                setQuestion(currentQuestion-1);
+              }}
+            >prev</button>
+          </div>)}
+        </div>
+    </div>
+  </div>);
+}
+
 }

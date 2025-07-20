@@ -16,7 +16,6 @@ export async function GET(
     const allRooms = await prisma.room.findMany({
       select: { id: true, name: true }
     });
-    console.log('All rooms in database:', allRooms);
     
     const room = await prisma.room.findUnique({
       where: { code: roomId },
@@ -27,23 +26,30 @@ export async function GET(
             user: true,
           },
         },
-        questions: true,
+        questions: { 
+          select: { 
+            id: true,
+            title: true,
+            slug: true,
+            description: true,
+            StarterCode: true,
+            difficulty: true,
+            testCases: true,
+          },
+        },
       },
     });
     
-    console.log('Found room:', room);
     
     if (!room) {
-      // Try case-insensitive search if your database supports it
       const roomCaseInsensitive = await prisma.room.findFirst({
         where: { 
           id: {
-            mode: 'insensitive', // This works for PostgreSQL
+            mode: 'insensitive',
             equals: roomId
           }
         }
       });
-      console.log('Case-insensitive search result:', roomCaseInsensitive);
       
       return NextResponse.json({ 
         error: 'Room not Found',
