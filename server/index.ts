@@ -4,97 +4,120 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 
-// Stores users currently in each room
-// Structure: { [roomId]: [{ socketId: string, username: string }, ...] }
 const roomUsers: { [roomId: string]: { socketId: string; username: string }[] } = {};
-const prisma  = new PrismaClient();
+const prisma = new PrismaClient();
 const app = express();
 const server = http.createServer(app);
 
-// Initialize Socket.IO server with CORS configuration
 const io = new Server(server, {
-    cors: {
-        origin: 'http://localhost:3000', // Allow connections only from your Next.js frontend
-        methods: ['GET', 'POST'],
-    },
+  cors: {
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST'],
+  },
 });
 
-// Handle new Socket.IO connections
 io.on('connection', (socket) => {
-    console.log('✅ A user connected:', socket.id); // Log user connection
+  console.log('✅ A user connected:', socket.id);
 
-    // Event: A client requests to join a room
-    socket.on('join-room', (roomId: string, username: string) => {
-        socket.join(roomId); // Add the socket to the specified Socket.IO room
+  socket.on('join-room', async (roomId: string, username: string) => {
+    socket.join(roomId);
 
-        // Initialize roomUsers entry if it doesn't exist
-        if (!roomUsers[roomId]) {
-            roomUsers[roomId] = [];
-        }
+    if (!roomUsers[roomId]) {
+      roomUsers[roomId] = [];
+    }
 
-        // Remove any existing entry for this socketId in the room
-        // This handles cases where a user might reconnect or join again
-        roomUsers[roomId] = roomUsers[roomId].filter(u => u.socketId !== socket.id);
-        
-        // Add the current user's socketId and username to the room's list
-        roomUsers[roomId].push({ socketId: socket.id, username });
-        
-        // Get only the usernames for broadcasting
-        const usersInRoom = roomUsers[roomId].map(u => u.username);
-        
-        // Emit 'room-users-updated' event to all clients in this specific room
-        // This updates all participants' UIs with the current list of users
-        io.to(roomId).emit('room-users-updated', usersInRoom);
-    });
-  
-    // Event: A client disconnects
-    socket.on('disconnect', () => {
-        console.log('❌ A user disconnected:', socket.id); // Log user disconnection
+    roomUsers[roomId] = roomUsers[roomId].filter(
+      (u) => u.socketId !== socket.id
+    );
+    roomUsers[roomId].push({ socketId: socket.id, username });
 
-        // Iterate through all rooms to find and remove the disconnected user
-        for (const roomId in roomUsers) {
-            const initialLength = roomUsers[roomId].length;
-            // Filter out the disconnected user's socketId
-            roomUsers[roomId] = roomUsers[roomId].filter(u => u.socketId !== socket.id); 
-  
-            // If a user was actually removed from this room
-            if (roomUsers[roomId].length < initialLength) {
-                const updatedUsers = roomUsers[roomId].map(u => u.username);
-                // Emit 'room-users-updated' to remaining users in the room
-                io.to(roomId).emit('room-users-updated', updatedUsers);
-            }
-  
-            // If the room becomes empty, delete its entry to clean up
-            if (roomUsers[roomId].length === 0) {
-                delete roomUsers[roomId];
-            }
-        }
-    });
-  
-    // Event: Host requests to start the match
-    socket.on('start-match', async (roomId) => {
-        console.log(`🎮 Start match requested for room: ${roomId}`); 
-        try{
-            
-            await prisma.room.update({
-                where : {code : roomId},
-                data : {status : "IN_PROGRESS"}
-            })
+    try {
+      const room = await prisma.room.findUnique({
+        where: { code: roomId },
+        select: { host: { select: { username: true } } },
+      });
 
-            io.to(roomId).emit('match-started');
-        }
-        catch (error) {
-            console.error(`❌ Error starting match for room ${roomId}:`, error);
-            // Optionally, emit an error back to the host
-            socket.emit('match-start-error', 'Failed to start match.');
+      if (!room) {
+        return;
+      }
+
+      const participantsWithDetails = roomUsers[roomId].map((p) => {
+        return {
+          id: p.socketId,
+          role:
+            p.username === room.host.username
+              ? ('host' as const)
+              : ('participant' as const),
+          user: {
+            username: p.username,
+          },
+        };
+      });
+
+      io.to(roomId).emit('room-users-updated', participantsWithDetails);
+    } catch (error) {
+      console.error('Error fetching room host:', error);
+    }
+  });
+
+  socket.on('disconnect', () => {
+    console.log('❌ A user disconnected:', socket.id);
+
+    for (const roomId in roomUsers) {
+      const initialLength = roomUsers[roomId].length;
+      roomUsers[roomId] = roomUsers[roomId].filter(
+        (u) => u.socketId !== socket.id
+      );
+
+      if (roomUsers[roomId].length < initialLength) {
+        (async () => {
+          try {
+            const room = await prisma.room.findUnique({
+              where: { code: roomId },
+              select: { host: { select: { username: true } } },
+            });
+
+            if (!room) return;
+
+            const participantsWithDetails = roomUsers[roomId].map((p) => ({
+              id: p.socketId,
+              role:
+                p.username === room.host.username
+                  ? ('host' as const)
+                  : ('participant' as const),
+              user: { username: p.username },
+            }));
+
+            io.to(roomId).emit('room-users-updated', participantsWithDetails);
+          } catch (error) {
+            console.error('Error on disconnect update:', error);
           }
-     
-        
-    });
+        })();
+      }
+
+      if (roomUsers[roomId].length === 0) {
+        delete roomUsers[roomId];
+      }
+    }
+  });
+
+  socket.on('start-match', async (roomId) => {
+    console.log(`🎮 Start match requested for room: ${roomId}`);
+    try {
+      await prisma.room.update({
+        where: { code: roomId },
+        data: { status: 'IN_PROGRESS' },
+      });
+
+      io.to(roomId).emit('match-started');
+    } catch (error) {
+      console.error(`❌ Error starting match for room ${roomId}:`, error);
+      socket.emit('match-start-error', 'Failed to start match.');
+    }
+  });
 });
-  
-// Start the HTTP server
+
 const PORT = 5000;
 server.listen(PORT, () => {
-    console.log(`Server running on port: ${PORT}`);
+  console.log(`Server running on port: ${PORT}`);
 });

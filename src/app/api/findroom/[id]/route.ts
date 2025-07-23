@@ -12,14 +12,26 @@ export async function GET(
     const room = await prisma.room.findUnique({
       where: { code: roomId },
       include: {
-        host: true,
-        participants: {
-          include: {
-            user: { select: { id: true, username: true } },
+        host: {
+          select: {
+            id: true,
+            username: true,
           },
         },
-        questions: { 
-          select: { 
+        participants: {
+          select: {
+            id: true,  
+            role: true,
+            user: { 
+              select: {
+                id: true,
+                username: true,
+              }
+            }
+          }
+        },
+        questions: {
+          select: {
             id: true,
             title: true,
             slug: true,
@@ -31,20 +43,12 @@ export async function GET(
         },
       },
     });
+  
     
     
     if (!room) {
-      const roomCaseInsensitive = await prisma.room.findFirst({
-        where: { 
-          id: {
-            mode: 'insensitive',
-            equals: roomId
-          }
-        }
-      });
-      
       return NextResponse.json({ 
-        error: 'Room not Found',
+       error: 'Room not Found',
       }, { status: 404 });
     }
     
