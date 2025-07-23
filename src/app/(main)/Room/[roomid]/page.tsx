@@ -4,30 +4,12 @@ import { useParams } from "next/navigation";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { getSession } from "next-auth/react";
 import { io, Socket } from "socket.io-client";
+import { Room, Participant, RoomStatus  } from '@/src/types/global';
+import ParticipantList from "@/src/components/ParticipantList";
+import Button from "@/src/components/button";
+import Questions from "@/src/components/Questions";
+import { Editor } from "@monaco-editor/react";
 
-interface Participant {
-  id: string;
-  user: { username: string };
-  role: string;
-}
-
-interface Room {
-  name: string;
-  host: { name: string };
-  participants: Participant[];
-  questions: {
-    id: string;
-    title: string;
-    description?: string;
-    difficulty?: string;
-    testcase : {
-      Input : string,
-      Output : string,
-      target? : string
-    }
-  }[];
-  status?: string; 
-}
 
 export default function RoomPage() {
   const params = useParams();
@@ -35,7 +17,7 @@ export default function RoomPage() {
   const [session, setSession] = useState<any>(null);
   const socketRef = useRef<Socket | null>(null);
   const [room, setRoom] = useState<Room | null>(null);
-  const [currentQuestion, setQuestion] = useState(0);
+  const [currentQuestionIndex, setQuestionIndex] = useState(0);
 
   // Callback to fetch initial room data
   const fetchRoom = useCallback(async (currentRoomId: string) => {
@@ -125,9 +107,9 @@ export default function RoomPage() {
           } else {
             // Create new participant object for a newly joined user
             return {
-              id: username, // Using username as id for simplicity for new participants
+              id: username,
               user: { username },
-              role: username === prevRoom.host.name ? "host" : "participant" // Assign role based on host name
+              role: username === prevRoom.host.name ? "host" as const : "participant" as const 
             };
           }
         });
@@ -160,7 +142,7 @@ export default function RoomPage() {
 
     // Event: Match started (if your game logic emits this)
     currentSocket.on('match-started', () => {
-      setRoom(prevRoom => prevRoom ? { ...prevRoom, status: 'STARTED' } : null);
+      setRoom(prevRoom => prevRoom ? { ...prevRoom, status: RoomStatus.IN_PROGRESS } : null);
     });
 
     // Cleanup function for useEffect (runs when component unmounts or dependencies change)
@@ -189,102 +171,94 @@ export default function RoomPage() {
       socketRef.current.emit('start-match', roomid);
       ()=>{
         console.log("match started");
-        setRoom(prevRoom => prevRoom ? {...prevRoom, status : "STARTED"}: null);
+        
       }
     }
   };
 
-  if(room.status == 'WAITING'){
+  if(room.status == RoomStatus.WAITING){
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex justify-center gap-4 mb-6">
         <h1 className="text-2xl font-bold">Room: {room.name}</h1>
         <h1 className="text-2xl font-bold">Status: {room.status}</h1>
-        <h1 className="text-xl">User: {session?.user?.name}</h1>
+        <h1 className="text-2xl">User: {session?.user?.name}</h1>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
-        <div>
-          <h2 className="font-bold text-lg mb-3">Participants ({room.participants.length}):</h2>
-          <div className="space-y-2">
-            {room.participants.map(p => (
-              <div key={p.id || p.user.username} className="p-2 bg-gray-100 rounded flex justify-between items-center">
-                <span>{p.user.username}</span>
-                <span className={`px-2 py-1 rounded text-sm ${
-                  p.role === 'host' ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-700'
-                }`}>
-                  {p.role}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+        <ParticipantList
+          participants={room.participants}
+          hostName= {room.host.name}
+          currentUserUsername= {session?.user?.name}
 
-        <div>
-          <h2 className="font-bold text-lg mb-3">Questions ({room.questions.length}):</h2>
-          <div className="space-y-2">
-            {room.questions.map(q => (
-              <div key={q.id} className="p-2 bg-gray-100 rounded">
-                <div className="font-medium">{q.title}</div>
-                {q.difficulty && (
-                  <span className={`inline-block px-2 py-1 rounded text-xs mt-1 ${
-                    q.difficulty === 'EASY' ? 'bg-green-200 text-green-800' :
-                    q.difficulty === 'MEDIUM' ? 'bg-yellow-200 text-yellow-800' :
-                    'bg-red-200 text-red-800'
-                  }`}>
-                    {q.difficulty}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
+        />
+
+        <Questions
+          questions={room.questions}
+         />
       </div>
 
       <div className="flex justify-center gap-4 mt-8">
         {isHost && (
-          <button 
-            onClick={handleStartMatch}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
-          >
-            Start Match
-          </button>
+          <Button
+          onClick={handleStartMatch}
+          text = "Start Match"
+          />
         )}
       </div>
     </div>
   );
 }
 
-if(room.status == "STARTED"){
-  console.log(room.questions[currentQuestion].testcase);
   return(
   <div>
     <div>
-        <div key={room.questions[currentQuestion].id}>
-          <h2>{room.questions[currentQuestion].title}</h2>
-          <p>{room.questions[currentQuestion].description}</p>
-          <span>{room.questions[currentQuestion].difficulty}</span>
-          <br/>
-          <pre className="bg-gray-100 p-4 rounded-md overflow-auto text-sm">
-            {JSON.stringify(room.questions[currentQuestion].testcase, null, 2)}
-          </pre>
+        <div className="flex justify-start items-center">
+          <div key={room.questions[currentQuestionIndex].id}>
+            <h2>{room.questions[currentQuestionIndex].title}</h2>
+            <p>{room.questions[currentQuestionIndex].description}</p>
+            <span>{room.questions[currentQuestionIndex].difficulty}</span>
+            <br/>
+            <pre className="bg-gray-100 p-4 rounded-md overflow-auto text-sm">
+              {JSON.stringify(room.questions[currentQuestionIndex].testCases, null, 2)}
+            </pre>
+          </div>
+          <div className="w-1/2">
+          <div className="mb-6 mt-10 rounded-lg overflow-hidden shadow-md" style={{ height: '400px' }}>
+                <Editor
+                  height="100%"
+                  language={"Java"} 
+                  theme="vs-dark" // Or 'light' or a custom theme
+                  value={"code"} // Bind editor value to the code state
+                  //  // Update code state on change
+                  options={{
+                    minimap: { enabled: false },
+                    fontSize: 14,
+                    scrollBeyondLastLine: false,
+                    wordWrap: 'on',
+                    automaticLayout: true, // Important for responsiveness
+                  }}
+                />
+              </div>
+          </div>  
         </div>
         <div>
+          {currentQuestionIndex<room.questions.length-1 && 
           <button
             onClick={()=>{
-              setQuestion(currentQuestion+1)
+              setQuestionIndex(prevIndex => prevIndex+1)
             }}
-          >next</button>
-          {currentQuestion>0 && (<div>
+          >next</button>}
+          {currentQuestionIndex>0 && (<div>
             <button
               onClick={()=>{
-                setQuestion(currentQuestion-1);
+                setQuestionIndex(prevIndex => prevIndex-1);
               }}
             >prev</button>
           </div>)}
         </div>
     </div>
   </div>);
-}
+
 
 }

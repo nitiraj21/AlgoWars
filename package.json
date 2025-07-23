@@ -6,11 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "on" : "npm run build && npm run start",
+    "on": "npm run build && npm run start",
     "lint": "next lint",
     "server": "nodemon server/index.ts"
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
     "@prisma/client": "^6.11.1",
     "@types/nanoid": "^3.0.0",
     "bcrypt": "^6.0.0",

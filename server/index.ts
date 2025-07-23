@@ -2,11 +2,12 @@ import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
+import { PrismaClient } from '@prisma/client';
 
 // Stores users currently in each room
 // Structure: { [roomId]: [{ socketId: string, username: string }, ...] }
 const roomUsers: { [roomId: string]: { socketId: string; username: string }[] } = {};
-
+const prisma  = new PrismaClient();
 const app = express();
 const server = http.createServer(app);
 
@@ -71,10 +72,24 @@ io.on('connection', (socket) => {
     });
   
     // Event: Host requests to start the match
-    socket.on('start-match', (roomId) => {
-        console.log(`🎮 Start match requested for room: ${roomId}`); // Log match start request
-        // Emit 'match-started' event to all clients in the specific room
-        io.to(roomId).emit('match-started');
+    socket.on('start-match', async (roomId) => {
+        console.log(`🎮 Start match requested for room: ${roomId}`); 
+        try{
+            
+            await prisma.room.update({
+                where : {code : roomId},
+                data : {status : "IN_PROGRESS"}
+            })
+
+            io.to(roomId).emit('match-started');
+        }
+        catch (error) {
+            console.error(`❌ Error starting match for room ${roomId}:`, error);
+            // Optionally, emit an error back to the host
+            socket.emit('match-start-error', 'Failed to start match.');
+          }
+     
+        
     });
 });
   
