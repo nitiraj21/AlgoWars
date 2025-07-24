@@ -25,16 +25,17 @@ model User {
 }
 
 model Room {
-  id            String             @id @default(cuid())
-  hostId        String
-  host          User               @relation("RoomsHostedByUser", fields: [hostId], references: [id])
-  name          String    
-  isPrivate     Boolean            @default(false)
-  code          String?            @unique
-  status        RoomStatus         @default(WAITING)
-  createdAt     DateTime           @default(now())
-  participants  MatchParticipant[] @relation("ParticipantsInRoom")  
-  questions     Problem[]
+  id              String             @id @default(cuid())
+  hostId          String
+  host            User               @relation("RoomsHostedByUser", fields: [hostId], references: [id])
+  name            String    
+  isPrivate       Boolean            @default(false)
+  code            String?            @unique
+  status          RoomStatus         @default(WAITING)
+  createdAt       DateTime           @default(now())
+  participants    MatchParticipant[] @relation("ParticipantsInRoom")  
+  questions       Problem[]
+  matchStartedAt  DateTime?
 }
 
 model MatchParticipant {

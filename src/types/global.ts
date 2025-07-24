@@ -30,4 +30,5 @@ export interface Room {
     }
   }[];
   status?: RoomStatus; 
+  matchStartedAt : string
 }

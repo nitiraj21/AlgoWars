@@ -30,6 +30,12 @@ export async function POST (req :Request){
         take : 3,
         orderBy :{difficulty : 'asc'}
     })
+    console.log("[DEBUG] Problems fetched from DB:", problems);
+    // --- END OF DEBUG LOG ---
+
+    if (problems.length === 0) {
+        return NextResponse.json({ error: 'No problems found in the database to create a room.' }, { status: 500 });
+    }
 
     const roomcode = generateRoomCode();
 

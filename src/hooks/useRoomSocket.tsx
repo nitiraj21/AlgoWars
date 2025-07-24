@@ -1,10 +1,9 @@
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { getSession } from 'next-auth/react';
+import { getSession, } from 'next-auth/react';
 import { Session } from 'next-auth';
 import { Room, RoomStatus } from '@/src/types/global';
-
 
 export function useRoomSocket(roomId: string | null) {
   const [room, setRoom] = useState<Room | null>(null);
@@ -16,13 +15,9 @@ export function useRoomSocket(roomId: string | null) {
   const fetchRoom = useCallback(async (currentRoomId: string) => {
     try {
       const res = await fetch(`/api/findroom/${currentRoomId}`);
-      if (!res.ok) {
-        throw new Error('Room not found or server error.');
-      }
+      if (!res.ok) throw new Error('Room not found');
       const data = await res.json();
-      if (data.error) {
-        throw new Error(data.error);
-      }
+      if (data.error) throw new Error(data.error);
       setRoom(data);
     } catch (err: any) {
       setError(err.message);
@@ -32,61 +27,77 @@ export function useRoomSocket(roomId: string | null) {
     }
   }, []);
 
-
   useEffect(() => {
-    if (!roomId) return;
+    if (!roomId) {
+      setIsLoading(false);
+      return;
+    }
 
-    const retrieveSession = async () => {
-      const sessionData = await getSession();
-      setSession(sessionData);
-      await fetchRoom(roomId);
+    let isMounted = true;
+    let socket: Socket | null = null;
 
-      if (!sessionData?.user?.name) {
-          console.log("User session not found, can't connect socket.");
-          return;
-      }
-       
-      const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000';
-      const socket = io(socketUrl, { transports: ['websocket'] });
-      socketRef.current = socket;
+    const connectAndFetch = async () => {
+      try {
+        const sessionData = await getSession();
+        if (isMounted) setSession(sessionData);
 
-      socket.on('connect', () => {
-        console.log('Socket connected:', socket.id);
-        socket.emit('join-room', roomId, sessionData?.user?.name);
-      });
+        const roomRes = await fetch(`/api/findroom/${roomId}`);
+        const roomData = await roomRes.json();
 
-  
-      socket.on('room-users-updated', (participantsFromServer: any[]) => {
-        setRoom(prevRoom => prevRoom ? { ...prevRoom, participants: participantsFromServer } : null);
-      });
-      
-      socket.on('match-started', () => {
-        setRoom(prevRoom => prevRoom ? { ...prevRoom, status: RoomStatus.IN_PROGRESS } : null);
-      });
-
-      socket.on('connect_error', (err) => {
-        console.error("Socket Connection Error:", err.message);
-        setError("Failed to connect to the server.");
-      });
-
-      return () => {
-        if (socket) {
-          socket.disconnect();
-          socketRef.current = null;
+        if (isMounted) {
+          setRoom(roomData);
+          setIsLoading(false);
         }
-      };
+
+        if (!sessionData?.user?.name) {
+          return;
+        }
+
+        const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000';
+        socket = io(socketUrl, { transports: ['websocket'] });
+        socketRef.current = socket;
+
+        socket.on('connect', () => {
+          if (sessionData?.user?.name) {
+            socket?.emit('join-room', roomId, sessionData.user.name);
+          }
+        });
+
+        socket.on('room-users-updated', (data: { participants: any[] }) => {
+          if (isMounted) {
+            // Purane room state ko lein aur sirf 'participants' key ko naye data se update karein
+            setRoom(prevRoom => {
+              if (!prevRoom) return null; // Agar purana state nahi hai, to kuch na karein
+              return { ...prevRoom, participants: data.participants };
+            });
+          }
+        });
+
+        socket.on('match-started', () => {
+          if (isMounted) fetchRoom(roomId);
+        });
+
+      } catch (err) {
+        if (isMounted) setError('Failed to connect or fetch room.');
+      }
     };
 
-    retrieveSession();
+    connectAndFetch();
 
-  }, [roomId, fetchRoom]); 
+    return () => {
+      isMounted = false;
+      if (socket) {
+        socket.disconnect();
+        socketRef.current = null;
+      }
+    };
+  }, [roomId, fetchRoom]);
 
   const startMatch = useCallback(() => {
     if (socketRef.current && roomId) {
       socketRef.current.emit('start-match', roomId);
     }
   }, [roomId]);
-
 
   return { room, session, isLoading, error, startMatch };
 }
