@@ -5,6 +5,7 @@ import { prisma } from '@/src/lib/prisma'
 import { connect } from "http2";
 import Email from "next-auth/providers/email";
 import { customAlphabet } from "nanoid";
+import { use } from "react";
 
 const generateRoomCode = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', 6);
 
@@ -30,8 +31,6 @@ export async function POST (req :Request){
         take : 3,
         orderBy :{difficulty : 'asc'}
     })
-    console.log("[DEBUG] Problems fetched from DB:", problems);
-    // --- END OF DEBUG LOG ---
 
     if (problems.length === 0) {
         return NextResponse.json({ error: 'No problems found in the database to create a room.' }, { status: 500 });
@@ -60,6 +59,13 @@ export async function POST (req :Request){
             roomId : room.id,
             role : "host"
             
+        }
+    })
+
+    await prisma.user.update({
+        where : {id : user.id},
+        data : {
+            matches : {increment : 1}
         }
     })
 

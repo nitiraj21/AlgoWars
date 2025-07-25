@@ -22,6 +22,8 @@ model User {
   roomsHosted   Room[]             @relation("RoomsHostedByUser")                               
   matchHistory  MatchParticipant[] @relation("UserRoomsJoined")
   isAdmin       Boolean            @default(false)
+  wins          Int                @default(0)
+  matches       Int                @default(0)
 }
 
 model Room {
@@ -34,7 +36,7 @@ model Room {
   status          RoomStatus         @default(WAITING)
   createdAt       DateTime           @default(now())
   participants    MatchParticipant[] @relation("ParticipantsInRoom")  
-  questions       Problem[]
+  questions       Problem[]          // This implies a many-to-many relation
   matchStartedAt  DateTime?
 }
 
@@ -50,18 +52,18 @@ model MatchParticipant {
    @@unique([userId, roomId])
 }
 
-
-
 model Problem {
-  id          String   @id @default(cuid())
-  title       String
-  slug        String   @unique 
-  description String
-  StarterCode String
-  testCases   Json
-  room        Room     @relation(fields: [roomId], references: [id])
-  roomId      String
-  difficulty  Difficulty @default(EASY)
+  id           String      @id @default(cuid())
+  title        String
+  slug         String      @unique 
+  description  String
+  StarterCode  Json?       // Use Json for multi-language support
+  testCases    Json
+  difficulty   Difficulty  @default(EASY)
+  functionName String?
+  
+  // FIX: Remove 'room' and 'roomId'. This is the correct way for many-to-many.
+  rooms        Room[]      
 }
 
 enum RoomStatus{

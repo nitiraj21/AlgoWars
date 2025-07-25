@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE "Problem" ADD COLUMN     "starterCode" TEXT NOT NULL DEFAULT '';
+
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "matches" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "wins" INTEGER NOT NULL DEFAULT 0;
