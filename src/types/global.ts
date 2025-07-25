@@ -27,7 +27,9 @@ export interface Room {
       Input : string,
       Output : string,
       target? : string
-    }
+    },
+    StarterCode :JSON,
+    functionName : String
   }[];
   status?: RoomStatus; 
   matchStartedAt : string

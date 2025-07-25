@@ -60,34 +60,36 @@ io.on('connection', (socket) => {
     // Replace your entire socket.on('disconnect', ...) with this
     socket.on('disconnect', () => {
         console.log('❌ A user disconnected:', socket.id);
-        for (const roomId in roomUsers) {
-            const roomData = roomUsers[roomId];
-            // Safety check in case roomData is manipulated unexpectedly
-            if (!roomData || !roomData.participants)
-                continue;
-            const initialLength = roomData.participants.length;
-            // Create a new list without the disconnected user
-            const updatedParticipants = roomData.participants.filter((p) => p.socketId !== socket.id);
-            // Check if a user was actually removed from this room
-            if (updatedParticipants.length < initialLength) {
-                // 1. Update the list in memory first
-                roomData.participants = updatedParticipants;
-                // 2. Prepare the data to be sent to the frontend
-                const participantsWithDetails = roomData.participants.map((p) => ({
-                    id: p.socketId,
-                    role: p.username === roomData.hostUsername
-                        ? 'host'
-                        : 'participant',
-                    user: { username: p.username },
-                }));
-                // 3. Broadcast the update
-                io.to(roomId).emit('room-users-updated', participantsWithDetails);
-                // 4. AFTER broadcasting, check if the room is empty and clean it up
-                if (roomData.participants.length === 0) {
-                    delete roomUsers[roomId];
+        // socket.rooms ek Set hai jismein un sabhi rooms ki ID hoti hai jinhein socket ne join kiya hai.
+        // Yeh 'for...in' loop se behtar hai.
+        socket.rooms.forEach(roomId => {
+            // Har socket apne ID ke naam se ek room mein hota hai, use ignore karein.
+            if (roomId === socket.id)
+                return;
+            // Check karein ki room hamare memory store mein hai ya nahi.
+            if (roomUsers[roomId]) {
+                const roomData = roomUsers[roomId];
+                const initialLength = roomData.participants.length;
+                // Participant ko list se hatayein
+                roomData.participants = roomData.participants.filter((p) => p.socketId !== socket.id);
+                // Agar list mein badlav hua hai, to update bhejein
+                if (roomData.participants.length < initialLength) {
+                    const participantsWithDetails = roomData.participants.map((p) => ({
+                        id: p.socketId,
+                        role: p.username === roomData.hostUsername
+                            ? 'host'
+                            : 'participant',
+                        user: { username: p.username },
+                    }));
+                    io.to(roomId).emit('room-users-updated', { participants: participantsWithDetails });
+                    // Agar room khaali ho gaya hai, to use memory se delete kar dein
+                    if (roomData.participants.length === 0) {
+                        console.log(`🧹 Room ${roomId} is now empty. Deleting.`);
+                        delete roomUsers[roomId];
+                    }
                 }
             }
-        }
+        });
     });
     socket.on('start-match', (roomId) => __awaiter(void 0, void 0, void 0, function* () {
         console.log(`[DEBUG] Received 'start-match' for roomId: '${roomId}'`);

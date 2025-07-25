@@ -21,10 +21,16 @@ export default function InProgressRoom({room}: { room: Room }) {
     const [output, setOutput] = useState('');
     
     useEffect(() => {
-        const currentQuestion = room.questions[currentQuestionIndex];
-        const starter = '// Write your code here...';
-        setCode(starter);
-    }, [currentQuestionIndex, language, room.questions]);
+      const currentQuestion = room.questions[currentQuestionIndex];
+      
+      if (currentQuestion.StarterCode && typeof currentQuestion.StarterCode === 'object') {
+          // Use the 'language' state as a key to get the correct starter code.
+          const starter = (currentQuestion.StarterCode as any)[language];
+          setCode(starter || `// No starter code available for ${language}.`);
+      } else {
+          setCode('// Starter code not found.');
+      }
+  }, [currentQuestionIndex, language, room.questions]); 
 
     const handleSubmit = async() => {
       setIsSubmitting(true);
@@ -38,6 +44,7 @@ export default function InProgressRoom({room}: { room: Room }) {
             code : code,
             language : language,
             questionId : room.questions[currentQuestionIndex].id,
+            functionName : room.questions[currentQuestionIndex].functionName
           })
         });
 
