@@ -36,7 +36,7 @@ model Room {
   status          RoomStatus         @default(WAITING)
   createdAt       DateTime           @default(now())
   participants    MatchParticipant[] @relation("ParticipantsInRoom")  
-  questions       Problem[]          // This implies a many-to-many relation
+  questions       Problem[]        
   matchStartedAt  DateTime?
 }
 
@@ -57,12 +57,11 @@ model Problem {
   title        String
   slug         String      @unique 
   description  String
-  StarterCode  Json?       // Use Json for multi-language support
+  StarterCode  Json?      
   testCases    Json
   difficulty   Difficulty  @default(EASY)
   functionName String?
   
-  // FIX: Remove 'room' and 'roomId'. This is the correct way for many-to-many.
   rooms        Room[]      
 }
 
