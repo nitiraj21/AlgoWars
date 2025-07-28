@@ -6,6 +6,7 @@ type ParticipantListProps = {
     participants: Participant[];
     hostName: string;
     currentUserUsername: string | undefined | null;
+    status? : string
   };
 
 export default function ParticipantList({ participants, hostName, currentUserUsername }: ParticipantListProps){

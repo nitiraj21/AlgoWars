@@ -141,7 +141,7 @@ const getDriverCode = (language: string, functionName: string = 'twoSum2') => {
             const actualOutput = finalResult.stdout ? finalResult.stdout.trim() : '';
             const expectedOutput = testCase.Output;
 
-            // --- THIS IS THE IMPORTANT DEBUG LOG ---
+            // --- IMPORTANT DEBUG LOG ---
             console.log(`--- COMPARING ---`);
             console.log(`Actual Output  : >${actualOutput}< (Type: ${typeof actualOutput})`);
             console.log(`Expected Output: >${expectedOutput}< (Type: ${typeof expectedOutput})`);

@@ -62,12 +62,19 @@ export function useRoomSocket(roomId: string | null) {
             socket?.emit('join-room', roomId, sessionData.user.name);
           }
         });
+        socket.on('room-participants-updated', (data: { participants: any[] }) => {
+          if (isMounted) {
+            setRoom(prevRoom => {
+              if (!prevRoom) return null;
+              return { ...prevRoom, participants: data.participants };
+            });
+          }
+        });
 
         socket.on('room-users-updated', (data: { participants: any[] }) => {
           if (isMounted) {
-            // Purane room state ko lein aur sirf 'participants' key ko naye data se update karein
             setRoom(prevRoom => {
-              if (!prevRoom) return null; // Agar purana state nahi hai, to kuch na karein
+              if (!prevRoom) return null;
               return { ...prevRoom, participants: data.participants };
             });
           }
@@ -91,6 +98,7 @@ export function useRoomSocket(roomId: string | null) {
         socketRef.current = null;
       }
     };
+    
   }, [roomId, fetchRoom]);
 
   const startMatch = useCallback(() => {
@@ -99,5 +107,5 @@ export function useRoomSocket(roomId: string | null) {
     }
   }, [roomId]);
 
-  return { room, session, isLoading, error, startMatch };
+  return { room, session, isLoading, error, startMatch, socketRef };
 }

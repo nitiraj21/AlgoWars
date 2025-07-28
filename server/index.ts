@@ -22,7 +22,7 @@ const io = new Server(server, {
 });
 
 io.on('connection', (socket) => {
-  console.log('✅ A user connected:', socket.id);
+  console.log('A user connected:', socket.id);
 
   socket.on('join-room', async (roomId: string, username: string) => {
     socket.join(roomId);
@@ -43,15 +43,21 @@ io.on('connection', (socket) => {
       }
   
       const roomData = roomUsers[roomId];
+  
       roomData.participants = roomData.participants.filter(
-        (p) => p.socketId !== socket.id
+        (p) => p.username !== username
       );
+      
       roomData.participants.push({ socketId: socket.id, username });
   
       const participantsWithDetails = roomData.participants.map((p) => ({
         id: p.socketId,
-        role: p.username === roomData.hostUsername ? 'host' : 'participant',
+        role:
+          p.username === roomData.hostUsername
+            ? ('host' as const)
+            : ('participant' as const),
         user: { username: p.username },
+        score: 0, 
       }));
   
       io.to(roomId).emit('room-users-updated', { participants: participantsWithDetails });
@@ -60,28 +66,20 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Replace your entire socket.on('disconnect', ...) with this
-
   socket.on('disconnect', () => {
-    console.log('❌ A user disconnected:', socket.id);
+    console.log('user disconnected:', socket.id);
   
-    // socket.rooms ek Set hai jismein un sabhi rooms ki ID hoti hai jinhein socket ne join kiya hai.
-    // Yeh 'for...in' loop se behtar hai.
     socket.rooms.forEach(roomId => {
-      // Har socket apne ID ke naam se ek room mein hota hai, use ignore karein.
       if (roomId === socket.id) return;
   
-      // Check karein ki room hamare memory store mein hai ya nahi.
       if (roomUsers[roomId]) {
         const roomData = roomUsers[roomId];
         const initialLength = roomData.participants.length;
   
-        // Participant ko list se hatayein
         roomData.participants = roomData.participants.filter(
           (p) => p.socketId !== socket.id
         );
   
-        // Agar list mein badlav hua hai, to update bhejein
         if (roomData.participants.length < initialLength) {
           const participantsWithDetails = roomData.participants.map((p) => ({
             id: p.socketId,
@@ -90,13 +88,12 @@ io.on('connection', (socket) => {
                 ? ('host' as const)
                 : ('participant' as const),
             user: { username: p.username },
+            score: 0,
           }));
   
           io.to(roomId).emit('room-users-updated', { participants: participantsWithDetails });
   
-          // Agar room khaali ho gaya hai, to use memory se delete kar dein
           if (roomData.participants.length === 0) {
-            console.log(`🧹 Room ${roomId} is now empty. Deleting.`);
             delete roomUsers[roomId];
           }
         }
@@ -130,10 +127,63 @@ socket.on('start-match', async (roomId) => {
     io.to(roomId).emit('match-started');
 
   } catch (error) {
-    console.error(`❌ [CRITICAL] Error during match start process:`, error);
+    console.error(`Error during match start process:`, error);
     socket.emit('match-start-error', 'Failed to start match.');
   }
-});
+  });
+  socket.on('correct-submission', async ({ roomId, userEmail, points }) => {
+    try {
+      if (!userEmail) {
+        console.error('User email not provided for score update.');
+        return;
+      }
+  
+      const user = await prisma.user.findUnique({
+        where: { email: userEmail },
+        select: { id: true },
+      });
+  
+      if (!user) {
+        console.error(`User with email ${userEmail} not found.`);
+        return;
+      }
+  
+      const userId = user.id;
+  
+      await prisma.matchParticipant.update({
+        where: {
+          userId_roomId: {
+            userId: userId,
+            roomId: roomId,
+          },
+        },
+        data: {
+          score: {
+            increment: points,
+          },
+        },
+      });
+  
+      const updatedRoom = await prisma.room.findUnique({
+        where: { id: roomId },
+        include: {
+          participants: {
+            include: {
+              user: { select: { username: true } },
+            },
+          },
+        },
+      });
+  
+      if (updatedRoom) {
+        io.to(roomId).emit('room-participants-updated', {
+          participants: updatedRoom.participants,
+        });
+      }
+    } catch (error) {
+      console.error('Error updating score:', error);
+    }
+  });
 });
 
 const PORT = 5000;

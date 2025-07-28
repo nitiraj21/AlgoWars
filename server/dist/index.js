@@ -44,12 +44,16 @@ io.on('connection', (socket) => {
                 };
             }
             const roomData = roomUsers[roomId];
-            roomData.participants = roomData.participants.filter((p) => p.socketId !== socket.id);
+            roomData.participants = roomData.participants.filter((p) => p.username !== username);
             roomData.participants.push({ socketId: socket.id, username });
             const participantsWithDetails = roomData.participants.map((p) => ({
                 id: p.socketId,
-                role: p.username === roomData.hostUsername ? 'host' : 'participant',
+                role: p.username === roomData.hostUsername
+                    ? 'host'
+                    : 'participant',
                 user: { username: p.username },
+                // --- FIX: Add the score property ---
+                score: 0, // Abhi ke liye default score 0 rakhein
             }));
             io.to(roomId).emit('room-users-updated', { participants: participantsWithDetails });
         }
@@ -60,19 +64,13 @@ io.on('connection', (socket) => {
     // Replace your entire socket.on('disconnect', ...) with this
     socket.on('disconnect', () => {
         console.log('❌ A user disconnected:', socket.id);
-        // socket.rooms ek Set hai jismein un sabhi rooms ki ID hoti hai jinhein socket ne join kiya hai.
-        // Yeh 'for...in' loop se behtar hai.
         socket.rooms.forEach(roomId => {
-            // Har socket apne ID ke naam se ek room mein hota hai, use ignore karein.
             if (roomId === socket.id)
                 return;
-            // Check karein ki room hamare memory store mein hai ya nahi.
             if (roomUsers[roomId]) {
                 const roomData = roomUsers[roomId];
                 const initialLength = roomData.participants.length;
-                // Participant ko list se hatayein
                 roomData.participants = roomData.participants.filter((p) => p.socketId !== socket.id);
-                // Agar list mein badlav hua hai, to update bhejein
                 if (roomData.participants.length < initialLength) {
                     const participantsWithDetails = roomData.participants.map((p) => ({
                         id: p.socketId,
@@ -80,11 +78,11 @@ io.on('connection', (socket) => {
                             ? 'host'
                             : 'participant',
                         user: { username: p.username },
+                        // --- FIX: Yahan bhi score add karein ---
+                        score: 0,
                     }));
                     io.to(roomId).emit('room-users-updated', { participants: participantsWithDetails });
-                    // Agar room khaali ho gaya hai, to use memory se delete kar dein
                     if (roomData.participants.length === 0) {
-                        console.log(`🧹 Room ${roomId} is now empty. Deleting.`);
                         delete roomUsers[roomId];
                     }
                 }
@@ -114,6 +112,58 @@ io.on('connection', (socket) => {
         catch (error) {
             console.error(`❌ [CRITICAL] Error during match start process:`, error);
             socket.emit('match-start-error', 'Failed to start match.');
+        }
+    }));
+    socket.on('correct-submission', ({ roomId, userEmail, points }) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            if (!userEmail) {
+                console.error('User email not provided for score update.');
+                return;
+            }
+            // 1. Email se user ko dhoondhein taaki humein userId mil sake
+            const user = yield prisma.user.findUnique({
+                where: { email: userEmail },
+                select: { id: true },
+            });
+            if (!user) {
+                console.error(`User with email ${userEmail} not found.`);
+                return;
+            }
+            const userId = user.id;
+            // 2. Ab userId aur roomId ka istemaal karke score update karein
+            yield prisma.matchParticipant.update({
+                where: {
+                    userId_roomId: {
+                        userId: userId,
+                        roomId: roomId,
+                    },
+                },
+                data: {
+                    score: {
+                        increment: points,
+                    },
+                },
+            });
+            // 3. Poori room ki nayi participant list database se fetch karein
+            const updatedRoom = yield prisma.room.findUnique({
+                where: { id: roomId },
+                include: {
+                    participants: {
+                        include: {
+                            user: { select: { username: true } },
+                        },
+                    },
+                },
+            });
+            if (updatedRoom) {
+                // 4. Sabhi ko updated participants ki list (naye score ke saath) bhejein
+                io.to(roomId).emit('room-participants-updated', {
+                    participants: updatedRoom.participants,
+                });
+            }
+        }
+        catch (error) {
+            console.error('Error updating score:', error);
         }
     }));
 });

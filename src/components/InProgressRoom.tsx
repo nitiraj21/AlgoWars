@@ -5,26 +5,35 @@ import { Room } from "../types/global";
 import { Editor } from "@monaco-editor/react";
 import Timer from "./Timer";
 import Button from "./button";
+import ParticipantList from "./ParticipantList";
+import { Session } from "next-auth";
 
-export default function InProgressRoom({room}: { room: Room }) {
-    // --- FIX: ADD THIS GUARD CLAUSE ---
-    // If the room has no questions yet, show a loading state and stop.
+import { getSession } from "next-auth/react";
+import { useRoomSocket } from "../hooks/useRoomSocket";
+
+interface InProgressProps {
+  room : Room;
+  session : Session | null;
+  roomId : string | null
+}
+
+export default function InProgressRoom({room, session, roomId} : InProgressProps) {
+
     if ( room.questions.length === 0) {
         return <div className="text-center mt-10">Loading question...</div>;
     }
-    // --- END OF FIX ---
-
+    
     const [currentQuestionIndex, setQuestionIndex] = useState(0);
     const [language, setLanguage] = useState('javascript'); 
     const [code, setCode] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [output, setOutput] = useState('');
-    
+    const [Score,setScore ] = useState(0)
+    const {socketRef} = useRoomSocket(roomId);
     useEffect(() => {
       const currentQuestion = room.questions[currentQuestionIndex];
       
       if (currentQuestion.StarterCode && typeof currentQuestion.StarterCode === 'object') {
-          // Use the 'language' state as a key to get the correct starter code.
           const starter = (currentQuestion.StarterCode as any)[language];
           setCode(starter || `// No starter code available for ${language}.`);
       } else {
@@ -44,7 +53,6 @@ export default function InProgressRoom({room}: { room: Room }) {
             code : code,
             language : language,
             questionId : room.questions[currentQuestionIndex].id,
-            functionName : room.questions[currentQuestionIndex].functionName
           })
         });
 
@@ -52,6 +60,13 @@ export default function InProgressRoom({room}: { room: Room }) {
 
         if(res.ok){
           setOutput(`Status: ${data.status.description}` )
+          if (data.status.description === 'Accepted') {
+            socketRef.current?.emit('correct-submission', {
+              roomId: roomId,
+              userEmail: session?.user?.email,
+              points: 5 
+            });
+          }
         }
         else{
           setOutput(`Error: ${data.error || 'Failed to submit'}`);
@@ -67,6 +82,7 @@ export default function InProgressRoom({room}: { room: Room }) {
     
     const currentQuestion = room.questions[currentQuestionIndex];
     const displayTestCases = Array.isArray(currentQuestion.testCases) ? currentQuestion.testCases[0] : currentQuestion.testCases;
+    console.log(room.participants[0].score);
 
     return (
         <div className="p-6 max-w-7xl mx-auto">
@@ -74,7 +90,7 @@ export default function InProgressRoom({room}: { room: Room }) {
             <h1 className="text-3xl font-bold">Match in Progress...</h1>
             {room.matchStartedAt && <Timer startTime={room.matchStartedAt} />}
           </div>
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="flex md:justify-between gap-8">
             <div className="p-4 border rounded-lg" key={currentQuestion.id}>
               <h2 className="text-2xl font-semibold mb-2">{currentQuestion.title}</h2>
               <p className="mb-4">{currentQuestion.description}</p>
@@ -85,9 +101,10 @@ export default function InProgressRoom({room}: { room: Room }) {
               </pre>
             </div>
             <div>
-              <div  className="border rounded-lg"> 
+              <div  className="border rounded-lg w-70vh" > 
               <Editor
                 height="60vh"
+                width= "70vh"
                 
                 language={language} 
                 theme="vs-dark"
@@ -111,6 +128,18 @@ export default function InProgressRoom({room}: { room: Room }) {
                 <pre className="whitespace-pre-wrap">{output}</pre>
               </div>
             </div>  
+            <div>
+              {room.participants.map(p => (
+                <div key={p?.user?.username} className="p-2 bg-gray-100 rounded flex justify-between items-center">
+                  <span>{p?.user?.username}</span>
+                  <span className={`px-2 py-1 rounded text-sm ${
+                    p.score > 0 ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-700'
+                  }`}>
+                    {p.score}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
           <div className="flex justify-center gap-4 mt-8">
             {currentQuestionIndex > 0 && (

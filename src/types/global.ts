@@ -2,6 +2,7 @@ export interface Participant {
   id: string;
   user: { username: string };
   role: 'host' | 'participant';
+  score : any
 }
 export enum difficulty {
   EASY = 'EASY',

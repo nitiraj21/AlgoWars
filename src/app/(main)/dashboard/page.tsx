@@ -1,5 +1,5 @@
 import LogoutButton from "@/src/components/LogoutButton";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth/next";
 
 
 export default async function Dashboard(){

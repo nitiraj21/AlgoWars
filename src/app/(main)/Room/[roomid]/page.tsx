@@ -41,6 +41,8 @@ export default function RoomPage() {
   return(
       <InProgressRoom
         room={room}
+        session={session}
+        roomId={roomId}
         />
   );
 }
