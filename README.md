@@ -39,7 +39,7 @@ CodeClash is a real-time, multiplayer coding duel platform where two or more use
 ## 🛠 Setup Instructions (Local)
 
 ```bash
-git clone https://github.com/nitiraj21/codeclash
+git clone https://github.com/nitiraj21/Code-Clash
 
 # Install dependencies
 pnpm install
