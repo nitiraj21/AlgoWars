@@ -22,77 +22,75 @@ const io = new Server(server, {
 });
 
 io.on('connection', (socket) => {
-  console.log('A user connected:', socket.id);
+  console.log('✅ A user connected:', socket.id);
 
-  socket.on('join-room', async (roomId: string, username: string) => {
-    socket.join(roomId);
+  socket.on('join-room', async (roomCode: string, username: string) => {
+    socket.join(roomCode);
   
     try {
-      if (!roomUsers[roomId]) {
-        const room = await prisma.room.findUnique({
-          where: { code: roomId },
-          select: { host: { select: { username: true } } },
-        });
+      const room = await prisma.room.findUnique({
+        where: { code: roomCode },
+        select: { id: true },
+      });
+      if (!room) {
+        console.error(`Join-room failed: Room with code '${roomCode}' not found.`);
+        return;
+      }
+      const roomId = room.id;
   
-        if (!room) return;
-  
-        roomUsers[roomId] = {
-          hostUsername: room.host.username,
-          participants: [],
-        };
+      const user = await prisma.user.findFirst({
+        where: { OR: [{ username: username }, { email: username }] },
+      });
+      if (!user) {
+        console.error(`Join-room failed: User '${username}' not found.`);
+        return;
       }
   
-      const roomData = roomUsers[roomId];
+      // Participant ko database mein create/update karein
+      await prisma.matchParticipant.upsert({
+        where: { userId_roomId: { userId: user.id, roomId: roomId } },
+        update: {},
+        create: { userId: user.id, roomId: roomId, role: 'PARTICIPANT' },
+      });
   
-      roomData.participants = roomData.participants.filter(
-        (p) => p.username !== username
-      );
-      
-      roomData.participants.push({ socketId: socket.id, username });
+      // --- YEH SABSE ZAROORI BADLAV HAI ---
+      // Memory se list banane ke bajaye, hamesha database se latest participant list fetch karein
+      const updatedParticipants = await prisma.matchParticipant.findMany({
+          where: { roomId: roomId },
+          select: {
+              // Yahan wahi fields select karein jo frontend ko chahiye
+              role: true,
+              score: true,
+              user: { select: { username: true } }
+          }
+      });
   
-      const participantsWithDetails = roomData.participants.map((p) => ({
-        id: p.socketId,
-        role:
-          p.username === roomData.hostUsername
-            ? ('host' as const)
-            : ('participant' as const),
-        user: { username: p.username },
-        score: 0, 
-      }));
+      // Sabhi ko updated list (naye score ke saath) bhejein
+      io.to(roomCode).emit('room-participants-updated', { participants: updatedParticipants });
+      // --- END OF FIX ---
   
-      io.to(roomId).emit('room-users-updated', { participants: participantsWithDetails });
     } catch (error) {
       console.error('Error on join-room:', error);
     }
   });
+  
 
   socket.on('disconnect', () => {
-    console.log('user disconnected:', socket.id);
-  
+    console.log('❌ A user disconnected:', socket.id);
     socket.rooms.forEach(roomId => {
       if (roomId === socket.id) return;
-  
       if (roomUsers[roomId]) {
         const roomData = roomUsers[roomId];
         const initialLength = roomData.participants.length;
-  
-        roomData.participants = roomData.participants.filter(
-          (p) => p.socketId !== socket.id
-        );
-  
+        roomData.participants = roomData.participants.filter((p) => p.socketId !== socket.id);
         if (roomData.participants.length < initialLength) {
           const participantsWithDetails = roomData.participants.map((p) => ({
             id: p.socketId,
-            role:
-              p.username === roomData.hostUsername
-                ? ('host' as const)
-                : ('participant' as const),
+            role: p.username === roomData.hostUsername ? ('host' as const) : ('participant' as const),
             user: { username: p.username },
             score: 0,
           }));
-  
           io.to(roomId).emit('room-users-updated', { participants: participantsWithDetails });
-  
           if (roomData.participants.length === 0) {
             delete roomUsers[roomId];
           }
@@ -101,43 +99,41 @@ io.on('connection', (socket) => {
     });
   });
   
-socket.on('start-match', async (roomId) => {
-  console.log(`[DEBUG] Received 'start-match' for roomId: '${roomId}'`);
-
-  if (!roomId) {
-    console.error('[DEBUG] Room ID is missing. Aborting.');
-    return;
-  }
-  
-  try {
-    const startTime = new Date();
-    console.log(`[DEBUG] Attempting to update DB. Start time: ${startTime.toISOString()}`);
-    
-    const updatedRoom = await prisma.room.update({
-      where: { code: roomId },
-      data: {
-        status: 'IN_PROGRESS',
-        matchStartedAt: startTime,
-      },
-    });
-
-    console.log('[DEBUG] DB update successful. Room status:', updatedRoom.status);
-    console.log('[DEBUG] Room matchStartedAt:', updatedRoom.matchStartedAt);
-    
-    io.to(roomId).emit('match-started');
-
-  } catch (error) {
-    console.error(`Error during match start process:`, error);
-    socket.emit('match-start-error', 'Failed to start match.');
-  }
+  socket.on('start-match', async (roomId) => {
+    try {
+      const startTime = new Date();
+      await prisma.room.update({
+        where: { code: roomId },
+        data: { status: 'IN_PROGRESS', matchStartedAt: startTime },
+      });
+      io.to(roomId).emit('match-started');
+    } catch (error) {
+      console.error(`Error during match start process:`, error);
+      socket.emit('match-start-error', 'Failed to start match.');
+    }
   });
-  socket.on('correct-submission', async ({ roomId, userEmail, points }) => {
+
+  socket.on('correct-submission', async ({ roomCode, userEmail, points }) => {
+    console.log(`[DEBUG] correct-submission received: userEmail='${userEmail}', roomCode='${roomCode}'`);
     try {
       if (!userEmail) {
         console.error('User email not provided for score update.');
         return;
       }
   
+      // --- FIX: First, find the room by its code to get the actual ID ---
+      const room = await prisma.room.findUnique({
+        where: { code: roomCode },
+        select: { id: true },
+      });
+
+      if (!room) {
+        console.error(`[DEBUG] Score update failed: Room with code '${roomCode}' not found.`);
+        return;
+      }
+      const roomId = room.id; // Use the actual database ID
+      // --- END OF FIX ---
+
       const user = await prisma.user.findUnique({
         where: { email: userEmail },
         select: { id: true },
@@ -149,36 +145,30 @@ socket.on('start-match', async (roomId) => {
       }
   
       const userId = user.id;
+      console.log(`[DEBUG] Attempting to update score for userId: ${userId} in roomId: ${roomId}`);
   
       await prisma.matchParticipant.update({
         where: {
-          userId_roomId: {
-            userId: userId,
-            roomId: roomId,
-          },
+          userId_roomId: { userId: userId, roomId: roomId }, // Now using the correct roomId
         },
-        data: {
-          score: {
-            increment: points,
-          },
-        },
+        data: { score: { increment: points } },
       });
+      console.log("[DEBUG] Score incremented successfully in DB.");
   
       const updatedRoom = await prisma.room.findUnique({
         where: { id: roomId },
         include: {
           participants: {
-            include: {
-              user: { select: { username: true } },
-            },
+            include: { user: { select: { username: true, id: true } } },
           },
         },
       });
-  
+      
       if (updatedRoom) {
-        io.to(roomId).emit('room-participants-updated', {
+        io.to(roomCode).emit('room-participants-updated', {
           participants: updatedRoom.participants,
         });
+        console.log("[DEBUG] Sent updated participants list to room.");
       }
     } catch (error) {
       console.error('Error updating score:', error);

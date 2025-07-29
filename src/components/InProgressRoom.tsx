@@ -1,7 +1,7 @@
 'use client'
 import React from "react";
 import { useState, useEffect } from "react";
-import { Room } from "../types/global";
+import { difficulty, Room } from "../types/global";
 import { Editor } from "@monaco-editor/react";
 import Timer from "./Timer";
 import Button from "./button";
@@ -14,10 +14,11 @@ import { useRoomSocket } from "../hooks/useRoomSocket";
 interface InProgressProps {
   room : Room;
   session : Session | null;
-  roomId : string | null
+  roomCode : string | null
+  socketRef: React.MutableRefObject<any>;
 }
 
-export default function InProgressRoom({room, session, roomId} : InProgressProps) {
+export default function InProgressRoom({room, session, roomCode, socketRef} : InProgressProps) {
 
     if ( room.questions.length === 0) {
         return <div className="text-center mt-10">Loading question...</div>;
@@ -29,7 +30,6 @@ export default function InProgressRoom({room, session, roomId} : InProgressProps
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [output, setOutput] = useState('');
     const [Score,setScore ] = useState(0)
-    const {socketRef} = useRoomSocket(roomId);
     useEffect(() => {
       const currentQuestion = room.questions[currentQuestionIndex];
       
@@ -60,11 +60,22 @@ export default function InProgressRoom({room, session, roomId} : InProgressProps
 
         if(res.ok){
           setOutput(`Status: ${data.status.description}` )
+          let points = 0
+          if(currentQuestion.difficulty === difficulty.EASY){
+             points = 5;
+          }
+          else if(currentQuestion.difficulty === difficulty.MEDIUM){
+            points = 10;
+          }
+          else{
+            points = 15;
+          }
           if (data.status.description === 'Accepted') {
+            console.log("submission sent")
             socketRef.current?.emit('correct-submission', {
-              roomId: roomId,
+              roomCode: roomCode,
               userEmail: session?.user?.email,
-              points: 5 
+              points: points 
             });
           }
         }
@@ -77,6 +88,7 @@ export default function InProgressRoom({room, session, roomId} : InProgressProps
       }
       finally{
         setIsSubmitting(false);
+        room.participants.sort()
       }
     }    
     
@@ -129,15 +141,15 @@ export default function InProgressRoom({room, session, roomId} : InProgressProps
               </div>
             </div>  
             <div>
-              {room.participants.map(p => (
-                <div key={p?.user?.username} className="p-2 bg-gray-100 rounded flex justify-between items-center">
-                  <span>{p?.user?.username}</span>
-                  <span className={`px-2 py-1 rounded text-sm ${
-                    p.score > 0 ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-700'
-                  }`}>
-                    {p.score}
-                  </span>
-                </div>
+              {[...room.participants] // 1. Create a copy of the array
+              .sort((a, b) => b.score - a.score) // 2. Sort by score, highest first
+              .map(p => ( // 3. Now map over the sorted array
+               <div key={p?.user?.username} className="p-2 bg-gray-100 rounded flex justify-between items-center mb-2">
+                <span>{p?.user?.username}</span>
+                <span className={`px-2 py-1 rounded text-sm`}>
+                  {p.score}
+                </span>
+              </div>
               ))}
             </div>
           </div>

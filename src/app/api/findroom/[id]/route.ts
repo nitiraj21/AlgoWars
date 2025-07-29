@@ -22,6 +22,7 @@ export async function GET(
           select: {
             id: true,  
             role: true,
+            score : true,
             user: { 
               select: {
                 id: true,

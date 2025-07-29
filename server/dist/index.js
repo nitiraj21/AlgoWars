@@ -28,40 +28,50 @@ const io = new socket_io_1.Server(server, {
 });
 io.on('connection', (socket) => {
     console.log('✅ A user connected:', socket.id);
-    socket.on('join-room', (roomId, username) => __awaiter(void 0, void 0, void 0, function* () {
-        socket.join(roomId);
+    socket.on('join-room', (roomCode, username) => __awaiter(void 0, void 0, void 0, function* () {
+        socket.join(roomCode);
         try {
-            if (!roomUsers[roomId]) {
-                const room = yield prisma.room.findUnique({
-                    where: { code: roomId },
-                    select: { host: { select: { username: true } } },
-                });
-                if (!room)
-                    return;
-                roomUsers[roomId] = {
-                    hostUsername: room.host.username,
-                    participants: [],
-                };
+            const room = yield prisma.room.findUnique({
+                where: { code: roomCode },
+                select: { id: true },
+            });
+            if (!room) {
+                console.error(`Join-room failed: Room with code '${roomCode}' not found.`);
+                return;
             }
-            const roomData = roomUsers[roomId];
-            roomData.participants = roomData.participants.filter((p) => p.username !== username);
-            roomData.participants.push({ socketId: socket.id, username });
-            const participantsWithDetails = roomData.participants.map((p) => ({
-                id: p.socketId,
-                role: p.username === roomData.hostUsername
-                    ? 'host'
-                    : 'participant',
-                user: { username: p.username },
-                // --- FIX: Add the score property ---
-                score: 0, // Abhi ke liye default score 0 rakhein
-            }));
-            io.to(roomId).emit('room-users-updated', { participants: participantsWithDetails });
+            const roomId = room.id;
+            const user = yield prisma.user.findFirst({
+                where: { OR: [{ username: username }, { email: username }] },
+            });
+            if (!user) {
+                console.error(`Join-room failed: User '${username}' not found.`);
+                return;
+            }
+            // Participant ko database mein create/update karein
+            yield prisma.matchParticipant.upsert({
+                where: { userId_roomId: { userId: user.id, roomId: roomId } },
+                update: {},
+                create: { userId: user.id, roomId: roomId, role: 'PARTICIPANT' },
+            });
+            // --- YEH SABSE ZAROORI BADLAV HAI ---
+            // Memory se list banane ke bajaye, hamesha database se latest participant list fetch karein
+            const updatedParticipants = yield prisma.matchParticipant.findMany({
+                where: { roomId: roomId },
+                select: {
+                    // Yahan wahi fields select karein jo frontend ko chahiye
+                    role: true,
+                    score: true,
+                    user: { select: { username: true } }
+                }
+            });
+            // Sabhi ko updated list (naye score ke saath) bhejein
+            io.to(roomCode).emit('room-participants-updated', { participants: updatedParticipants });
+            // --- END OF FIX ---
         }
         catch (error) {
             console.error('Error on join-room:', error);
         }
     }));
-    // Replace your entire socket.on('disconnect', ...) with this
     socket.on('disconnect', () => {
         console.log('❌ A user disconnected:', socket.id);
         socket.rooms.forEach(roomId => {
@@ -74,11 +84,8 @@ io.on('connection', (socket) => {
                 if (roomData.participants.length < initialLength) {
                     const participantsWithDetails = roomData.participants.map((p) => ({
                         id: p.socketId,
-                        role: p.username === roomData.hostUsername
-                            ? 'host'
-                            : 'participant',
+                        role: p.username === roomData.hostUsername ? 'host' : 'participant',
                         user: { username: p.username },
-                        // --- FIX: Yahan bhi score add karein ---
                         score: 0,
                     }));
                     io.to(roomId).emit('room-users-updated', { participants: participantsWithDetails });
@@ -90,37 +97,37 @@ io.on('connection', (socket) => {
         });
     });
     socket.on('start-match', (roomId) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log(`[DEBUG] Received 'start-match' for roomId: '${roomId}'`);
-        if (!roomId) {
-            console.error('[DEBUG] Room ID is missing. Aborting.');
-            return;
-        }
         try {
             const startTime = new Date();
-            console.log(`[DEBUG] Attempting to update DB. Start time: ${startTime.toISOString()}`);
-            const updatedRoom = yield prisma.room.update({
+            yield prisma.room.update({
                 where: { code: roomId },
-                data: {
-                    status: 'IN_PROGRESS',
-                    matchStartedAt: startTime,
-                },
+                data: { status: 'IN_PROGRESS', matchStartedAt: startTime },
             });
-            console.log('[DEBUG] DB update successful. Room status:', updatedRoom.status);
-            console.log('[DEBUG] Room matchStartedAt:', updatedRoom.matchStartedAt);
             io.to(roomId).emit('match-started');
         }
         catch (error) {
-            console.error(`❌ [CRITICAL] Error during match start process:`, error);
+            console.error(`Error during match start process:`, error);
             socket.emit('match-start-error', 'Failed to start match.');
         }
     }));
-    socket.on('correct-submission', ({ roomId, userEmail, points }) => __awaiter(void 0, void 0, void 0, function* () {
+    socket.on('correct-submission', ({ roomCode, userEmail, points }) => __awaiter(void 0, void 0, void 0, function* () {
+        console.log(`[DEBUG] correct-submission received: userEmail='${userEmail}', roomCode='${roomCode}'`);
         try {
             if (!userEmail) {
                 console.error('User email not provided for score update.');
                 return;
             }
-            // 1. Email se user ko dhoondhein taaki humein userId mil sake
+            // --- FIX: First, find the room by its code to get the actual ID ---
+            const room = yield prisma.room.findUnique({
+                where: { code: roomCode },
+                select: { id: true },
+            });
+            if (!room) {
+                console.error(`[DEBUG] Score update failed: Room with code '${roomCode}' not found.`);
+                return;
+            }
+            const roomId = room.id; // Use the actual database ID
+            // --- END OF FIX ---
             const user = yield prisma.user.findUnique({
                 where: { email: userEmail },
                 select: { id: true },
@@ -130,36 +137,27 @@ io.on('connection', (socket) => {
                 return;
             }
             const userId = user.id;
-            // 2. Ab userId aur roomId ka istemaal karke score update karein
+            console.log(`[DEBUG] Attempting to update score for userId: ${userId} in roomId: ${roomId}`);
             yield prisma.matchParticipant.update({
                 where: {
-                    userId_roomId: {
-                        userId: userId,
-                        roomId: roomId,
-                    },
+                    userId_roomId: { userId: userId, roomId: roomId }, // Now using the correct roomId
                 },
-                data: {
-                    score: {
-                        increment: points,
-                    },
-                },
+                data: { score: { increment: points } },
             });
-            // 3. Poori room ki nayi participant list database se fetch karein
+            console.log("[DEBUG] Score incremented successfully in DB.");
             const updatedRoom = yield prisma.room.findUnique({
                 where: { id: roomId },
                 include: {
                     participants: {
-                        include: {
-                            user: { select: { username: true } },
-                        },
+                        include: { user: { select: { username: true, id: true } } },
                     },
                 },
             });
             if (updatedRoom) {
-                // 4. Sabhi ko updated participants ki list (naye score ke saath) bhejein
-                io.to(roomId).emit('room-participants-updated', {
+                io.to(roomCode).emit('room-participants-updated', {
                     participants: updatedRoom.participants,
                 });
+                console.log("[DEBUG] Sent updated participants list to room.");
             }
         }
         catch (error) {
