@@ -99,6 +99,28 @@ export default function InProgressRoom({room, session, roomCode, socketRef} : In
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold">Match in Progress...</h1>
             {room.matchStartedAt && <Timer startTime={room.matchStartedAt} />}
+            <div className="flex gap-2">
+            <Button
+                  onClick={()=>{setLanguage('javascript')}}
+                  text={'Javascript'}
+
+                />
+              <Button
+                  onClick={()=>{setLanguage('java')}}
+                  text={'Java'}
+
+                />
+                <Button
+                  onClick={()=>{setLanguage('cpp')}}
+                  text={'C++'}
+
+                />
+                <Button
+                  onClick={()=>{setLanguage('python')}}
+                  text={'Python'}
+
+                />
+          </div>
           </div>
           <div className="flex md:justify-between gap-8">
             <div className="p-4 border rounded-lg" key={currentQuestion.id}>

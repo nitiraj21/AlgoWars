@@ -13,7 +13,7 @@ export default function RoomForm() {
       },
       body: JSON.stringify({
         name,
-        code, // optional
+        code, 
         isPrivate: false,
       }),
     })
