@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from '@/src/lib/prisma'
 import { getServerSession } from "next-auth";
-import authOptions from "@/src/lib/auth";
-import { error } from "console";
 
 export async function POST(req : Request) {
     const session = await getServerSession();
@@ -50,5 +48,11 @@ export async function POST(req : Request) {
             role :"PARTICIPANT"
           }
         })
+        await prisma.user.update({
+          where : {id : user.id},
+          data : {
+              matches : {increment : 1}
+          }
+      })
         return NextResponse.json({room}, { status: 200 })
 }

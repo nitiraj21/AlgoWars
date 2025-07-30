@@ -61,6 +61,7 @@ model Problem {
   testCases    Json
   difficulty   Difficulty  @default(EASY)
   functionName String?
+  inputSignature Json?
   
   rooms        Room[]      
 }

@@ -10,7 +10,6 @@ export default function RoomPage() {
   const params = useParams();
   const roomCode = params?.roomid as string | null;
   const { room, session, isLoading, error, startMatch, socketRef } = useRoomSocket(roomCode); 
-  console.log("ROOM OBJECT IN PAGE:", room); 
 
   if (isLoading) return <div className="text-center mt-10">Loading room...</div>;
 

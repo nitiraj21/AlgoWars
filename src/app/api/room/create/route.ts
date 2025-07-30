@@ -9,6 +9,14 @@ import { use } from "react";
 
 const generateRoomCode = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', 6);
 
+function shuffleArray(array : any[]){
+    for(let i = array.length-1; i>0; i--){
+        let j = Math.floor(Math.random()* (i + 1));
+        [array[i], array[j]]  = [array[j], array[i]]
+    }
+    return array;
+}
+
 export async function POST (req :Request){
     const session = await getServerSession();
     if(!session?.user?.email){
@@ -27,14 +35,12 @@ export async function POST (req :Request){
         return NextResponse.json({error : 'User not Found'}, {status : 404});
     }
 
-    const problems = await prisma.problem.findMany({
-        take : 3,
-        orderBy :{difficulty : 'asc'}
+    const allProblemIDs = await prisma.problem.findMany({
+        select : {id : true}
     })
 
-    if (problems.length === 0) {
-        return NextResponse.json({ error: 'No problems found in the database to create a room.' }, { status: 500 });
-    }
+    const shuffledIDs = shuffleArray(allProblemIDs);
+    const randomProblemIDs = shuffledIDs.slice(0, 3).map(p => ({id  : p.id}));
 
     const roomcode = generateRoomCode();
 
@@ -45,7 +51,7 @@ export async function POST (req :Request){
             code : roomcode || null,
             hostId : user.id,
             questions :{
-                connect : problems.map(p =>({id : p.id}))
+                connect : randomProblemIDs
             }
         },
         include:{

@@ -7,10 +7,10 @@ export async function GET(
     req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
   ) {
-    const { id: roomId } = await params;
+    const { id: roomCode } = await params;
     
     const room = await prisma.room.findUnique({
-      where: { code: roomId },
+      where: { code: roomCode },
       include: {
         host: {
           select: {

@@ -29,7 +29,6 @@ export default function InProgressRoom({room, session, roomCode, socketRef} : In
     const [code, setCode] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [output, setOutput] = useState('');
-    const [Score,setScore ] = useState(0)
     useEffect(() => {
       const currentQuestion = room.questions[currentQuestionIndex];
       
@@ -94,7 +93,6 @@ export default function InProgressRoom({room, session, roomCode, socketRef} : In
     
     const currentQuestion = room.questions[currentQuestionIndex];
     const displayTestCases = Array.isArray(currentQuestion.testCases) ? currentQuestion.testCases[0] : currentQuestion.testCases;
-    console.log(room.participants[0].score);
 
     return (
         <div className="p-6 max-w-7xl mx-auto">
