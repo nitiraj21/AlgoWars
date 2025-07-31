@@ -32,8 +32,8 @@ export default function InProgressRoom({room, session, roomCode, socketRef} : In
     useEffect(() => {
       const currentQuestion = room.questions[currentQuestionIndex];
       
-      if (currentQuestion.StarterCode && typeof currentQuestion.StarterCode === 'object') {
-          const starter = (currentQuestion.StarterCode as any)[language];
+      if (currentQuestion.starterCode && typeof currentQuestion.starterCode === 'object') {
+          const starter = (currentQuestion.starterCode as any)[language];
           setCode(starter || `// No starter code available for ${language}.`);
       } else {
           setCode('// Starter code not found.');
@@ -58,7 +58,7 @@ export default function InProgressRoom({room, session, roomCode, socketRef} : In
         const data = await res.json();
 
         if(res.ok){
-          setOutput(`Status: ${data.status.description}` )
+          setOutput(`Status: ${data.status}`)
           let points = 0
           if(currentQuestion.difficulty === difficulty.EASY){
              points = 5;

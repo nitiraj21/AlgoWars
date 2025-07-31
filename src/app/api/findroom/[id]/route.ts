@@ -37,7 +37,7 @@ export async function GET(
             title: true,
             slug: true,
             description: true,
-            StarterCode: true,
+            starterCode: true,
             difficulty: true,
             testCases: true,
           },

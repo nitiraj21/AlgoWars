@@ -29,7 +29,7 @@ export interface Room {
       Output : string,
       target? : string
     },
-    StarterCode :JSON,
+    starterCode :JSON,
     functionName : String
   }[];
   status?: RoomStatus; 

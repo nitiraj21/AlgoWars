@@ -18,687 +18,2154 @@ async function main() {
       title: 'Indices for Target Sum',
       slug: 'indices-for-target-sum',
       description: 'You are given a list of numbers and a specific target value. Your task is to find two numbers in this list that sum up to the target. Return the indices of these two numbers.',
+      tags: ['Array', 'Hash Table'],
+      constraints: `
+  - 2 <= nums.length <= 10^4
+  - -10^9 <= nums[i] <= 10^9
+  - -10^9 <= target <= 10^9
+  - Only one valid answer exists.
+      `,
       difficulty: Difficulty.EASY,
       functionName: 'findPairSum',
-      inputSignature: [{ name: 'nums', type: 'integer[]' }, { name: 'target', type: 'integer' }],
-      testCases: { "Input": "[10,20,30,40]\n50", "Output": "[1,2]" },
-      StarterCode: {
-        javascript: 'var findPairSum = function(nums, target) {\n    // Your code here\n};',
-        python: 'class Solution:\n    def findPairSum(self, nums: list[int], target: int) -> list[int]:\n        # Your code here\n        pass',
-        cpp: 'class Solution {\npublic:\n    vector<int> findPairSum(vector<int>& nums, int target) {\n        // Your code here\n    }\n};',
-        java: 'class Solution {\n    public int[] findPairSum(int[] nums, int target) {\n        // Your code here\n    }\n}',
+      inputSignature: [
+        { name: 'nums', type: 'int[]' },
+        { name: 'target', type: 'int' },
+      ],
+      testCases: [
+          { Input: '[2,7,11,15]\n9', Output: '[0,1]' },
+          { Input: '[3,2,4]\n6', Output: '[1,2]' },
+          { Input: '[3,3]\n6', Output: '[0,1]' },
+          { Input: '[-1,-5,2,10]\n1', Output: '[0,2]' },
+          { Input: '[5,2,4]\n6', Output: '[1,2]' },
+          { Input: '[0,4,3,0]\n0', Output: '[0,3]' },
+          { Input: '[-3,4,3,90]\n0', Output: '[0,2]' },
+          { Input: '[1,2,3,4,5]\n9', Output: '[3,4]' },
+          { Input: '[-10,7,19,15]\n9', Output: '[0,2]' },
+          { Input: '[1,1,1,1,1,1]\n2', Output: '[0,1]' },
+      ],
+      starterCode: {
+        javascript: `var findPairSum = function(nums, target) {
+      // Your code here
+  };`,
+        python: `class Solution:
+      def findPairSum(self, nums: list[int], target: int) -> list[int]:
+          # Your code here
+          pass`,
+        cpp: `class Solution {
+  public:
+      vector<int> findPairSum(vector<int>& nums, int target) {
+          // Your code here
+      }
+  };`,
+        java: `class Solution {
+      public int[] findPairSum(int[] nums, int target) {
+          // Your code here
+      }
+  }`,
       },
-    },
-    {
-      id: '30',
-      title: 'Find Duplicates in Array',
-      slug: 'find-duplicates-in-array',
-      description: 'Given an integer array `nums`, return `true` if any value appears at least twice in the array, and return `false` if every element is distinct.',
-      difficulty: Difficulty.EASY,
-      functionName: 'containsDuplicate',
-      inputSignature: [{ name: 'nums', type: 'integer[]' }],
-      testCases: { "Input": "[1,2,3,1]\n", "Output": "true" },
-      StarterCode: {
-        javascript: 'var containsDuplicate = function(nums) {\n    // Your code here\n};',
-        python: 'class Solution:\n    def containsDuplicate(self, nums: list[int]) -> bool:\n        # Your code here\n        pass',
-        cpp: 'class Solution {\npublic:\n    bool containsDuplicate(vector<int>& nums) {\n        // Your code here\n    }\n};',
-        java: 'class Solution {\n    public boolean containsDuplicate(int[] nums) {\n        // Your code here\n    }\n}',
-      },
-    },
-    {
-      id: '17',
-      title: 'Product of Others',
-      slug: 'product-of-others',
-      description: 'Given an integer array `nums`, return an array `answer` such that `answer[i]` is equal to the product of all the elements of `nums` except `nums[i]`. You must write an algorithm that runs in O(n) time and without using the division operation.',
-      difficulty: Difficulty.MEDIUM,
-      functionName: 'productExceptSelf',
-      inputSignature: [{ name: 'nums', type: 'integer[]' }],
-      testCases: { "Input": "[1,2,3,4]\n", "Output": "[24,12,8,6]" },
-      StarterCode: {
-        javascript: 'var productExceptSelf = function(nums) {\n    // Your code here\n};',
-        python: 'class Solution:\n    def productExceptSelf(self, nums: list[int]) -> list[int]:\n        # Your code here\n        pass',
-        cpp: 'class Solution {\npublic:\n    vector<int> productExceptSelf(vector<int>& nums) {\n        // Your code here\n    }\n};',
-        java: 'class Solution {\n    public int[] productExceptSelf(int[] nums) {\n        // Your code here\n    }\n}',
-      },
-    },
-     {
-      id: '12',
-      title: 'Most Frequent K Numbers',
-      slug: 'most-frequent-k-numbers',
-      description: 'From a given list of numbers, find the `k` elements that appear most frequently. You can return the result in any order.',
-      difficulty: Difficulty.MEDIUM,
-      functionName: 'topKFrequent',
-      inputSignature: [{ name: 'nums', type: 'integer[]' }, { name: 'k', type: 'integer' }],
-      testCases: { "Input": "[4,1,-1,2,-1,2,3]\n2", "Output": "[-1,2]" },
-      StarterCode: {
-          javascript: 'var topKFrequent = function(nums, k) {\n    // Your code here\n};',
-          python: 'class Solution:\n    def topKFrequent(self, nums: list[int], k: int) -> list[int]:\n        # Your code here\n        pass',
-          cpp: 'class Solution {\npublic:\n    vector<int> topKFrequent(vector<int>& nums, int k) {\n        // Your code here\n    }\n};',
-          java: 'class Solution {\n    public int[] topKFrequent(int[] nums, int k) {\n        // Your code here\n    }\n}',
-      },
-    },
-    {
-      id: '16',
-      title: 'Zero Sum Triplets',
-      slug: 'zero-sum-triplets',
-      description: 'Given an integer array `nums`, find all unique triplets `[nums[i], nums[j], nums[k]]` such that `i != j`, `i != k`, and `j != k`, and their sum is zero.',
-      difficulty: Difficulty.MEDIUM,
-      functionName: 'findZeroSumTriplets',
-      inputSignature: [{ name: 'nums', type: 'integer[]' }],
-      testCases: { "Input": "[-1,0,1,2,-1,-4]\n", "Output": "[[-1,-1,2],[-1,0,1]]" },
-      StarterCode: {
-        javascript: 'var findZeroSumTriplets = function(nums) {\n    // Your code here\n};',
-        python: 'class Solution:\n    def findZeroSumTriplets(self, nums: list[int]) -> list[list[int]]:\n        # Your code here\n        pass',
-        cpp: 'class Solution {\npublic:\n    vector<vector<int>> findZeroSumTriplets(vector<int>& nums) {\n        // Your code here\n    }\n};',
-        java: 'class Solution {\n    public List<List<Integer>> findZeroSumTriplets(int[] nums) {\n        // Your code here\n    }\n}',
-      },
-    },
-
-    // ----------------- TWO POINTERS -----------------
-     {
-      id: '3',
-      title: 'Palindrome String Check',
-      slug: 'palindrome-string-check',
-      description: "You are given a string. Determine if it's a palindrome after you convert it to lowercase and remove all characters that are not letters or numbers. Return true if it is, and false otherwise.",
-      difficulty: Difficulty.EASY,
-      functionName: 'isPalindrome',
-      inputSignature: [{ name: 's', type: 'string' }],
-      testCases: { "Input": "Was it a car or a cat I saw?\n", "Output": "true" },
-      StarterCode: {
-        javascript: 'var isPalindrome = function(s) {\n    // Your code here\n};',
-        python: 'class Solution:\n    def isPalindrome(self, s: str) -> bool:\n        # Your code here\n        pass',
-        cpp: 'class Solution {\npublic:\n    bool isPalindrome(string s) {\n        // Your code here\n    }\n};',
-        java: 'class Solution {\n    public boolean isPalindrome(String s) {\n        // Your code here\n    }\n}',
-      },
+      driverCode: { /* ... driver code from previous answer ... */ javascript: `
+  // USER_CODE_PLACEHOLDER
+  try {
+      const fs = require('fs');
+      const input = fs.readFileSync(0, 'utf-8');
+      const lines = input.trim().split('\\n');
+      const nums = JSON.parse(lines[0]);
+      const target = parseInt(lines[1], 10);
+      const result = findPairSum(nums, target);
+      result.sort((a,b) => a - b);
+      console.log(JSON.stringify(result));
+  } catch (e) {
+      console.log("CAUGHT_ERROR: " + e.message);
+  }`, python: `
+  import sys
+  import json
+  # USER_CODE_PLACEHOLDER
+  try:
+      lines = sys.stdin.readlines()
+      nums = json.loads(lines[0])
+      target = int(lines[1])
+      solver = Solution()
+      result = solver.findPairSum(nums, target)
+      result.sort()
+      print(json.dumps(result, separators=(',', ':')))
+  except Exception as e:
+      print(f"CAUGHT_ERROR: {e}")`, java: `
+  import java.util.*;
+  // USER_CODE_PLACEHOLDER
+  public class Main {
+      public static void main(String[] args) {
+          Scanner scanner = new Scanner(System.in);
+          String line1 = scanner.nextLine();
+          int target = Integer.parseInt(scanner.nextLine().trim());
+          scanner.close();
+  
+          line1 = line1.trim();
+          String[] numsStr = line1.substring(1, line1.length() - 1).split(",");
+          int[] nums = new int[numsStr.length];
+          for(int i = 0; i < numsStr.length; i++) {
+              nums[i] = Integer.parseInt(numsStr[i].trim());
+          }
+  
+          Solution sol = new Solution();
+          int[] result = sol.findPairSum(nums, target);
+          Arrays.sort(result);
+          System.out.println(Arrays.toString(result).replace(" ", ""));
+      }
+  }`, cpp: `
+  #include <iostream>
+  #include <vector>
+  #include <string>
+  #include <sstream>
+  #include <algorithm>
+  // USER_CODE_PLACEHOLDER
+  // Helper function to parse a JSON-like array string
+  std::vector<int> parseVector(const std::string& str) {
+      std::vector<int> vec;
+      std::string content = str.substr(1, str.length() - 2);
+      std::stringstream ss(content);
+      std::string item;
+      while (std::getline(ss, item, ',')) {
+          if (!item.empty()) {
+              vec.push_back(std::stoi(item));
+          }
+      }
+      return vec;
+  }
+  
+  int main() {
+      std::string line1, line2;
+      std::getline(std::cin, line1);
+      std::getline(std::cin, line2);
+  
+      std::vector<int> nums = parseVector(line1);
+      int target = std::stoi(line2);
+  
+      Solution sol;
+      std::vector<int> result = sol.findPairSum(nums, target);
+      std::sort(result.begin(), result.end());
+  
+      std::cout << "[";
+      for (size_t i = 0; i < result.size(); ++i) {
+          std::cout << result[i] << (i == result.size() - 1 ? "" : ",");
+      }
+      std::cout << "]" << std::endl;
+      return 0;
+  }` },
     },
     {
       id: '2',
-      title: 'Maximum Water Storage',
-      slug: 'maximum-water-storage',
-      description: 'Imagine a series of vertical bars of different heights. You need to select two bars that, when used as the sides of a container, can hold the maximum amount of water. Return this maximum capacity.',
-      difficulty: Difficulty.MEDIUM,
-      functionName: 'maxAreaContainer',
-      inputSignature: [{ name: 'height', type: 'integer[]' }],
-      testCases: { "Input": "[2,3,4,5,18,17,6]\n", "Output": "17" },
-      StarterCode: {
-        javascript: 'var maxAreaContainer = function(height) {\n    // Your code here\n};',
-        python: 'class Solution:\n    def maxAreaContainer(self, height: list[int]) -> int:\n        # Your code here\n        pass',
-        cpp: 'class Solution {\npublic:\n    int maxAreaContainer(vector<int>& height) {\n        // Your code here\n    }\n};',
-        java: 'class Solution {\n    public int maxAreaContainer(int[] height) {\n        // Your code here\n    }\n}',
-      },
-    },
-
-    // ----------------- STRINGS -----------------
-     {
-        id: '4',
-        title: 'Longest Unique Substring',
-        slug: 'longest-unique-substring',
-        description: 'From a given string, find the length of the longest possible substring that does not contain any repeating characters.',
-        difficulty: Difficulty.MEDIUM,
-        functionName: 'lengthOfLongestSubstring',
-        inputSignature: [{ name: 's', type: 'string' }],
-        testCases: { "Input": "pwwkew\n", "Output": "3" },
-        StarterCode: {
-          javascript: 'var lengthOfLongestSubstring = function(s) {\n    // Your code here\n};',
-          python: 'class Solution:\n    def lengthOfLongestSubstring(self, s: str) -> int:\n        # Your code here\n        pass',
-          cpp: 'class Solution {\npublic:\n    int lengthOfLongestSubstring(string s) {\n        // Your code here\n    }\n};',
-          java: 'class Solution {\n    public int lengthOfLongestSubstring(String s) {\n        // Your code here\n    }\n}',
-        },
-    },
-    {
-      id: '19',
-      title: 'Anagram Check',
-      slug: 'anagram-check',
-      description: 'Given two strings `s` and `t`, return `true` if `t` is an anagram of `s`, and `false` otherwise. An Anagram is a word or phrase formed by rearranging the letters of a different word or phrase, typically using all the original letters exactly once.',
+      title: 'Balanced Bracket Sequence',
+      slug: 'balanced-bracket-sequence',
+      description: "Verify if a string composed of parentheses '()', curly braces '{}', and square brackets '[]' is correctly balanced. An opening bracket must be closed by the same type of bracket and in the correct order.",
+      tags: ['String', 'Stack'],
+      constraints: `
+  - 1 <= s.length <= 10^4
+  - s consists of parentheses only '()[]{}'.
+      `,
       difficulty: Difficulty.EASY,
-      functionName: 'isAnagram',
-      inputSignature: [{ name: 's', type: 'string' }, { name: 't', type: 'string' }],
-      testCases: { "Input": "anagram\nnagaram", "Output": "true" },
-      StarterCode: {
-        javascript: 'var isAnagram = function(s, t) {\n    // Your code here\n};',
-        python: 'class Solution:\n    def isAnagram(self, s: str, t: str) -> bool:\n        # Your code here\n        pass',
-        cpp: 'class Solution {\npublic:\n    bool isAnagram(string s, string t) {\n        // Your code here\n    }\n};',
-        java: 'class Solution {\n    public boolean isAnagram(String s, String t) {\n        // Your code here\n    }\n}',
-      },
-    },
-    {
-      id: '20',
-      title: 'Group by Anagrams',
-      slug: 'group-by-anagrams',
-      description: 'Given an array of strings `strs`, group the anagrams together. You can return the answer in any order.',
-      difficulty: Difficulty.MEDIUM,
-      functionName: 'groupAnagrams',
-      inputSignature: [{ name: 'strs', type: 'string[]' }],
-      testCases: { "Input": "[\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"]\n", "Output": "[[\"bat\"],[\"nat\",\"tan\"],[\"ate\",\"eat\",\"tea\"]]" },
-      StarterCode: {
-        javascript: 'var groupAnagrams = function(strs) {\n    // Your code here\n};',
-        python: 'class Solution:\n    def groupAnagrams(self, strs: list[str]) -> list[list[str]]:\n        # Your code here\n        pass',
-        cpp: 'class Solution {\npublic:\n    vector<vector<string>> groupAnagrams(vector<string>& strs) {\n        // Your code here\n    }\n};',
-        java: 'class Solution {\n    public List<List<String>> groupAnagrams(String[] strs) {\n        // Your code here\n    }\n}',
-      },
-    },
-    {
-      id: '31',
-      title: 'Longest Palindromic Subsequence',
-      slug: 'longest-palindromic-subsequence',
-      description: 'Given a string `s`, find the longest palindromic substring in `s`.',
-      difficulty: Difficulty.HARD,
-      functionName: 'longestPalindrome',
+      functionName: 'isBalanced',
       inputSignature: [{ name: 's', type: 'string' }],
-      testCases: { "Input": "babad\n", "Output": "bab" },
-      StarterCode: {
-          javascript: 'var longestPalindrome = function(s) {\n    // Your code here\n};',
-          python: 'class Solution:\n    def longestPalindrome(self, s: str) -> str:\n        # Your code here\n        pass',
-          cpp: 'class Solution {\npublic:\n    string longestPalindrome(string s) {\n        // Your code here\n    }\n};',
-          java: 'class Solution {\n    public String longestPalindrome(String s) {\n        // Your code here\n    }\n}',
-      },
+      testCases: [
+          { Input: '"()"', Output: 'true' },
+          { Input: '"()[]{}"', Output: 'true' },
+          { Input: '"(]"', Output: 'false' },
+          { Input: '"([)]"', Output: 'false' },
+          { Input: '"{[]}"', Output: 'true' },
+          { Input: '""', Output: 'true' },
+          { Input: '"{"', Output: 'false' },
+          { Input: '")("', Output: 'false' },
+          { Input: '"[({(())}[()])]"', Output: 'true' },
+          { Input: '"((){]})"', Output: 'false' },
+      ],
+      starterCode: { /* ... */ javascript: `var isBalanced = function(s) {
+      // Your code here
+  };`, python: `class Solution:
+      def isBalanced(self, s: str) -> bool:
+          # Your code here
+          pass`, cpp: `class Solution {
+  public:
+      bool isBalanced(string s) {
+          // Your code here
+      }
+  };`, java: `class Solution {
+      public boolean isBalanced(String s) {
+          // Your code here
+      }
+  }` },
+      driverCode: { /* ... */ javascript: `
+  // USER_CODE_PLACEHOLDER
+  try {
+      const fs = require('fs');
+      const input = fs.readFileSync(0, 'utf-8').trim();
+      const s = JSON.parse(input);
+      const result = isBalanced(s);
+      console.log(result);
+  } catch (e) {
+      console.log("CAUGHT_ERROR: " + e.message);
+  }`, python: `
+  import sys
+  import json
+  # USER_CODE_PLACEHOLDER
+  try:
+      s = json.loads(sys.stdin.readline())
+      solver = Solution()
+      result = solver.isBalanced(s)
+      print(str(result).lower())
+  except Exception as e:
+      print(f"CAUGHT_ERROR: {e}")`, java: `
+  import java.util.*;
+  // USER_CODE_PLACEHOLDER
+  public class Main {
+      public static void main(String[] args) {
+          Scanner scanner = new Scanner(System.in);
+          String s = scanner.nextLine();
+          scanner.close();
+          // The input string from stdin is JSON-encoded, so we need to remove the quotes
+          s = s.substring(1, s.length() - 1);
+  
+          Solution sol = new Solution();
+          boolean result = sol.isBalanced(s);
+          System.out.println(result);
+      }
+  }`, cpp: `
+  #include <iostream>
+  #include <string>
+  #include <vector>
+  // USER_CODE_PLACEHOLDER
+  int main() {
+      std::string s;
+      std::getline(std::cin, s);
+      // The input string from stdin is JSON-encoded, so we need to remove the quotes
+      if (s.length() >= 2 && s.front() == '"' && s.back() == '"') {
+          s = s.substr(1, s.length() - 2);
+      }
+  
+      Solution sol;
+      bool result = sol.isBalanced(s);
+      std::cout << (result ? "true" : "false") << std::endl;
+      return 0;
+  }` },
     },
-
-    // ----------------- LINKED LISTS -----------------
     {
-        id: '5',
-        title: 'Invert Linked List',
-        slug: 'invert-linked-list',
-        description: 'You are provided with the head of a singly linked list. Your task is to reverse the order of the nodes and return the new head of the inverted list.',
-        difficulty: Difficulty.EASY,
-        functionName: 'reverseList',
-        inputSignature: [{ name: 'head', type: 'integer[]' }],
-        testCases: { "Input": "[10,20,30]\n", "Output": "[30,20,10]" },
-        StarterCode: {
-          javascript: '/**\n * Definition for singly-linked list.\n * function ListNode(val, next) {\n * this.val = (val===undefined ? 0 : val)\n * this.next = (next===undefined ? null : next)\n * }\n */\nvar reverseList = function(head) {\n    // Your code here\n};',
-          python: '# Definition for singly-linked list.\n# class ListNode:\n#     def __init__(self, val=0, next=None):\n#         self.val = val\n#         self.next = next\nclass Solution:\n    def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:\n        # Your code here\n        pass',
-          cpp: '/**\n * Definition for singly-linked list.\n * struct ListNode {\n * int val;\n * ListNode *next;\n * ListNode() : val(0), next(nullptr) {}\n * ListNode(int x) : val(x), next(nullptr) {}\n * ListNode(int x, ListNode *next) : val(x), next(next) {}\n * };\n */\nclass Solution {\npublic:\n    ListNode* reverseList(ListNode* head) {\n        // Your code here\n    }\n};',
-          java: '/**\n * Definition for singly-linked list.\n * public class ListNode {\n * int val;\n * ListNode next;\n * ListNode() {}\n * ListNode(int val) { this.val = val; }\n * ListNode(int val, ListNode next) { this.val = val; this.next = next; }\n * }\n */\nclass Solution {\n    public ListNode reverseList(ListNode head) {\n        // Your code here\n    }\n}',
-        },
-    },
-     {
-      id: '21',
-      title: 'Combine Sorted Lists',
-      slug: 'combine-sorted-lists',
-      description: 'You are given the heads of two sorted linked lists `list1` and `list2`. Merge the two lists into one sorted list. The list should be made by splicing together the nodes of the first two lists.',
+      id: '3',
+      title: 'Symmetrical String Check',
+      slug: 'symmetrical-string-check',
+      description: 'Write a function to check if a given string is a palindrome. The check should be case-insensitive and should only consider alphanumeric characters (letters and numbers), ignoring all other characters like spaces and punctuation.',
+      tags: ['String', 'Two Pointers'],
+      constraints: `
+  - 1 <= s.length <= 2 * 10^5
+  - s consists only of printable ASCII characters.
+      `,
       difficulty: Difficulty.EASY,
-      functionName: 'mergeTwoLists',
-      inputSignature: [{ name: 'list1', type: 'integer[]' }, { name: 'list2', type: 'integer[]' }],
-      testCases: { "Input": "[1,2,4]\n[1,3,4]", "Output": "[1,1,2,3,4,4]" },
-      StarterCode: {
-        javascript: 'var mergeTwoLists = function(list1, list2) {\n    // Your code here\n};',
-        python: 'class Solution:\n    def mergeTwoLists(self, list1: Optional[ListNode], list2: Optional[ListNode]) -> Optional[ListNode]:\n        # Your code here\n        pass',
-        cpp: 'class Solution {\npublic:\n    ListNode* mergeTwoLists(ListNode* list1, ListNode* list2) {\n        // Your code here\n    }\n};',
-        java: 'class Solution {\n    public ListNode mergeTwoLists(ListNode list1, ListNode list2) {\n        // Your code here\n    }\n}',
-      },
+      functionName: 'isSymmetrical',
+      inputSignature: [{ name: 's', type: 'string' }],
+      testCases: [
+          { Input: '"A man, a plan, a canal: Panama"', Output: 'true' },
+          { Input: '"race a car"', Output: 'false' },
+          { Input: '""', Output: 'true' },
+          { Input: '".,"', Output: 'true' },
+          { Input: '"0P"', Output: 'false' },
+          { Input: '"Was it a car or a cat I saw?"', Output: 'true' },
+          { Input: '"level"', Output: 'true' },
+          { Input: '"hello"', Output: 'false' },
+          { Input: '"12321"', Output: 'true' },
+          { Input: '"ab_a"', Output: 'true' },
+      ],
+      starterCode: { /* ... */ javascript: `var isSymmetrical = function(s) {
+      // Your code here
+  };`, python: `class Solution:
+      def isSymmetrical(self, s: str) -> bool:
+          # Your code here
+          pass`, cpp: `class Solution {
+  public:
+      bool isSymmetrical(string s) {
+          // Your code here
+      }
+  };`, java: `class Solution {
+      public boolean isSymmetrical(String s) {
+          // Your code here
+      }
+  }` },
+      driverCode: { /* ... */ javascript: `
+  // USER_CODE_PLACEHOLDER
+  try {
+      const fs = require('fs');
+      const input = fs.readFileSync(0, 'utf-8').trim();
+      const s = JSON.parse(input);
+      const result = isSymmetrical(s);
+      console.log(result);
+  } catch (e) {
+      console.log("CAUGHT_ERROR: " + e.message);
+  }`, python: `
+  import sys
+  import json
+  # USER_CODE_PLACEHOLDER
+  try:
+      s = json.loads(sys.stdin.readline())
+      solver = Solution()
+      result = solver.isSymmetrical(s)
+      print(str(result).lower())
+  except Exception as e:
+      print(f"CAUGHT_ERROR: {e}")`, java: `
+  import java.util.*;
+  // USER_CODE_PLACEHOLDER
+  public class Main {
+      public static void main(String[] args) {
+          Scanner scanner = new Scanner(System.in);
+          String s = scanner.nextLine();
+          scanner.close();
+          if (s.length() >= 2 && s.startsWith("\\"") && s.endsWith("\\"")) {
+              s = s.substring(1, s.length() - 1);
+          }
+  
+          Solution sol = new Solution();
+          boolean result = sol.isSymmetrical(s);
+          System.out.println(result);
+      }
+  }`, cpp: `
+  #include <iostream>
+  #include <string>
+  #include <vector>
+  // USER_CODE_PLACEHOLDER
+  int main() {
+      std::string s;
+      std::getline(std::cin, s);
+      if (s.length() >= 2 && s.front() == '"' && s.back() == '"') {
+          s = s.substr(1, s.length() - 2);
+      }
+  
+      Solution sol;
+      bool result = sol.isSymmetrical(s);
+      std::cout << (result ? "true" : "false") << std::endl;
+      return 0;
+  }` },
     },
     {
-      id: '32',
-      title: 'Remove Nth Last Node',
-      slug: 'remove-nth-last-node',
-      description: 'Given the `head` of a linked list, remove the `n`th node from the end of the list and return its head.',
+      id: '4',
+      title: 'Largest Contiguous Subarray Sum',
+      slug: 'largest-contiguous-subarray-sum',
+      description: 'Given an array of integers, find the contiguous subarray with the largest possible sum. Return this maximum sum. The subarray must contain at least one element.',
+      tags: ['Array', 'Dynamic Programming', 'Kadane\'s Algorithm'],
+      constraints: `
+  - 1 <= nums.length <= 10^5
+  - -10^4 <= nums[i] <= 10^4
+      `,
       difficulty: Difficulty.MEDIUM,
-      functionName: 'removeNthFromEnd',
-      inputSignature: [{ name: 'head', type: 'integer[]' }, { name: 'n', type: 'integer' }],
-      testCases: { "Input": "[1,2,3,4,5]\n2", "Output": "[1,2,3,5]" },
-      StarterCode: {
-          javascript: 'var removeNthFromEnd = function(head, n) {\n    // Your code here\n};',
-          python: 'class Solution:\n    def removeNthFromEnd(self, head: Optional[ListNode], n: int) -> Optional[ListNode]:\n        # Your code here\n        pass',
-          cpp: 'class Solution {\npublic:\n    ListNode* removeNthFromEnd(ListNode* head, int n) {\n        // Your code here\n    }\n};',
-          java: 'class Solution {\n    public ListNode removeNthFromEnd(ListNode head, int n) {\n        // Your code here\n    }\n}',
-      },
+      functionName: 'maxSubarraySum',
+      inputSignature: [{ name: 'nums', type: 'int[]' }],
+      testCases: [
+          { Input: '[-2,1,-3,4,-1,2,1,-5,4]', Output: '6' },
+          { Input: '[1]', Output: '1' },
+          { Input: '[5,4,-1,7,8]', Output: '23' },
+          { Input: '[-1]', Output: '-1' },
+          { Input: '[-2,-1]', Output: '-1' },
+          { Input: '[1,2,3,4,5]', Output: '15' },
+          { Input: '[-1,-2,-3,-4,-5]', Output: '-1' },
+          { Input: '[0,0,0,0]', Output: '0' },
+          { Input: '[8,-19,5,-4,20]', Output: '21' },
+          { Input: '[-2,1]', Output: '1' },
+      ],
+      starterCode: { /* ... */ javascript: `var maxSubarraySum = function(nums) {
+      // Your code here
+  };`, python: `class Solution:
+      def maxSubarraySum(self, nums: list[int]) -> int:
+          # Your code here
+          pass`, cpp: `class Solution {
+  public:
+      int maxSubarraySum(vector<int>& nums) {
+          // Your code here
+      }
+  };`, java: `class Solution {
+      public int maxSubarraySum(int[] nums) {
+          // Your code here
+      }
+  }` },
+      driverCode: { /* ... */ javascript: `
+  // USER_CODE_PLACEHOLDER
+  try {
+      const fs = require('fs');
+      const input = fs.readFileSync(0, 'utf-8').trim();
+      const nums = JSON.parse(input);
+      const result = maxSubarraySum(nums);
+      console.log(result);
+  } catch (e) {
+      console.log("CAUGHT_ERROR: " + e.message);
+  }`, python: `
+  import sys
+  import json
+  # USER_CODE_PLACEHOLDER
+  try:
+      nums = json.loads(sys.stdin.readline())
+      solver = Solution()
+      result = solver.maxSubarraySum(nums)
+      print(result)
+  except Exception as e:
+      print(f"CAUGHT_ERROR: {e}")`, java: `
+  import java.util.*;
+  // USER_CODE_PLACEHOLDER
+  public class Main {
+      public static void main(String[] args) {
+          Scanner scanner = new Scanner(System.in);
+          String line = scanner.nextLine();
+          scanner.close();
+  
+          line = line.trim();
+          String[] numsStr = line.substring(1, line.length() - 1).split(",");
+          int[] nums = new int[numsStr.length];
+          if (numsStr.length > 0 && !numsStr[0].isEmpty()) {
+              for(int i = 0; i < numsStr.length; i++) {
+                  nums[i] = Integer.parseInt(numsStr[i].trim());
+              }
+          } else {
+               nums = new int[0];
+          }
+  
+          Solution sol = new Solution();
+          int result = sol.maxSubarraySum(nums);
+          System.out.println(result);
+      }
+  }`, cpp: `
+  #include <iostream>
+  #include <vector>
+  #include <string>
+  #include <sstream>
+  // USER_CODE_PLACEHOLDER
+  // Helper function to parse a JSON-like array string
+  std::vector<int> parseVector(const std::string& str) {
+      std::vector<int> vec;
+      if (str.length() <= 2) return vec;
+      std::string content = str.substr(1, str.length() - 2);
+      if (content.empty()) return vec;
+      std::stringstream ss(content);
+      std::string item;
+      while (std::getline(ss, item, ',')) {
+          vec.push_back(std::stoi(item));
+      }
+      return vec;
+  }
+  
+  int main() {
+      std::string line;
+      std::getline(std::cin, line);
+      std::vector<int> nums = parseVector(line);
+  
+      Solution sol;
+      int result = sol.maxSubarraySum(nums);
+      std::cout << result << std::endl;
+      return 0;
+  }` },
     },
     {
-        id: '6',
-        title: 'Find Loop in Linked List',
-        slug: 'find-loop-in-linked-list',
-        description: "You are given the head of a linked list. Check if it contains a cycle (i.e., a node points back to a previous node). Return true if a cycle exists, false otherwise.",
-        difficulty: Difficulty.MEDIUM,
-        functionName: 'hasCycle',
-        inputSignature: [{ name: 'head', type: 'integer[]' }, { name: 'pos', type: 'integer' }],
-        testCases: { "Input": "[1,2]\n0", "Output": "true" },
-        StarterCode: {
-          javascript: 'var hasCycle = function(head) {\n    // Your code here\n};',
-          python: 'class Solution:\n    def hasCycle(self, head: Optional[ListNode]) -> bool:\n        # Your code here\n        pass',
-          cpp: 'class Solution {\npublic:\n    bool hasCycle(ListNode *head) {\n        // Your code here\n    }\n};',
-          java: 'class Solution {\n    public boolean hasCycle(ListNode head) {\n        // Your code here\n    }\n}',
-        },
-    },
-
-    // ----------------- TREES -----------------
-     {
-        id: '7',
-        title: 'Tree Height Calculation',
-        slug: 'tree-height-calculation',
-        description: 'Calculate the maximum depth of a given binary tree. The depth is the number of nodes along the longest path from the root node down to the farthest leaf node.',
-        difficulty: Difficulty.EASY,
-        functionName: 'maxDepth',
-        inputSignature: [{ name: 'root', type: 'tree' }],
-        testCases: { "Input": "[1,null,2]\n", "Output": "2" },
-        StarterCode: {
-          javascript: 'var maxDepth = function(root) {\n    // Your code here\n};',
-          python: 'class Solution:\n    def maxDepth(self, root: Optional[TreeNode]) -> int:\n        # Your code here\n        pass',
-          cpp: 'class Solution {\npublic:\n    int maxDepth(TreeNode* root) {\n        // Your code here\n    }\n};',
-          java: 'class Solution {\n    public int maxDepth(TreeNode root) {\n        // Your code here\n    }\n}',
-        },
-    },
-    {
-      id: '22',
-      title: 'Mirror a Binary Tree',
-      slug: 'mirror-binary-tree',
-      description: 'Given the `root` of a binary tree, invert the tree, and return its root. Inverting a tree means swapping the left and right children of every node.',
+      id: '5',
+      title: 'Reverse a Linked List',
+      slug: 'reverse-a-linked-list',
+      description: 'Given the head of a singly linked list, reverse the list, and return the new head of the reversed list.',
+      tags: ['Linked List', 'Recursion', 'Iteration'],
+      constraints: `
+  - The number of nodes in the list is in the range [0, 5000].
+  - -5000 <= Node.val <= 5000
+      `,
       difficulty: Difficulty.EASY,
-      functionName: 'invertTree',
-      inputSignature: [{ name: 'root', type: 'tree' }],
-      testCases: { "Input": "[4,2,7,1,3,6,9]\n", "Output": "[4,7,2,9,6,3,1]" },
-      StarterCode: {
-        javascript: 'var invertTree = function(root) {\n    // Your code here\n};',
-        python: 'class Solution:\n    def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:\n        # Your code here\n        pass',
-        cpp: 'class Solution {\npublic:\n    TreeNode* invertTree(TreeNode* root) {\n        // Your code here\n    }\n};',
-        java: 'class Solution {\n    public TreeNode invertTree(TreeNode root) {\n        // Your code here\n    }\n}',
-      },
+      functionName: 'reverseList',
+      inputSignature: [{ name: 'head', type: 'ListNode' }],
+      testCases: [
+          { Input: '[1,2,3,4,5]', Output: '[5,4,3,2,1]' },
+          { Input: '[1,2]', Output: '[2,1]' },
+          { Input: '[]', Output: '[]' },
+          { Input: '[1]', Output: '[1]' },
+          { Input: '[10,20]', Output: '[20,10]' },
+          { Input: '[1,1,2,2]', Output: '[2,2,1,1]' },
+          { Input: '[-1,0,1]', Output: '[1,0,-1]' },
+          { Input: '[1,2,3]', Output: '[3,2,1]' },
+          { Input: '[100]', Output: '[100]' },
+          { Input: '[5,4,3,2,1]', Output: '[1,2,3,4,5]' },
+      ],
+      starterCode: { /* ... */ javascript: `/**
+   * Definition for singly-linked list.
+   * function ListNode(val, next) {
+   * this.val = (val===undefined ? 0 : val)
+   * this.next = (next===undefined ? null : next)
+   * }
+   */
+  var reverseList = function(head) {
+      // Your code here
+  };`, python: `# Definition for singly-linked list.
+  # class ListNode:
+  #     def __init__(self, val=0, next=None):
+  #         self.val = val
+  #         self.next = next
+  class Solution:
+      def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
+          # Your code here
+          pass`, cpp: `/**
+   * Definition for singly-linked list.
+   * struct ListNode {
+   * int val;
+   * ListNode *next;
+   * ListNode() : val(0), next(nullptr) {}
+   * ListNode(int x) : val(x), next(nullptr) {}
+   * ListNode(int x, ListNode *next) : val(x), next(next) {}
+   * };
+   */
+  class Solution {
+  public:
+      ListNode* reverseList(ListNode* head) {
+          // Your code here
+      }
+  };`, java: `/**
+   * Definition for singly-linked list.
+   * public class ListNode {
+   * int val;
+   * ListNode next;
+   * ListNode() {}
+   * ListNode(int val) { this.val = val; }
+   * ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+   * }
+   */
+  class Solution {
+      public ListNode reverseList(ListNode head) {
+          // Your code here
+      }
+  }` },
+      driverCode: { /* ... */ javascript: `
+  function ListNode(val, next) {
+      this.val = (val===undefined ? 0 : val)
+      this.next = (next===undefined ? null : next)
+  }
+  function arrayToLinkedList(arr) {
+      if (!arr || arr.length === 0) return null;
+      let head = new ListNode(arr[0]);
+      let current = head;
+      for (let i = 1; i < arr.length; i++) {
+          current.next = new ListNode(arr[i]);
+          current = current.next;
+      }
+      return head;
+  }
+  function linkedListToArray(head) {
+      const arr = [];
+      let current = head;
+      while (current !== null) {
+          arr.push(current.val);
+          current = current.next;
+      }
+      return arr;
+  }
+  // USER_CODE_PLACEHOLDER
+  try {
+      const fs = require('fs');
+      const input = fs.readFileSync(0, 'utf-8').trim();
+      const arr = JSON.parse(input);
+      const head = arrayToLinkedList(arr);
+      const newHead = reverseList(head);
+      const result = linkedListToArray(newHead);
+      console.log(JSON.stringify(result));
+  } catch (e) {
+      console.log("CAUGHT_ERROR: " + e.message);
+  }`, python: `
+  import sys
+  import json
+  from typing import Optional
+  
+  class ListNode:
+      def __init__(self, val=0, next=None):
+          self.val = val
+          self.next = next
+  
+  def array_to_linked_list(arr):
+      if not arr:
+          return None
+      head = ListNode(arr[0])
+      current = head
+      for i in range(1, len(arr)):
+          current.next = ListNode(arr[i])
+          current = current.next
+      return head
+  
+  def linked_list_to_array(head):
+      arr = []
+      current = head
+      while current:
+          arr.append(current.val)
+          current = current.next
+      return arr
+  
+  # USER_CODE_PLACEHOLDER
+  try:
+      arr = json.loads(sys.stdin.readline())
+      head = array_to_linked_list(arr)
+      solver = Solution()
+      new_head = solver.reverseList(head)
+      result = linked_list_to_array(new_head)
+      print(json.dumps(result, separators=(',', ':')))
+  except Exception as e:
+      print(f"CAUGHT_ERROR: {e}")`, java: `
+  import java.util.*;
+  
+  public class Main {
+      public static void main(String[] args) {
+          Scanner scanner = new Scanner(System.in);
+          String line = scanner.nextLine();
+          scanner.close();
+  
+          int[] arr = jsonToArray(line);
+          ListNode head = arrayToLinkedList(arr);
+  
+          Solution sol = new Solution();
+          ListNode newHead = sol.reverseList(head);
+  
+          int[] resultArr = linkedListToArray(newHead);
+          System.out.println(Arrays.toString(resultArr).replace(" ", ""));
+      }
+  
+      private static int[] jsonToArray(String json) {
+          json = json.trim();
+          if (json.equals("[]")) {
+              return new int[0];
+          }
+          String[] items = json.substring(1, json.length() - 1).split(",");
+          int[] arr = new int[items.length];
+          for (int i = 0; i < items.length; i++) {
+              arr[i] = Integer.parseInt(items[i].trim());
+          }
+          return arr;
+      }
+  
+      private static ListNode arrayToLinkedList(int[] arr) {
+          if (arr == null || arr.length == 0) return null;
+          ListNode head = new ListNode(arr[0]);
+          ListNode current = head;
+          for (int i = 1; i < arr.length; i++) {
+              current.next = new ListNode(arr[i]);
+              current = current.next;
+          }
+          return head;
+      }
+  
+      private static int[] linkedListToArray(ListNode head) {
+          List<Integer> list = new ArrayList<>();
+          ListNode current = head;
+          while (current != null) {
+              list.add(current.val);
+              current = current.next;
+          }
+          return list.stream().mapToInt(i -> i).toArray();
+      }
+  }
+  // USER_CODE_PLACEHOLDER_BEFORE
+  class ListNode {
+      int val;
+      ListNode next;
+      ListNode() {}
+      ListNode(int val) { this.val = val; }
+      ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+  }
+  // USER_CODE_PLACEHOLDER`, cpp: `
+  #include <iostream>
+  #include <vector>
+  #include <string>
+  #include <sstream>
+  #include <algorithm>
+  
+  struct ListNode {
+      int val;
+      ListNode *next;
+      ListNode() : val(0), next(nullptr) {}
+      ListNode(int x) : val(x), next(nullptr) {}
+      ListNode(int x, ListNode *next) : val(x), next(next) {}
+  };
+  
+  // USER_CODE_PLACEHOLDER
+  
+  ListNode* arrayToLinkedList(const std::vector<int>& arr) {
+      if (arr.empty()) return nullptr;
+      ListNode* head = new ListNode(arr[0]);
+      ListNode* current = head;
+      for (size_t i = 1; i < arr.size(); ++i) {
+          current->next = new ListNode(arr[i]);
+          current = current->next;
+      }
+      return head;
+  }
+  
+  std::vector<int> linkedListToArray(ListNode* head) {
+      std::vector<int> arr;
+      ListNode* current = head;
+      while (current != nullptr) {
+          arr.push_back(current->val);
+          current = current->next;
+      }
+      return arr;
+  }
+  
+  std::vector<int> parseVector(const std::string& str) {
+      std::vector<int> vec;
+      if (str.length() <= 2) return vec;
+      std::string content = str.substr(1, str.length() - 2);
+      if (content.empty()) return vec;
+      std::stringstream ss(content);
+      std::string item;
+      while (std::getline(ss, item, ',')) {
+          vec.push_back(std::stoi(item));
+      }
+      return vec;
+  }
+  
+  int main() {
+      std::string line;
+      std::getline(std::cin, line);
+      std::vector<int> arr = parseVector(line);
+      ListNode* head = arrayToLinkedList(arr);
+  
+      Solution sol;
+      ListNode* newHead = sol.reverseList(head);
+  
+      std::vector<int> result = linkedListToArray(newHead);
+  
+      std::cout << "[";
+      for (size_t i = 0; i < result.size(); ++i) {
+          std::cout << result[i] << (i == result.size() - 1 ? "" : ",");
+      }
+      std::cout << "]" << std::endl;
+  
+      // Clean up memory
+      ListNode* current = newHead;
+      while(current != nullptr) {
+          ListNode* temp = current;
+          current = current->next;
+          delete temp;
+      }
+  
+      return 0;
+  }` },
     },
     {
-        id: '8',
-        title: 'Verify BST Property',
-        slug: 'verify-bst-property',
-        description: 'You are given the root of a binary tree. Check if it is a valid Binary Search Tree (BST). A BST is valid if for every node, all values in its left subtree are smaller, and all values in its right subtree are larger.',
-        difficulty: Difficulty.MEDIUM,
-        functionName: 'isValidBST',
-        inputSignature: [{ name: 'root', type: 'tree' }],
-        testCases: { "Input": "[2,1,3]\n", "Output": "true" },
-        StarterCode: {
-          javascript: 'var isValidBST = function(root) {\n    // Your code here\n};',
-          python: 'class Solution:\n    def isValidBST(self, root: Optional[TreeNode]) -> bool:\n        # Your code here\n        pass',
-          cpp: 'class Solution {\npublic:\n    bool isValidBST(TreeNode* root) {\n        // Your code here\n    }\n};',
-          java: 'class Solution {\n    public boolean isValidBST(TreeNode root) {\n        // Your code here\n    }\n}',
-        },
+      id: '6',
+      title: 'Staircase Climbing Ways',
+      slug: 'staircase-climbing-ways',
+      description: 'You are climbing a staircase that takes `n` steps to reach the top. Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?',
+      tags: ['Dynamic Programming', 'Memoization', 'Fibonacci'],
+      constraints: `
+  - 1 <= n <= 45
+      `,
+      difficulty: Difficulty.EASY,
+      functionName: 'climbStairs',
+      inputSignature: [{ name: 'n', type: 'int' }],
+      testCases: [
+          { Input: '1', Output: '1' },
+          { Input: '2', Output: '2' },
+          { Input: '3', Output: '3' },
+          { Input: '4', Output: '5' },
+          { Input: '5', Output: '8' },
+          { Input: '6', Output: '13' },
+          { Input: '10', Output: '89' },
+          { Input: '20', Output: '10946' },
+          { Input: '30', Output: '1346269' },
+          { Input: '45', Output: '1836311903' },
+      ],
+      starterCode: { /* ... */ javascript: `var climbStairs = function(n) {
+      // Your code here
+  };`, python: `class Solution:
+      def climbStairs(self, n: int) -> int:
+          # Your code here
+          pass`, cpp: `class Solution {
+  public:
+      int climbStairs(int n) {
+          // Your code here
+      }
+  };`, java: `class Solution {
+      public int climbStairs(int n) {
+          // Your code here
+      }
+  }` },
+      driverCode: { /* ... */ javascript: `
+  // USER_CODE_PLACEHOLDER
+  try {
+      const fs = require('fs');
+      const n = parseInt(fs.readFileSync(0, 'utf-8').trim(), 10);
+      const result = climbStairs(n);
+      console.log(result);
+  } catch (e) {
+      console.log("CAUGHT_ERROR: " + e.message);
+  }`, python: `
+  import sys
+  # USER_CODE_PLACEHOLDER
+  try:
+      n = int(sys.stdin.readline())
+      solver = Solution()
+      result = solver.climbStairs(n)
+      print(result)
+  except Exception as e:
+      print(f"CAUGHT_ERROR: {e}")`, java: `
+  import java.util.*;
+  // USER_CODE_PLACEHOLDER
+  public class Main {
+      public static void main(String[] args) {
+          Scanner scanner = new Scanner(System.in);
+          int n = scanner.nextInt();
+          scanner.close();
+  
+          Solution sol = new Solution();
+          int result = sol.climbStairs(n);
+          System.out.println(result);
+      }
+  }`, cpp: `
+  #include <iostream>
+  // USER_CODE_PLACEHOLDER
+  int main() {
+      int n;
+      std::cin >> n;
+  
+      Solution sol;
+      int result = sol.climbStairs(n);
+      std::cout << result << std::endl;
+      return 0;
+  }` },
     },
     {
-      id: '33',
-      title: 'Kth Smallest in BST',
-      slug: 'kth-smallest-in-bst',
-      description: 'Given the `root` of a binary search tree, and an integer `k`, return the `k`th smallest value (1-indexed) of all the values of the nodes in the tree.',
+      id: '7',
+      title: 'Find in Rotated Sorted Array',
+      slug: 'find-in-rotated-sorted-array',
+      description: 'An array sorted in ascending order is rotated at some unknown pivot. For example, `[0,1,2,4,5,6,7]` might become `[4,5,6,7,0,1,2]`. Given a target value, find its index in the array. If the target is not found, return -1. Assume no duplicates exist in the array.',
+      tags: ['Array', 'Binary Search'],
+      constraints: `
+  - 1 <= nums.length <= 5000
+  - -10^4 <= nums[i] <= 10^4
+  - All values of nums are unique.
+  - nums is an ascending array that is possibly rotated.
+  - -10^4 <= target <= 10^4
+      `,
       difficulty: Difficulty.MEDIUM,
-      functionName: 'kthSmallest',
-      inputSignature: [{ name: 'root', type: 'tree' }, { name: 'k', type: 'integer' }],
-      testCases: { "Input": "[3,1,4,null,2]\n1", "Output": "1" },
-      StarterCode: {
-          javascript: 'var kthSmallest = function(root, k) {\n    // Your code here\n};',
-          python: 'class Solution:\n    def kthSmallest(self, root: Optional[TreeNode], k: int) -> int:\n        # Your code here\n        pass',
-          cpp: 'class Solution {\npublic:\n    int kthSmallest(TreeNode* root, int k) {\n        // Your code here\n    }\n};',
-          java: 'class Solution {\n    public int kthSmallest(TreeNode root, int k) {\n        // Your code here\n    }\n}',
-      },
+      functionName: 'search',
+      inputSignature: [
+        { name: 'nums', type: 'int[]' },
+        { name: 'target', type: 'int' },
+      ],
+      testCases: [
+          { Input: '[4,5,6,7,0,1,2]\n0', Output: '4' },
+          { Input: '[4,5,6,7,0,1,2]\n3', Output: '-1' },
+          { Input: '[1]\n0', Output: '-1' },
+          { Input: '[1]\n1', Output: '0' },
+          { Input: '[5,1,3]\n5', Output: '0' },
+          { Input: '[5,1,3]\n3', Output: '2' },
+          { Input: '[3,1]\n1', Output: '1' },
+          { Input: '[1,3,5]\n5', Output: '2' },
+          { Input: '[7,8,1,2,3,4,5,6]\n2', Output: '3' },
+          { Input: '[10,20,30,1,2,3]\n40', Output: '-1' },
+      ],
+      starterCode: { /* ... */ javascript: `var search = function(nums, target) {
+      // Your code here
+  };`, python: `class Solution:
+      def search(self, nums: list[int], target: int) -> int:
+          # Your code here
+          pass`, cpp: `class Solution {
+  public:
+      int search(vector<int>& nums, int target) {
+          // Your code here
+      }
+  };`, java: `class Solution {
+      public int search(int[] nums, int target) {
+          // Your code here
+      }
+  }` },
+      driverCode: { /* ... */ javascript: `
+  // USER_CODE_PLACEHOLDER
+  try {
+      const fs = require('fs');
+      const input = fs.readFileSync(0, 'utf-8');
+      const lines = input.trim().split('\\n');
+      const nums = JSON.parse(lines[0]);
+      const target = parseInt(lines[1], 10);
+      const result = search(nums, target);
+      console.log(result);
+  } catch (e) {
+      console.log("CAUGHT_ERROR: " + e.message);
+  }`, python: `
+  import sys
+  import json
+  # USER_CODE_PLACEHOLDER
+  try:
+      lines = sys.stdin.readlines()
+      nums = json.loads(lines[0])
+      target = int(lines[1])
+      solver = Solution()
+      result = solver.search(nums, target)
+      print(result)
+  except Exception as e:
+      print(f"CAUGHT_ERROR: {e}")`, java: `
+  import java.util.*;
+  // USER_CODE_PLACEHOLDER
+  public class Main {
+      public static void main(String[] args) {
+          Scanner scanner = new Scanner(System.in);
+          String line1 = scanner.nextLine();
+          int target = Integer.parseInt(scanner.nextLine().trim());
+          scanner.close();
+  
+          line1 = line1.trim();
+          String[] numsStr = line1.substring(1, line1.length() - 1).split(",");
+          int[] nums = new int[numsStr.length];
+          if (numsStr.length > 0 && !numsStr[0].isEmpty()) {
+            for(int i = 0; i < numsStr.length; i++) {
+                nums[i] = Integer.parseInt(numsStr[i].trim());
+            }
+          } else {
+            nums = new int[0];
+          }
+  
+          Solution sol = new Solution();
+          int result = sol.search(nums, target);
+          System.out.println(result);
+      }
+  }`, cpp: `
+  #include <iostream>
+  #include <vector>
+  #include <string>
+  #include <sstream>
+  // USER_CODE_PLACEHOLDER
+  std::vector<int> parseVector(const std::string& str) {
+      std::vector<int> vec;
+      if (str.length() <= 2) return vec;
+      std::string content = str.substr(1, str.length() - 2);
+      std::stringstream ss(content);
+      std::string item;
+      while (std::getline(ss, item, ',')) {
+          if (!item.empty()) vec.push_back(std::stoi(item));
+      }
+      return vec;
+  }
+  
+  int main() {
+      std::string line1, line2;
+      std::getline(std::cin, line1);
+      std::getline(std::cin, line2);
+  
+      std::vector<int> nums = parseVector(line1);
+      int target = std::stoi(line2);
+  
+      Solution sol;
+      int result = sol.search(nums, target);
+      std::cout << result << std::endl;
+      return 0;
+  }` },
     },
     {
-      id: '34',
-      title: 'BST Common Ancestor',
-      slug: 'bst-common-ancestor',
-      description: 'Given a binary search tree (BST), find the lowest common ancestor (LCA) node of two given nodes in the BST. The lowest common ancestor is defined between two nodes `p` and `q` as the lowest node in `T` that has both `p` and `q` as descendants.',
+      id: '8',
+      title: 'In-Order Tree Traversal',
+      slug: 'in-order-tree-traversal',
+      description: "Given the root of a binary tree, your task is to traverse its nodes in 'in-order' sequence (left, root, right) and return an array containing the values of the nodes in that order.",
+      tags: ['Tree', 'Binary Tree', 'DFS', 'Stack', 'Recursion'],
+      constraints: `
+  - The number of nodes in the tree is in the range [0, 100].
+  - -100 <= Node.val <= 100
+      `,
+      difficulty: Difficulty.EASY,
+      functionName: 'inorderTraversal',
+      inputSignature: [{ name: 'root', type: 'TreeNode' }],
+      testCases: [
+          { Input: '[1,null,2,3]', Output: '[1,3,2]' },
+          { Input: '[]', Output: '[]' },
+          { Input: '[1]', Output: '[1]' },
+          { Input: '[5,4,8,11,null,13,4,7,2,null,null,null,1]', Output: '[7,11,2,4,5,13,8,4,1]' },
+          { Input: '[1,2,3,4,5,6,7]', Output: '[4,2,5,1,6,3,7]' },
+          { Input: '[10,5,15,null,null,6,20]', Output: '[5,10,6,15,20]' },
+          { Input: '[3,1,null,null,2]', Output: '[1,2,3]' },
+          { Input: '[2,3,null,1]', Output: '[1,3,2]' },
+          { Input: '[1,null,2]', Output: '[1,2]' },
+          { Input: '[1,2,null,3]', Output: '[3,2,1]' },
+      ],
+      starterCode: { /* ... */ javascript: `/**
+   * Definition for a binary tree node.
+   * function TreeNode(val, left, right) {
+   * this.val = (val===undefined ? 0 : val)
+   * this.left = (left===undefined ? null : left)
+   * this.right = (right===undefined ? null : right)
+   * }
+   */
+  var inorderTraversal = function(root) {
+      // Your code here
+  };`, python: `# Definition for a binary tree node.
+  # class TreeNode:
+  #     def __init__(self, val=0, left=None, right=None):
+  #         self.val = val
+  #         self.left = left
+  #         self.right = right
+  class Solution:
+      def inorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
+          # Your code here
+          pass`, cpp: `/**
+   * Definition for a binary tree node.
+   * struct TreeNode {
+   * int val;
+   * TreeNode *left;
+   * TreeNode *right;
+   * TreeNode() : val(0), left(nullptr), right(nullptr) {}
+   * TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+   * TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+   * };
+   */
+  class Solution {
+  public:
+      vector<int> inorderTraversal(TreeNode* root) {
+          // Your code here
+      }
+  };`, java: `/**
+   * Definition for a binary tree node.
+   * public class TreeNode {
+   * int val;
+   * TreeNode left;
+   * TreeNode right;
+   * TreeNode() {}
+   * TreeNode(int val) { this.val = val; }
+   * TreeNode(int val, TreeNode left, TreeNode right) {
+   * this.val = val;
+   * this.left = left;
+   * this.right = right;
+   * }
+   * }
+   */
+  class Solution {
+      public List<Integer> inorderTraversal(TreeNode root) {
+          // Your code here
+      }
+  }` },
+      driverCode: { /* ... */ javascript: `
+  function TreeNode(val, left, right) {
+      this.val = (val===undefined ? 0 : val);
+      this.left = (left===undefined ? null : left);
+      this.right = (right===undefined ? null : right);
+  }
+  function buildTree(nodes) {
+      if (!nodes || nodes.length === 0 || nodes[0] === null) return null;
+      let root = new TreeNode(nodes[0]);
+      let queue = [root];
+      let i = 1;
+      while (queue.length > 0 && i < nodes.length) {
+          let currentNode = queue.shift();
+          if (nodes[i] !== null) {
+              currentNode.left = new TreeNode(nodes[i]);
+              queue.push(currentNode.left);
+          }
+          i++;
+          if (i < nodes.length && nodes[i] !== null) {
+              currentNode.right = new TreeNode(nodes[i]);
+              queue.push(currentNode.right);
+          }
+          i++;
+      }
+      return root;
+  }
+  // USER_CODE_PLACEHOLDER
+  try {
+      const fs = require('fs');
+      const nodes = JSON.parse(fs.readFileSync(0, 'utf-8').trim());
+      const root = buildTree(nodes);
+      const result = inorderTraversal(root);
+      console.log(JSON.stringify(result));
+  } catch (e) {
+      console.log("CAUGHT_ERROR: " + e.message);
+  }`, python: `
+  import sys, json, collections
+  from typing import Optional, List
+  class TreeNode:
+      def __init__(self, val=0, left=None, right=None):
+          self.val = val
+          self.left = left
+          self.right = right
+  def build_tree(nodes):
+      if not nodes:
+          return None
+      root = TreeNode(nodes[0])
+      queue = collections.deque([root])
+      i = 1
+      while queue and i < len(nodes):
+          node = queue.popleft()
+          if nodes[i] is not None:
+              node.left = TreeNode(nodes[i])
+              queue.append(node.left)
+          i += 1
+          if i < len(nodes) and nodes[i] is not None:
+              node.right = TreeNode(nodes[i])
+              queue.append(node.right)
+          i += 1
+      return root
+  # USER_CODE_PLACEHOLDER
+  try:
+      nodes = json.loads(sys.stdin.readline())
+      root = build_tree(nodes)
+      solver = Solution()
+      result = solver.inorderTraversal(root)
+      print(json.dumps(result, separators=(',', ':')))
+  except Exception as e:
+      print(f"CAUGHT_ERROR: {e}")`, java: `
+  import java.util.*;
+  import java.io.*;
+  
+  // USER_CODE_PLACEHOLDER_BEFORE
+  class TreeNode {
+      int val;
+      TreeNode left;
+      TreeNode right;
+      TreeNode(int val) { this.val = val; }
+  }
+  // USER_CODE_PLACEHOLDER
+  
+  public class Main {
+      public static TreeNode buildTree(Integer[] nodes) {
+          if (nodes == null || nodes.length == 0 || nodes[0] == null) return null;
+          TreeNode root = new TreeNode(nodes[0]);
+          Queue<TreeNode> queue = new LinkedList<>();
+          queue.add(root);
+          int i = 1;
+          while (!queue.isEmpty() && i < nodes.length) {
+              TreeNode current = queue.poll();
+              if (nodes[i] != null) {
+                  current.left = new TreeNode(nodes[i]);
+                  queue.add(current.left);
+              }
+              i++;
+              if (i < nodes.length && nodes[i] != null) {
+                  current.right = new TreeNode(nodes[i]);
+                  queue.add(current.right);
+              }
+              i++;
+          }
+          return root;
+      }
+  
+      public static Integer[] parseJsonArray(String json) {
+          json = json.trim().substring(1, json.length() - 1);
+          if (json.isEmpty()) return new Integer[0];
+          String[] parts = json.split(",");
+          Integer[] arr = new Integer[parts.length];
+          for (int i = 0; i < parts.length; i++) {
+              String part = parts[i].trim();
+              if (part.equals("null")) {
+                  arr[i] = null;
+              } else {
+                  arr[i] = Integer.parseInt(part);
+              }
+          }
+          return arr;
+      }
+  
+      public static void main(String[] args) {
+          Scanner scanner = new Scanner(System.in);
+          String line = scanner.nextLine();
+          scanner.close();
+  
+          Integer[] nodes = parseJsonArray(line);
+          TreeNode root = buildTree(nodes);
+  
+          Solution sol = new Solution();
+          List<Integer> result = sol.inorderTraversal(root);
+  
+          System.out.print("[");
+          for (int i = 0; i < result.size(); i++) {
+              System.out.print(result.get(i));
+              if (i < result.size() - 1) {
+                  System.out.print(",");
+              }
+          }
+          System.out.println("]");
+      }
+  }`, cpp: `
+  #include <iostream>
+  #include <vector>
+  #include <string>
+  #include <sstream>
+  #include <queue>
+  #include <algorithm>
+  #include <optional>
+  
+  struct TreeNode {
+      int val;
+      TreeNode *left;
+      TreeNode *right;
+      TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+  };
+  // USER_CODE_PLACEHOLDER
+  
+  TreeNode* buildTree(const std::vector<std::optional<int>>& nodes) {
+      if (nodes.empty() || !nodes[0].has_value()) return nullptr;
+      TreeNode* root = new TreeNode(nodes[0].value());
+      std::queue<TreeNode*> q;
+      q.push(root);
+      size_t i = 1;
+      while (!q.empty() && i < nodes.size()) {
+          TreeNode* current = q.front();
+          q.pop();
+          if (i < nodes.size() && nodes[i].has_value()) {
+              current->left = new TreeNode(nodes[i].value());
+              q.push(current->left);
+          }
+          i++;
+          if (i < nodes.size() && nodes[i].has_value()) {
+              current->right = new TreeNode(nodes[i].value());
+              q.push(current->right);
+          }
+          i++;
+      }
+      return root;
+  }
+  std::vector<std::optional<int>> parseVector(const std::string& str) {
+      std::vector<std::optional<int>> vec;
+      std::string content = str.substr(1, str.length() - 2);
+      if (content.empty()) return vec;
+      std::stringstream ss(content);
+      std::string item;
+      while (std::getline(ss, item, ',')) {
+          if (item == "null") {
+              vec.push_back(std::nullopt);
+          } else {
+              vec.push_back(std::stoi(item));
+          }
+      }
+      return vec;
+  }
+  int main() {
+      std::string line;
+      std::getline(std::cin, line);
+      auto nodes = parseVector(line);
+      TreeNode* root = buildTree(nodes);
+      Solution sol;
+      std::vector<int> result = sol.inorderTraversal(root);
+      std::cout << "[";
+      for (size_t i = 0; i < result.size(); ++i) {
+          std::cout << result[i] << (i == result.size() - 1 ? "" : ",");
+      }
+      std::cout << "]" << std::endl;
+      // Memory cleanup would be needed in a real application
+      return 0;
+  }` },
+    },
+    {
+      id: '9',
+      title: 'Maximum Depth of Binary Tree',
+      slug: 'maximum-depth-of-binary-tree',
+      description: 'Given the root of a binary tree, find its maximum depth. The maximum depth is the number of nodes along the longest path from the root node down to the farthest leaf node.',
+      tags: ['Tree', 'Binary Tree', 'DFS', 'BFS', 'Recursion'],
+      constraints: `
+  - The number of nodes in the tree is in the range [0, 10^4].
+  - -100 <= Node.val <= 100
+      `,
+      difficulty: Difficulty.EASY,
+      functionName: 'maxDepth',
+      inputSignature: [{ name: 'root', type: 'TreeNode' }],
+      testCases: [
+          { Input: '[3,9,20,null,null,15,7]', Output: '3' },
+          { Input: '[1,null,2]', Output: '2' },
+          { Input: '[]', Output: '0' },
+          { Input: '[0]', Output: '1' },
+          { Input: '[1,2,3,4,5]', Output: '3' },
+          { Input: '[1,2,null,3,null,4]', Output: '4' },
+          { Input: '[1,2,3,4,null,null,5,6,null,null,null,null,null,7]', Output: '5' },
+          { Input: '[2,null,3,null,4,null,5]', Output: '4' },
+          { Input: '[1,1,1,1,1]', Output: '3' },
+          { Input: '[5,3,6,2,4,null,7]', Output: '3' },
+      ],
+      starterCode: { /* ... */ javascript: `/**
+   * Definition for a binary tree node.
+   * function TreeNode(val, left, right) {
+   * this.val = (val===undefined ? 0 : val)
+   * this.left = (left===undefined ? null : left)
+   * this.right = (right===undefined ? null : right)
+   * }
+   */
+  var maxDepth = function(root) {
+      // Your code here
+  };`, python: `# Definition for a binary tree node.
+  # class TreeNode:
+  #     def __init__(self, val=0, left=None, right=None):
+  #         self.val = val
+  #         self.left = left
+  #         self.right = right
+  class Solution:
+      def maxDepth(self, root: Optional[TreeNode]) -> int:
+          # Your code here
+          pass`, cpp: `/**
+   * Definition for a binary tree node.
+   * struct TreeNode {
+   * int val;
+   * TreeNode *left;
+   * TreeNode *right;
+   * TreeNode() : val(0), left(nullptr), right(nullptr) {}
+   * TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+   * TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+   * };
+   */
+  class Solution {
+  public:
+      int maxDepth(TreeNode* root) {
+          // Your code here
+      }
+  };`, java: `/**
+   * Definition for a binary tree node.
+   * public class TreeNode {
+   * int val;
+   * TreeNode left;
+   * TreeNode right;
+   * TreeNode() {}
+   * TreeNode(int val) { this.val = val; }
+   * TreeNode(int val, TreeNode left, TreeNode right) {
+   * this.val = val;
+   * this.left = left;
+   * this.right = right;
+   * }
+   * }
+   */
+  class Solution {
+      public int maxDepth(TreeNode root) {
+          // Your code here
+      }
+  }` },
+      driverCode: { /* ... */ javascript: `
+  function TreeNode(val, left, right) {
+      this.val = (val===undefined ? 0 : val);
+      this.left = (left===undefined ? null : left);
+      this.right = (right===undefined ? null : right);
+  }
+  function buildTree(nodes) {
+      if (!nodes || nodes.length === 0 || nodes[0] === null) return null;
+      let root = new TreeNode(nodes[0]);
+      let queue = [root];
+      let i = 1;
+      while (queue.length > 0 && i < nodes.length) {
+          let currentNode = queue.shift();
+          if (nodes[i] !== null) {
+              currentNode.left = new TreeNode(nodes[i]);
+              queue.push(currentNode.left);
+          }
+          i++;
+          if (i < nodes.length && nodes[i] !== null) {
+              currentNode.right = new TreeNode(nodes[i]);
+              queue.push(currentNode.right);
+          }
+          i++;
+      }
+      return root;
+  }
+  // USER_CODE_PLACEHOLDER
+  try {
+      const fs = require('fs');
+      const nodes = JSON.parse(fs.readFileSync(0, 'utf-8').trim());
+      const root = buildTree(nodes);
+      const result = maxDepth(root);
+      console.log(result);
+  } catch (e) {
+      console.log("CAUGHT_ERROR: " + e.message);
+  }`, python: `
+  import sys, json, collections
+  from typing import Optional
+  class TreeNode:
+      def __init__(self, val=0, left=None, right=None):
+          self.val = val
+          self.left = left
+          self.right = right
+  def build_tree(nodes):
+      if not nodes:
+          return None
+      root = TreeNode(nodes[0])
+      queue = collections.deque([root])
+      i = 1
+      while queue and i < len(nodes):
+          node = queue.popleft()
+          if i < len(nodes) and nodes[i] is not None:
+              node.left = TreeNode(nodes[i])
+              queue.append(node.left)
+          i += 1
+          if i < len(nodes) and nodes[i] is not None:
+              node.right = TreeNode(nodes[i])
+              queue.append(node.right)
+          i += 1
+      return root
+  # USER_CODE_PLACEHOLDER
+  try:
+      nodes = json.loads(sys.stdin.readline())
+      root = build_tree(nodes)
+      solver = Solution()
+      result = solver.maxDepth(root)
+      print(result)
+  except Exception as e:
+      print(f"CAUGHT_ERROR: {e}")`, java: `
+  import java.util.*;
+  // USER_CODE_PLACEHOLDER_BEFORE
+  class TreeNode {
+      int val;
+      TreeNode left;
+      TreeNode right;
+      TreeNode(int val) { this.val = val; }
+  }
+  // USER_CODE_PLACEHOLDER
+  
+  public class Main {
+      public static TreeNode buildTree(Integer[] nodes) {
+          if (nodes == null || nodes.length == 0 || nodes[0] == null) return null;
+          TreeNode root = new TreeNode(nodes[0]);
+          Queue<TreeNode> queue = new LinkedList<>();
+          queue.add(root);
+          int i = 1;
+          while (!queue.isEmpty() && i < nodes.length) {
+              TreeNode current = queue.poll();
+              if (i < nodes.length && nodes[i] != null) {
+                  current.left = new TreeNode(nodes[i]);
+                  queue.add(current.left);
+              }
+              i++;
+              if (i < nodes.length && nodes[i] != null) {
+                  current.right = new TreeNode(nodes[i]);
+                  queue.add(current.right);
+              }
+              i++;
+          }
+          return root;
+      }
+  
+      public static Integer[] parseJsonArray(String json) {
+          json = json.trim().substring(1, json.length() - 1);
+          if (json.isEmpty()) return new Integer[0];
+          String[] parts = json.split(",");
+          Integer[] arr = new Integer[parts.length];
+          for (int i = 0; i < parts.length; i++) {
+              String part = parts[i].trim();
+              if (part.equals("null")) {
+                  arr[i] = null;
+              } else {
+                  arr[i] = Integer.parseInt(part);
+              }
+          }
+          return arr;
+      }
+  
+      public static void main(String[] args) {
+          Scanner scanner = new Scanner(System.in);
+          String line = scanner.nextLine();
+          scanner.close();
+  
+          Integer[] nodes = parseJsonArray(line);
+          TreeNode root = buildTree(nodes);
+  
+          Solution sol = new Solution();
+          int result = sol.maxDepth(root);
+  
+          System.out.println(result);
+      }
+  }`, cpp: `
+  #include <iostream>
+  #include <vector>
+  #include <string>
+  #include <sstream>
+  #include <queue>
+  #include <optional>
+  
+  struct TreeNode {
+      int val;
+      TreeNode *left;
+      TreeNode *right;
+      TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+  };
+  // USER_CODE_PLACEHOLDER
+  
+  TreeNode* buildTree(const std::vector<std::optional<int>>& nodes) {
+      if (nodes.empty() || !nodes[0].has_value()) return nullptr;
+      TreeNode* root = new TreeNode(nodes[0].value());
+      std::queue<TreeNode*> q;
+      q.push(root);
+      size_t i = 1;
+      while (!q.empty() && i < nodes.size()) {
+          TreeNode* current = q.front();
+          q.pop();
+          if (i < nodes.size() && nodes[i].has_value()) {
+              current->left = new TreeNode(nodes[i].value());
+              q.push(current->left);
+          }
+          i++;
+          if (i < nodes.size() && nodes[i].has_value()) {
+              current->right = new TreeNode(nodes[i].value());
+              q.push(current->right);
+          }
+          i++;
+      }
+      return root;
+  }
+  std::vector<std::optional<int>> parseVector(const std::string& str) {
+      std::vector<std::optional<int>> vec;
+      std::string content = str.substr(1, str.length() - 2);
+      if (content.empty()) return vec;
+      std::stringstream ss(content);
+      std::string item;
+      while (std::getline(ss, item, ',')) {
+          if (item == "null") {
+              vec.push_back(std::nullopt);
+          } else {
+              vec.push_back(std::stoi(item));
+          }
+      }
+      return vec;
+  }
+  int main() {
+      std::string line;
+      std::getline(std::cin, line);
+      auto nodes = parseVector(line);
+      TreeNode* root = buildTree(nodes);
+      Solution sol;
+      int result = sol.maxDepth(root);
+      std::cout << result << std::endl;
+      // Memory cleanup needed
+      return 0;
+  }` },
+    },
+    {
+      id: '10',
+      title: 'Coin Change Combinations',
+      slug: 'coin-change-combinations',
+      description: 'You are given an integer array `coins` representing coins of different denominations and an integer `amount` representing a total amount of money. Return the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return -1.',
+      tags: ['Dynamic Programming', 'Array', 'BFS'],
+      constraints: `
+  - 1 <= coins.length <= 12
+  - 1 <= coins[i] <= 2^31 - 1
+  - 0 <= amount <= 10^4
+      `,
       difficulty: Difficulty.MEDIUM,
-      functionName: 'lowestCommonAncestor',
-      inputSignature: [{ name: 'root', type: 'tree' }, { name: 'p', type: 'integer' }, { name: 'q', type: 'integer' }],
-      testCases: { "Input": "[6,2,8,0,4,7,9,null,null,3,5]\n2\n8", "Output": "6" },
-      StarterCode: {
-          javascript: 'var lowestCommonAncestor = function(root, p, q) {\n    // Your code here\n};',
-          python: 'class Solution:\n    def lowestCommonAncestor(self, root: "TreeNode", p: "TreeNode", q: "TreeNode") -> "TreeNode":\n        # Your code here\n        pass',
-          cpp: 'class Solution {\npublic:\n    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {\n        // Your code here\n    }\n};',
-          java: 'class Solution {\n    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {\n        // Your code here\n    }\n}',
-      },
-    },
-
-    // ----------------- DYNAMIC PROGRAMMING -----------------
-    {
-        id: '9',
-        title: 'Staircase Step Combinations',
-        slug: 'staircase-step-combinations',
-        description: 'You need to climb a staircase with `n` steps. You can take either 1 or 2 steps at a time. Calculate the total number of distinct ways you can reach the top.',
-        difficulty: Difficulty.EASY,
-        functionName: 'climbStairs',
-        inputSignature: [{ name: 'n', type: 'integer' }],
-        testCases: { "Input": "4\n", "Output": "5" },
-        StarterCode: {
-          javascript: 'var climbStairs = function(n) {\n    // Your code here\n};',
-          python: 'class Solution:\n    def climbStairs(self, n: int) -> int:\n        # Your code here\n        pass',
-          cpp: 'class Solution {\npublic:\n    int climbStairs(int n) {\n        // Your code here\n    }\n};',
-          java: 'class Solution {\n    public int climbStairs(int n) {\n        // Your code here\n    }\n}',
-        },
-    },
-    {
-      id: '23',
-      title: 'Street Robbery',
-      slug: 'street-robbery',
-      description: 'You are a professional robber planning to rob houses along a street. Each house has a certain amount of money stashed. The only constraint is that adjacent houses have security systems connected, and will alert the police if two adjacent houses are broken into. Given an integer array `nums` representing the amount of money of each house, return the maximum amount of money you can rob without alerting the police.',
-      difficulty: Difficulty.MEDIUM,
-      functionName: 'rob',
-      inputSignature: [{ name: 'nums', type: 'integer[]' }],
-      testCases: { "Input": "[2,7,9,3,1]\n", "Output": "12" },
-      StarterCode: {
-        javascript: 'var rob = function(nums) {\n    // Your code here\n};',
-        python: 'class Solution:\n    def rob(self, nums: list[int]) -> int:\n        # Your code here\n        pass',
-        cpp: 'class Solution {\npublic:\n    int rob(vector<int>& nums) {\n        // Your code here\n    }\n};',
-        java: 'class Solution {\n    public int rob(int[] nums) {\n        // Your code here\n    }\n}',
-      },
-    },
-    {
-        id: '10',
-        title: 'Minimum Coin Combination',
-        slug: 'minimum-coin-combination',
-        description: "Given a set of coin denominations and a total amount, determine the minimum number of coins required to make up that amount. If it's impossible, return -1.",
-        difficulty: Difficulty.MEDIUM,
-        functionName: 'coinChange',
-        inputSignature: [{ name: 'coins', type: 'integer[]' }, { name: 'amount', type: 'integer' }],
-        testCases: { "Input": "[2]\n3", "Output": "-1" },
-        StarterCode: {
-          javascript: 'var coinChange = function(coins, amount) {\n    // Your code here\n};',
-          python: 'class Solution:\n    def coinChange(self, coins: list[int], amount: int) -> int:\n        # Your code here\n        pass',
-          cpp: 'class Solution {\npublic:\n    int coinChange(vector<int>& coins, int amount) {\n        // Your code here\n    }\n};',
-          java: 'class Solution {\n    public int coinChange(int[] coins, int amount) {\n        // Your code here\n    }\n}',
-        },
-    },
-    {
-      id: '24',
-      title: 'Longest Ascending Sequence',
-      slug: 'longest-ascending-sequence',
-      description: 'Given an integer array `nums`, return the length of the longest strictly increasing subsequence.',
-      difficulty: Difficulty.MEDIUM,
-      functionName: 'lengthOfLIS',
-      inputSignature: [{ name: 'nums', type: 'integer[]' }],
-      testCases: { "Input": "[10,9,2,5,3,7,101,18]\n", "Output": "4" },
-      StarterCode: {
-        javascript: 'var lengthOfLIS = function(nums) {\n    // Your code here\n};',
-        python: 'class Solution:\n    def lengthOfLIS(self, nums: list[int]) -> int:\n        # Your code here\n        pass',
-        cpp: 'class Solution {\npublic:\n    int lengthOfLIS(vector<int>& nums) {\n        // Your code here\n    }\n};',
-        java: 'class Solution {\n    public int lengthOfLIS(int[] nums) {\n        // Your code here\n    }\n}',
-      },
-    },
-
-    // ----------------- GRAPHS -----------------
-    {
-        id: '11',
-        title: 'Count Land Masses',
-        slug: 'count-land-masses',
-        description: "You are given a 2D grid map where '1' represents land and '0' represents water. An island is a group of connected '1's. Your task is to count the total number of separate islands on the map.",
-        difficulty: Difficulty.MEDIUM,
-        functionName: 'numIslands',
-        inputSignature: [{ name: 'grid', type: 'string[][]' }],
-        testCases: { "Input": "[[\"1\",\"1\",\"1\",\"1\",\"0\"],[\"1\",\"1\",\"0\",\"1\",\"0\"],[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"0\",\"0\",\"0\",\"0\",\"0\"]]\n", "Output": "1" },
-        StarterCode: {
-          javascript: 'var numIslands = function(grid) {\n    // Your code here\n};',
-          python: 'class Solution:\n    def numIslands(self, grid: list[list[str]]) -> int:\n        # Your code here\n        pass',
-          cpp: 'class Solution {\npublic:\n    int numIslands(vector<vector<char>>& grid) {\n        // Your code here\n    }\n};',
-          java: 'class Solution {\n    public int numIslands(char[][] grid) {\n        // Your code here\n    }\n}',
-        },
-    },
-    {
-      id: '25',
-      title: 'Duplicate Graph Structure',
-      slug: 'duplicate-graph-structure',
-      description: 'Given a reference of a node in a connected undirected graph, return a deep copy (clone) of the graph. Each node in the graph contains a value and a list of its neighbors.',
-      difficulty: Difficulty.MEDIUM,
-      functionName: 'cloneGraph',
-      inputSignature: [{ name: 'graph', type: 'graph' }],
-      testCases: { "Input": "[[2,4],[1,3],[2,4],[1,3]]\n", "Output": "[[2,4],[1,3],[2,4],[1,3]]" },
-      StarterCode: {
-        javascript: 'var cloneGraph = function(node) {\n    // Your code here\n};',
-        python: 'class Solution:\n    def cloneGraph(self, node: "Node") -> "Node":\n        # Your code here\n        pass',
-        cpp: 'class Solution {\npublic:\n    Node* cloneGraph(Node* node) {\n        // Your code here\n    }\n};',
-        java: 'class Solution {\n    public Node cloneGraph(Node node) {\n        // Your code here\n    }\n}',
-      },
-    },
-    {
-      id: '26',
-      title: 'Course Completion Check',
-      slug: 'course-completion-check',
-      description: 'There are a total of `numCourses` courses you have to take, labeled from 0 to `numCourses - 1`. You are given an array `prerequisites` where `prerequisites[i] = [ai, bi]` indicates that you must take course `bi` first if you want to take course `ai`. Return `true` if you can finish all courses. Otherwise, return `false`.',
-      difficulty: Difficulty.MEDIUM,
-      functionName: 'canFinish',
-      inputSignature: [{ name: 'numCourses', type: 'integer' }, { name: 'prerequisites', type: 'integer[][]' }],
-      testCases: { "Input": "2\n[[1,0]]", "Output": "true" },
-      StarterCode: {
-        javascript: 'var canFinish = function(numCourses, prerequisites) {\n    // Your code here\n};',
-        python: 'class Solution:\n    def canFinish(self, numCourses: int, prerequisites: list[list[int]]) -> bool:\n        # Your code here\n        pass',
-        cpp: 'class Solution {\npublic:\n    bool canFinish(int numCourses, vector<vector<int>>& prerequisites) {\n        // Your code here\n    }\n};',
-        java: 'class Solution {\n    public boolean canFinish(int numCourses, int[][] prerequisites) {\n        // Your code here\n    }\n}',
-      },
+      functionName: 'coinChange',
+      inputSignature: [
+        { name: 'coins', type: 'int[]' },
+        { name: 'amount', type: 'int' },
+      ],
+      testCases: [
+          { Input: '[1,2,5]\n11', Output: '3' },
+          { Input: '[2]\n3', Output: '-1' },
+          { Input: '[1]\n0', Output: '0' },
+          { Input: '[1]\n1', Output: '1' },
+          { Input: '[1]\n2', Output: '2' },
+          { Input: '[186,419,83,408]\n6249', Output: '20' },
+          { Input: '[1,5,10,25]\n100', Output: '4' },
+          { Input: '[3,5]\n7', Output: '-1' },
+          { Input: '[2,5,10,1]\n27', Output: '4' },
+          { Input: '[474,83,404,3]\n264', Output: '2' },
+      ],
+      starterCode: { /* ... */ javascript: `var coinChange = function(coins, amount) {
+      // Your code here
+  };`, python: `class Solution:
+      def coinChange(self, coins: list[int], amount: int) -> int:
+          # Your code here
+          pass`, cpp: `class Solution {
+  public:
+      int coinChange(vector<int>& coins, int amount) {
+          // Your code here
+      }
+  };`, java: `class Solution {
+      public int coinChange(int[] coins, int amount) {
+          // Your code here
+      }
+  }` },
+      driverCode: { /* ... */ javascript: `
+  // USER_CODE_PLACEHOLDER
+  try {
+      const fs = require('fs');
+      const input = fs.readFileSync(0, 'utf-8');
+      const lines = input.trim().split('\\n');
+      const coins = JSON.parse(lines[0]);
+      const amount = parseInt(lines[1], 10);
+      const result = coinChange(coins, amount);
+      console.log(result);
+  } catch (e) {
+      console.log("CAUGHT_ERROR: " + e.message);
+  }`, python: `
+  import sys
+  import json
+  # USER_CODE_PLACEHOLDER
+  try:
+      lines = sys.stdin.readlines()
+      coins = json.loads(lines[0])
+      amount = int(lines[1])
+      solver = Solution()
+      result = solver.coinChange(coins, amount)
+      print(result)
+  except Exception as e:
+      print(f"CAUGHT_ERROR: {e}")`, java: `
+  import java.util.*;
+  // USER_CODE_PLACEHOLDER
+  public class Main {
+      public static void main(String[] args) {
+          Scanner scanner = new Scanner(System.in);
+          String line1 = scanner.nextLine();
+          int amount = Integer.parseInt(scanner.nextLine().trim());
+          scanner.close();
+  
+          line1 = line1.trim();
+          String[] coinsStr = line1.substring(1, line1.length() - 1).split(",");
+          int[] coins = new int[coinsStr.length];
+          if (coinsStr.length > 0 && !coinsStr[0].isEmpty()) {
+              for(int i = 0; i < coinsStr.length; i++) {
+                  coins[i] = Integer.parseInt(coinsStr[i].trim());
+              }
+          } else {
+              coins = new int[0];
+          }
+  
+          Solution sol = new Solution();
+          int result = sol.coinChange(coins, amount);
+          System.out.println(result);
+      }
+  }`, cpp: `
+  #include <iostream>
+  #include <vector>
+  #include <string>
+  #include <sstream>
+  // USER_CODE_PLACEHOLDER
+  std::vector<int> parseVector(const std::string& str) {
+      std::vector<int> vec;
+      if (str.length() <= 2) return vec;
+      std::string content = str.substr(1, str.length() - 2);
+      if (content.empty()) return vec;
+      std::stringstream ss(content);
+      std::string item;
+      while (std::getline(ss, item, ',')) {
+          vec.push_back(std::stoi(item));
+      }
+      return vec;
+  }
+  
+  int main() {
+      std::string line1, line2;
+      std::getline(std::cin, line1);
+      std::getline(std::cin, line2);
+  
+      std::vector<int> coins = parseVector(line1);
+      int amount = std::stoi(line2);
+  
+      Solution sol;
+      int result = sol.coinChange(coins, amount);
+      std::cout << result << std::endl;
+      return 0;
+  }` },
     },
     
-    // ----------------- OTHER TOPICS -----------------
+    // 20 New Problems
     {
-      id: '18',
-      title: 'Maximize Stock Profit',
-      slug: 'maximize-stock-profit',
-      description: 'You are given an array `prices` where `prices[i]` is the price of a given stock on the `i`th day. You want to maximize your profit by choosing a single day to buy one stock and choosing a different day in the future to sell that stock. Return the maximum profit you can achieve. If you cannot achieve any profit, return 0.',
-      difficulty: Difficulty.EASY,
-      functionName: 'maxProfit',
-      inputSignature: [{ name: 'prices', type: 'integer[]' }],
-      testCases: { "Input": "[7,1,5,3,6,4]\n", "Output": "5" },
-      StarterCode: {
-        javascript: 'var maxProfit = function(prices) {\n    // Your code here\n};',
-        python: 'class Solution:\n    def maxProfit(self, prices: list[int]) -> int:\n        # Your code here\n        pass',
-        cpp: 'class Solution {\npublic:\n    int maxProfit(vector<int>& prices) {\n        // Your code here\n    }\n};',
-        java: 'class Solution {\n    public int maxProfit(int[] prices) {\n        // Your code here\n    }\n}',
+      id: '11',
+      title: 'Longest Unique Character Substring',
+      slug: 'longest-unique-character-substring',
+      description: 'Given a string, find the length of the longest substring that does not contain repeating characters.',
+      tags: ['String', 'Sliding Window', 'Hash Table'],
+      constraints: `
+  - 0 <= s.length <= 5 * 10^4
+  - s consists of English letters, digits, symbols and spaces.
+      `,
+      difficulty: Difficulty.MEDIUM,
+      functionName: 'lengthOfLongestSubstring',
+      inputSignature: [{ name: 's', type: 'string' }],
+      testCases: [
+          { Input: '"abcabcbb"', Output: '3' },
+          { Input: '"bbbbb"', Output: '1' },
+          { Input: '"pwwkew"', Output: '3' },
+          { Input: '""', Output: '0' },
+          { Input: '" "', Output: '1' },
+          { Input: '"au"', Output: '2' },
+          { Input: '"dvdf"', Output: '3' },
+          { Input: '"aab"', Output: '2' },
+          { Input: '"tmmzuxt"', Output: '5' },
+          { Input: '"abcdefg"', Output: '7' },
+      ],
+      starterCode: {
+          javascript: `var lengthOfLongestSubstring = function(s) {
+      // Your code here
+  };`,
+          python: `class Solution:
+      def lengthOfLongestSubstring(self, s: str) -> int:
+          # Your code here
+          pass`,
+          cpp: `class Solution {
+  public:
+      int lengthOfLongestSubstring(string s) {
+          // Your code here
+      }
+  };`,
+          java: `class Solution {
+      public int lengthOfLongestSubstring(String s) {
+          // Your code here
+      }
+  }`,
       },
+      driverCode: { /* Similar to problem 2 */ javascript: `
+  // USER_CODE_PLACEHOLDER
+  try {
+      const fs = require('fs');
+      const input = fs.readFileSync(0, 'utf-8').trim();
+      const s = JSON.parse(input);
+      const result = lengthOfLongestSubstring(s);
+      console.log(result);
+  } catch (e) {
+      console.log("CAUGHT_ERROR: " + e.message);
+  }`, python: `
+  import sys
+  import json
+  # USER_CODE_PLACEHOLDER
+  try:
+      s = json.loads(sys.stdin.readline())
+      solver = Solution()
+      result = solver.lengthOfLongestSubstring(s)
+      print(result)
+  except Exception as e:
+      print(f"CAUGHT_ERROR: {e}")`, java: `
+  import java.util.*;
+  // USER_CODE_PLACEHOLDER
+  public class Main {
+      public static void main(String[] args) {
+          Scanner scanner = new Scanner(System.in);
+          String s = scanner.nextLine();
+          scanner.close();
+          s = s.substring(1, s.length() - 1);
+  
+          Solution sol = new Solution();
+          int result = sol.lengthOfLongestSubstring(s);
+          System.out.println(result);
+      }
+  }`, cpp: `
+  #include <iostream>
+  #include <string>
+  #include <vector>
+  // USER_CODE_PLACEHOLDER
+  int main() {
+      std::string s;
+      std::getline(std::cin, s);
+      if (s.length() >= 2 && s.front() == '"' && s.back() == '"') {
+          s = s.substr(1, s.length() - 2);
+      }
+  
+      Solution sol;
+      int result = sol.lengthOfLongestSubstring(s);
+      std::cout << result << std::endl;
+      return 0;
+  }` },
+    },
+    {
+      id: '12',
+      title: 'Product of Array Except Self',
+      slug: 'product-of-array-except-self',
+      description: 'Given an integer array `nums`, return an array `answer` such that `answer[i]` is equal to the product of all the elements of `nums` except `nums[i]`. You must write an algorithm that runs in O(n) time and without using the division operation.',
+      tags: ['Array', 'Prefix Sum'],
+      constraints: `
+  - 2 <= nums.length <= 10^5
+  - -30 <= nums[i] <= 30
+  - The product of any prefix or suffix of nums is guaranteed to fit in a 32-bit integer.
+      `,
+      difficulty: Difficulty.MEDIUM,
+      functionName: 'productExceptSelf',
+      inputSignature: [{ name: 'nums', type: 'int[]' }],
+      testCases: [
+          { Input: '[1,2,3,4]', Output: '[24,12,8,6]' },
+          { Input: '[-1,1,0,-3,3]', Output: '[0,0,9,0,0]' },
+          { Input: '[1,2]', Output: '[2,1]' },
+          { Input: '[1,0]', Output: '[0,1]' },
+          { Input: '[0,0]', Output: '[0,0]' },
+          { Input: '[1,1,1,1]', Output: '[1,1,1,1]' },
+          { Input: '[-1,-1,-1,-1]', Output: '[-1,-1,-1,-1]' },
+          { Input: '[2,3,5,0]', Output: '[0,0,0,30]' },
+          { Input: '[1,2,3,0,5]', Output: '[0,0,0,30,0]' },
+          { Input: '[1,2,3,4,5]', Output: '[120,60,40,30,24]' },
+      ],
+      starterCode: {
+          javascript: `var productExceptSelf = function(nums) {
+      // Your code here
+  };`,
+          python: `class Solution:
+      def productExceptSelf(self, nums: list[int]) -> list[int]:
+          # Your code here
+          pass`,
+          cpp: `class Solution {
+  public:
+      vector<int> productExceptSelf(vector<int>& nums) {
+          // Your code here
+      }
+  };`,
+          java: `class Solution {
+      public int[] productExceptSelf(int[] nums) {
+          // Your code here
+      }
+  }`,
+      },
+      driverCode: { /* Similar to problem 4 */ javascript: `
+  // USER_CODE_PLACEHOLDER
+  try {
+      const fs = require('fs');
+      const input = fs.readFileSync(0, 'utf-8').trim();
+      const nums = JSON.parse(input);
+      const result = productExceptSelf(nums);
+      console.log(JSON.stringify(result));
+  } catch (e) {
+      console.log("CAUGHT_ERROR: " + e.message);
+  }`, python: `
+  import sys
+  import json
+  # USER_CODE_PLACEHOLDER
+  try:
+      nums = json.loads(sys.stdin.readline())
+      solver = Solution()
+      result = solver.productExceptSelf(nums)
+      print(json.dumps(result, separators=(',', ':')))
+  except Exception as e:
+      print(f"CAUGHT_ERROR: {e}")`, java: `
+  import java.util.*;
+  // USER_CODE_PLACEHOLDER
+  public class Main {
+      public static void main(String[] args) {
+          Scanner scanner = new Scanner(System.in);
+          String line = scanner.nextLine();
+          scanner.close();
+  
+          line = line.trim();
+          String[] numsStr = line.substring(1, line.length() - 1).split(",");
+          int[] nums = new int[numsStr.length];
+          if (numsStr.length > 0 && !numsStr[0].isEmpty()) {
+              for(int i = 0; i < numsStr.length; i++) {
+                  nums[i] = Integer.parseInt(numsStr[i].trim());
+              }
+          } else {
+               nums = new int[0];
+          }
+  
+          Solution sol = new Solution();
+          int[] result = sol.productExceptSelf(nums);
+          System.out.println(Arrays.toString(result).replace(" ", ""));
+      }
+  }`, cpp: `
+  #include <iostream>
+  #include <vector>
+  #include <string>
+  #include <sstream>
+  // USER_CODE_PLACEHOLDER
+  // Helper function to parse a JSON-like array string
+  std::vector<int> parseVector(const std::string& str) {
+      std::vector<int> vec;
+      if (str.length() <= 2) return vec;
+      std::string content = str.substr(1, str.length() - 2);
+      if (content.empty()) return vec;
+      std::stringstream ss(content);
+      std::string item;
+      while (std::getline(ss, item, ',')) {
+          vec.push_back(std::stoi(item));
+      }
+      return vec;
+  }
+  
+  int main() {
+      std::string line;
+      std::getline(std::cin, line);
+      std::vector<int> nums = parseVector(line);
+  
+      Solution sol;
+      std::vector<int> result = sol.productExceptSelf(nums);
+      
+      std::cout << "[";
+      for (size_t i = 0; i < result.size(); ++i) {
+          std::cout << result[i] << (i == result.size() - 1 ? "" : ",");
+      }
+      std::cout << "]" << std::endl;
+      return 0;
+  }` },
     },
     {
       id: '13',
-      title: 'Smallest Covering Substring',
-      slug: 'smallest-covering-substring',
-      description: "You are given two strings, `s` (the search string) and `t` (the pattern). Find the smallest substring in `s` that contains all the characters of `t`. If no such window exists, return an empty string.",
-      difficulty: Difficulty.HARD,
-      functionName: 'minWindow',
-      inputSignature: [{ name: 's', type: 'string' }, { name: 't', type: 'string' }],
-      testCases: { "Input": "a\na", "Output": "a" },
-      StarterCode: {
-        javascript: 'var minWindow = function(s, t) {\n    // Your code here\n};',
-        python: 'class Solution:\n    def minWindow(self, s: str, t: str) -> str:\n        # Your code here\n        pass',
-        cpp: 'class Solution {\npublic:\n    string minWindow(string s, string t) {\n        // Your code here\n    }\n};',
-        java: 'class Solution {\n    public String minWindow(String s, String t) {\n        // Your code here\n    }\n}',
-      },
-    },
-    {
-      id: '14',
-      title: 'Matrix 90-Degree Rotation',
-      slug: 'matrix-90-degree-rotation',
-      description: "Given a square matrix (n x n), rotate it 90 degrees clockwise. The challenge is to perform this rotation without using any extra matrix for storage (in-place).",
+      title: 'Implement Trie (Prefix Tree)',
+      slug: 'implement-trie-prefix-tree',
+      description: 'Implement a Trie data structure with `insert`, `search`, and `startsWith` methods.',
+      tags: ['Trie', 'Design', 'Hash Table', 'String'],
+      constraints: `
+  - 1 <= word.length, prefix.length <= 2000
+  - word and prefix consist only of lowercase English letters.
+  - At most 3 * 10^4 calls will be made to insert, search, and startsWith.
+      `,
       difficulty: Difficulty.MEDIUM,
-      functionName: 'rotate',
-      inputSignature: [{ name: 'matrix', type: 'integer[][]' }],
-      testCases: { "Input": "[[5,1,9,11],[2,4,8,10],[13,3,6,7],[15,14,12,16]]\n", "Output": "[[15,13,2,5],[14,3,4,1],[12,6,8,9],[16,7,10,11]]" },
-      StarterCode: {
-        javascript: 'var rotate = function(matrix) {\n    // Your code here\n};',
-        python: 'class Solution:\n    def rotate(self, matrix: list[list[int]]) -> None:\n        """\n        Do not return anything, modify matrix in-place instead.\n        """\n        # Your code here\n        pass',
-        cpp: 'class Solution {\npublic:\n    void rotate(vector<vector<int>>& matrix) {\n        // Your code here\n    }\n};',
-        java: 'class Solution {\n    public void rotate(int[][] matrix) {\n        // Your code here\n    }\n}',
+      functionName: 'Trie',
+      inputSignature: [
+        { name: 'operations', type: 'string[]' },
+        { name: 'values', type: 'string[]' },
+      ],
+      testCases: [
+          { Input: '["Trie","insert","search","search","startsWith","insert","search"]\n[[],["apple"],["apple"],["app"],["app"],["app"],["app"]]', Output: '[null,null,true,false,true,null,true]' },
+          { Input: '["Trie","insert","search"]\n[[],["hello"],["hell"]]', Output: '[null,null,false]' },
+          { Input: '["Trie","startsWith"]\n[[],["a"]]', Output: '[null,false]' },
+          { Input: '["Trie","insert","startsWith","search"]\n[[],["word"],["wo"],["word"]]', Output: '[null,null,true,true]' },
+          { Input: '["Trie","insert","insert","search","startsWith"]\n[[],["abc"],["ab"],["abc"],["ab"]]', Output: '[null,null,null,true,true]' },
+          { Input: '["Trie","search"]\n[[],["a"]]', Output: '[null,false]'},
+          { Input: '["Trie","insert","insert","insert","search","search","search","startsWith","startsWith","startsWith"]\n[[],["a"],["b"],["c"],["a"],["b"],["c"],["a"],["b"],["c"]]', Output: '[null,null,null,null,true,true,true,true,true,true]'},
+          { Input: '["Trie","insert","search","startsWith"]\n[[],["there"],["the"],["the"]]', Output: '[null,null,false,true]'},
+          { Input: '["Trie","insert","search"]\n[[],["there"],["there"]]', Output: '[null,null,true]'},
+          { Input: '["Trie","insert","insert","startsWith","startsWith","search","search"]\n[[],["app"],["apple"],["ap"],["app"],["apple"],["apply"]]', Output: '[null,null,null,true,true,true,false]'},
+      ],
+      starterCode: {
+          javascript: `class Trie {
+      constructor() {
+          // Your code here
+      }
+      insert(word) {
+          // Your code here
+      }
+      search(word) {
+          // Your code here
+      }
+      startsWith(prefix) {
+          // Your code here
+      }
+  };`,
+          python: `class Trie:
+      def __init__(self):
+          # Your code here
+          pass
+      def insert(self, word: str) -> None:
+          # Your code here
+          pass
+      def search(self, word: str) -> bool:
+          # Your code here
+          pass
+      def startsWith(self, prefix: str) -> bool:
+          # Your code here
+          pass`,
+          cpp: `class Trie {
+  public:
+      Trie() {
+          // Your code here
+      }
+      
+      void insert(string word) {
+          // Your code here
+      }
+      
+      bool search(string word) {
+          // Your code here
+      }
+      
+      bool startsWith(string prefix) {
+          // Your code here
+      }
+  };`,
+          java: `class Trie {
+      public Trie() {
+          // Your code here
+      }
+      
+      public void insert(String word) {
+          // Your code here
+      }
+      
+      public boolean search(String word) {
+          // Your code here
+      }
+      
+      public boolean startsWith(String prefix) {
+          // Your code here
+      }
+  }`,
       },
-    },
-    {
-      id: '15',
-      title: 'Count Set Bits',
-      slug: 'count-set-bits',
-      description: "Given a 32-bit unsigned integer, count and return the number of '1's in its binary representation. This is also known as its Hamming weight.",
-      difficulty: Difficulty.EASY,
-      functionName: 'hammingWeight',
-      inputSignature: [{ name: 'n', type: 'integer' }],
-      testCases: { "Input": "11111111111111111111111111111101\n", "Output": "31" },
-      StarterCode: {
-        javascript: 'var hammingWeight = function(n) {\n    // Your code here\n};',
-        python: 'class Solution:\n    def hammingWeight(self, n: int) -> int:\n        # Your code here\n        pass',
-        cpp: 'class Solution {\npublic:\n    int hammingWeight(uint32_t n) {\n        // Your code here\n    }\n};',
-        java: 'class Solution {\n    // you need to treat n as an unsigned value\n    public int hammingWeight(int n) {\n        // Your code here\n    }\n}',
-      },
-    },
-    {
-      id: '29',
-      title: 'Combine Overlapping Intervals',
-      slug: 'combine-overlapping-intervals',
-      description: 'Given an array of `intervals` where `intervals[i] = [start_i, end_i]`, merge all overlapping intervals, and return an array of the non-overlapping intervals that cover all the intervals in the input.',
-      difficulty: Difficulty.MEDIUM,
-      functionName: 'merge',
-      inputSignature: [{ name: 'intervals', type: 'integer[][]' }],
-      testCases: { "Input": "[[1,3],[2,6],[8,10],[15,18]]\n", "Output": "[[1,6],[8,10],[15,18]]" },
-      StarterCode: {
-        javascript: 'var merge = function(intervals) {\n    // Your code here\n};',
-        python: 'class Solution:\n    def merge(self, intervals: list[list[int]]) -> list[list[int]]:\n        # Your code here\n        pass',
-        cpp: 'class Solution {\npublic:\n    vector<vector<int>> merge(vector<vector<int>>& intervals) {\n        // Your code here\n    }\n};',
-        java: 'class Solution {\n    public int[][] merge(int[][] intervals) {\n        // Your code here\n    }\n}',
-      },
-    },
-     {
-      id: '36',
-      title: 'Valid Parentheses',
-      slug: 'valid-parentheses',
-      description: 'Given a string `s` containing just the characters `(`, `)`, `{`, `}`, `[` and `]`, determine if the input string is valid. An input string is valid if: open brackets must be closed by the same type of brackets, and open brackets must be closed in the correct order.',
-      difficulty: Difficulty.EASY,
-      functionName: 'isValidParentheses',
-      inputSignature: [{ name: 's', type: 'string' }],
-      testCases: { "Input": "()[]{}\n", "Output": "true" },
-      StarterCode: {
-          javascript: 'var isValidParentheses = function(s) {\n    // Your code here\n};',
-          python: 'class Solution:\n    def isValidParentheses(self, s: str) -> bool:\n        # Your code here\n        pass',
-          cpp: 'class Solution {\npublic:\n    bool isValidParentheses(string s) {\n        // Your code here\n    }\n};',
-          java: 'class Solution {\n    public boolean isValidParentheses(String s) {\n        // Your code here\n    }\n}',
-      },
-    },
-    {
-      id: '37',
-      title: 'Binary Search',
-      slug: 'binary-search',
-      description: 'Given an array of integers `nums` which is sorted in ascending order, and an integer `target`, write a function to search `target` in `nums`. If `target` exists, then return its index. Otherwise, return -1.',
-      difficulty: Difficulty.EASY,
-      functionName: 'binarySearch',
-      inputSignature: [{ name: 'nums', type: 'integer[]' }, { name: 'target', type: 'integer' }],
-      testCases: { "Input": "[-1,0,3,5,9,12]\n9", "Output": "4" },
-      StarterCode: {
-          javascript: 'var binarySearch = function(nums, target) {\n    // Your code here\n};',
-          python: 'class Solution:\n    def binarySearch(self, nums: list[int], target: int) -> int:\n        # Your code here\n        pass',
-          cpp: 'class Solution {\npublic:\n    int binarySearch(vector<int>& nums, int target) {\n        // Your code here\n    }\n};',
-          java: 'class Solution {\n    public int binarySearch(int[] nums, int target) {\n        // Your code here\n    }\n}',
-      },
-    },
-    {
-      id: '38',
-      title: 'Minimum in Rotated Sorted Array',
-      slug: 'min-rotated-sorted-array',
-      description: 'Suppose an array of length `n` sorted in ascending order is rotated between 1 and `n` times. Given the sorted rotated array `nums` of unique elements, return the minimum element of this array.',
-      difficulty: Difficulty.MEDIUM,
-      functionName: 'findMin',
-      inputSignature: [{ name: 'nums', type: 'integer[]' }],
-      testCases: { "Input": "[3,4,5,1,2]\n", "Output": "1" },
-      StarterCode: {
-          javascript: 'var findMin = function(nums) {\n    // Your code here\n};',
-          python: 'class Solution:\n    def findMin(self, nums: list[int]) -> int:\n        # Your code here\n        pass',
-          cpp: 'class Solution {\npublic:\n    int findMin(vector<int>& nums) {\n        // Your code here\n    }\n};',
-          java: 'class Solution {\n    public int findMin(int[] nums) {\n        // Your code here\n    }\n}',
-      },
-    },
-    {
-      id: '39',
-      title: 'Longest Repeating Character Replacement',
-      slug: 'longest-repeating-char-replacement',
-      description: 'You are given a string `s` and an integer `k`. You can choose any character of the string and change it to any other uppercase English character. You can perform this operation at most `k` times. Return the length of the longest substring containing the same letter you can get after performing the above operations.',
-      difficulty: Difficulty.MEDIUM,
-      functionName: 'characterReplacement',
-      inputSignature: [{ name: 's', type: 'string' }, { name: 'k', type: 'integer' }],
-      testCases: { "Input": "ABAB\n2", "Output": "4" },
-      StarterCode: {
-          javascript: 'var characterReplacement = function(s, k) {\n    // Your code here\n};',
-          python: 'class Solution:\n    def characterReplacement(self, s: str, k: int) -> int:\n        # Your code here\n        pass',
-          cpp: 'class Solution {\npublic:\n    int characterReplacement(string s, int k) {\n        // Your code here\n    }\n};',
-          java: 'class Solution {\n    public int characterReplacement(String s, int k) {\n        // Your code here\n    }\n}',
-      },
-    },
-     {
-      id: '40',
-      title: 'Maximum Subarray Sum',
-      slug: 'maximum-subarray-sum',
-      description: 'Given an integer array `nums`, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum.',
-      difficulty: Difficulty.EASY,
-      functionName: 'maxSubArray',
-      inputSignature: [{ name: 'nums', type: 'integer[]' }],
-      testCases: { "Input": "[-2,1,-3,4,-1,2,1,-5,4]\n", "Output": "6" },
-      StarterCode: {
-          javascript: 'var maxSubArray = function(nums) {\n    // Your code here\n};',
-          python: 'class Solution:\n    def maxSubArray(self, nums: list[int]) -> int:\n        # Your code here\n        pass',
-          cpp: 'class Solution {\npublic:\n    int maxSubArray(vector<int>& nums) {\n        // Your code here\n    }\n};',
-          java: 'class Solution {\n    public int maxSubArray(int[] nums) {\n        // Your code here\n    }\n}',
-      },
-    },
-    {
-      id: '41',
-      title: 'Jump Game',
-      slug: 'jump-game',
-      description: 'You are given an integer array `nums`. You are initially positioned at the array\'s first index, and each element in the array represents your maximum jump length at that position. Return `true` if you can reach the last index, or `false` otherwise.',
-      difficulty: Difficulty.MEDIUM,
-      functionName: 'canJump',
-      inputSignature: [{ name: 'nums', type: 'integer[]' }],
-      testCases: { "Input": "[2,3,1,1,4]\n", "Output": "true" },
-      StarterCode: {
-          javascript: 'var canJump = function(nums) {\n    // Your code here\n};',
-          python: 'class Solution:\n    def canJump(self, nums: list[int]) -> bool:\n        # Your code here\n        pass',
-          cpp: 'class Solution {\npublic:\n    bool canJump(vector<int>& nums) {\n        // Your code here\n    }\n};',
-          java: 'class Solution {\n    public boolean canJump(int[] nums) {\n        // Your code here\n    }\n}',
-      },
-    },
-     {
-      id: '42',
-      title: 'Subset Generation',
-      slug: 'subset-generation',
-      description: 'Given an integer array `nums` of unique elements, return all possible subsets (the power set). The solution set must not contain duplicate subsets. Return the solution in any order.',
-      difficulty: Difficulty.MEDIUM,
-      functionName: 'subsets',
-      inputSignature: [{ name: 'nums', type: 'integer[]' }],
-      testCases: { "Input": "[1,2,3]\n", "Output": "[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]" },
-      StarterCode: {
-          javascript: 'var subsets = function(nums) {\n    // Your code here\n};',
-          python: 'class Solution:\n    def subsets(self, nums: list[int]) -> list[list[int]]:\n        # Your code here\n        pass',
-          cpp: 'class Solution {\npublic:\n    vector<vector<int>> subsets(vector<int>& nums) {\n        // Your code here\n    }\n};',
-          java: 'class Solution {\n    public List<List<Integer>> subsets(int[] nums) {\n        // Your code here\n    }\n}',
-      },
-    },
-    {
-      id: '43',
-      title: 'Word Break',
-      slug: 'word-break',
-      description: 'Given a string `s` and a dictionary of strings `wordDict`, return `true` if `s` can be segmented into a space-separated sequence of one or more dictionary words. Note that the same word in the dictionary may be reused multiple times in the segmentation.',
-      difficulty: Difficulty.MEDIUM,
-      functionName: 'wordBreak',
-      inputSignature: [{ name: 's', type: 'string' }, { name: 'wordDict', type: 'string[]' }],
-      testCases: { "Input": "leetcode\n[\"leet\",\"code\"]", "Output": "true" },
-      StarterCode: {
-          javascript: 'var wordBreak = function(s, wordDict) {\n    // Your code here\n};',
-          python: 'class Solution:\n    def wordBreak(self, s: str, wordDict: list[str]) -> bool:\n        # Your code here\n        pass',
-          cpp: 'class Solution {\npublic:\n    bool wordBreak(string s, vector<string>& wordDict) {\n        // Your code here\n    }\n};',
-          java: 'class Solution {\n    public boolean wordBreak(String s, List<String> wordDict) {\n        // Your code here\n    }\n}',
-      },
-    },
-    {
-      id: '44',
-      title: 'Combination Sum',
-      slug: 'combination-sum',
-      description: 'Given an array of distinct integers `candidates` and a target integer `target`, return a list of all unique combinations of `candidates` where the chosen numbers sum to `target`. You may return the combinations in any order.',
-      difficulty: Difficulty.MEDIUM,
-      functionName: 'combinationSum',
-      inputSignature: [{ name: 'candidates', type: 'integer[]' }, { name: 'target', type: 'integer' }],
-      testCases: { "Input": "[2,3,6,7]\n7", "Output": "[[2,2,3],[7]]" },
-      StarterCode: {
-          javascript: 'var combinationSum = function(candidates, target) {\n    // Your code here\n};',
-          python: 'class Solution:\n    def combinationSum(self, candidates: list[int], target: int) -> list[list[int]]:\n        # Your code here\n        pass',
-          cpp: 'class Solution {\npublic:\n    vector<vector<int>> combinationSum(vector<int>& candidates, int target) {\n        // Your code here\n    }\n};',
-          java: 'class Solution {\n    public List<List<Integer>> combinationSum(int[] candidates, int target) {\n        // Your code here\n    }\n}',
-      },
-    },
-    {
-      id: '45',
-      title: 'Reverse Integer',
-      slug: 'reverse-integer',
-      description: 'Given a signed 32-bit integer `x`, reverse digits of an integer. If reversing `x` causes the value to go outside the signed 32-bit integer range [-2^31, 2^31 - 1], then return 0.',
-      difficulty: Difficulty.MEDIUM,
-      functionName: 'reverse',
-      inputSignature: [{ name: 'x', type: 'integer' }],
-      testCases: { "Input": "123\n", "Output": "321" },
-      StarterCode: {
-          javascript: 'var reverse = function(x) {\n    // Your code here\n};',
-          python: 'class Solution:\n    def reverse(self, x: int) -> int:\n        # Your code here\n        pass',
-          cpp: 'class Solution {\npublic:\n    int reverse(int x) {\n        // Your code here\n    }\n};',
-          java: 'class Solution {\n    public int reverse(int x) {\n        // Your code here\n    }\n}',
-      },
-    },
+      driverCode: {
+        javascript: `
+  // USER_CODE_PLACEHOLDER
+  try {
+      const fs = require('fs');
+      const input = fs.readFileSync(0, 'utf-8');
+      const lines = input.trim().split('\\n');
+      const ops = JSON.parse(lines[0]);
+      const vals = JSON.parse(lines[1]);
+      
+      let trie;
+      const results = [];
+  
+      for (let i = 0; i < ops.length; i++) {
+          const op = ops[i];
+          const val = vals[i][0];
+          
+          if (op === "Trie") {
+              trie = new Trie();
+              results.push(null);
+          } else if (op === "insert") {
+              trie.insert(val);
+              results.push(null);
+          } else if (op === "search") {
+              results.push(trie.search(val));
+          } else if (op === "startsWith") {
+              results.push(trie.startsWith(val));
+          }
+      }
+      console.log(JSON.stringify(results));
+  } catch (e) {
+      console.log("CAUGHT_ERROR: " + e.message);
+  }`,
+        python: `
+  import sys, json
+  # USER_CODE_PLACEHOLDER
+  
+  try:
+      lines = sys.stdin.readlines()
+      ops = json.loads(lines[0])
+      vals = json.loads(lines[1])
+      
+      trie = None
+      results = []
+  
+      for i in range(len(ops)):
+          op = ops[i]
+          val = vals[i][0] if vals[i] else None
+          
+          if op == "Trie":
+              trie = Trie()
+              results.append(None)
+          elif op == "insert":
+              trie.insert(val)
+              results.append(None)
+          elif op == "search":
+              results.append(trie.search(val))
+          elif op == "startsWith":
+              results.append(trie.startsWith(val))
+      
+      print(json.dumps(results).replace("None", "null").replace("False", "false").replace("True", "true"))
+  except Exception as e:
+      print(f"CAUGHT_ERROR: {e}")
+  `,
+        cpp: `
+  #include <iostream>
+  #include <vector>
+  #include <string>
+  #include <sstream>
+  // USER_CODE_PLACEHOLDER
+  
+  // Simple JSON parser for this specific problem format
+  void parse_trie_input(const std::string& line, std::vector<std::string>& vec) {
+      std::string content = line.substr(1, line.length() - 2);
+      std::stringstream ss(content);
+      std::string item;
+      while(std::getline(ss, item, ',')) {
+          if(item.length() > 2) {
+              vec.push_back(item.substr(1, item.length() - 2));
+          }
+      }
+  }
+  void parse_trie_values(const std::string& line, std::vector<std::vector<std::string>>& vec) {
+      std::string content = line.substr(1, line.length() - 2);
+      std::stringstream ss(content);
+      std::string item;
+      while(std::getline(ss, item, ']')) {
+          if(item.empty()) continue;
+          size_t start = item.find('[');
+          if (start != std::string::npos) {
+              item = item.substr(start + 1);
+          }
+          std::vector<std::string> sub_vec;
+          if (!item.empty()) {
+              size_t quote_start = item.find('"');
+              size_t quote_end = item.rfind('"');
+              if (quote_start != std::string::npos && quote_end != std::string::npos && quote_start != quote_end) {
+                   sub_vec.push_back(item.substr(quote_start + 1, quote_end - quote_start - 1));
+              }
+          }
+          vec.push_back(sub_vec);
+      }
+  }
+  int main() {
+      std::string ops_line, vals_line;
+      std::getline(std::cin, ops_line);
+      std::getline(std::cin, vals_line);
+      
+      std::vector<std::string> ops;
+      parse_trie_input(ops_line, ops);
+      std::vector<std::vector<std::string>> vals;
+      parse_trie_values(vals_line, vals);
+  
+      Trie* trie = nullptr;
+      std::cout << "[";
+      for(size_t i = 0; i < ops.size(); ++i) {
+          if(ops[i] == "Trie") {
+              trie = new Trie();
+              std::cout << "null";
+          } else if (ops[i] == "insert") {
+              trie->insert(vals[i][0]);
+              std::cout << "null";
+          } else if (ops[i] == "search") {
+              std::cout << (trie->search(vals[i][0]) ? "true" : "false");
+          } else if (ops[i] == "startsWith") {
+              std::cout << (trie->startsWith(vals[i][0]) ? "true" : "false");
+          }
+          if (i < ops.size() - 1) std::cout << ",";
+      }
+      std::cout << "]" << std::endl;
+      delete trie;
+      return 0;
+  }`,
+        java: `
+  import java.util.*;
+  // USER_CODE_PLACEHOLDER
+  
+  public class Main {
+      public static void main(String[] args) {
+          Scanner scanner = new Scanner(System.in);
+          String opsLine = scanner.nextLine();
+          String valsLine = scanner.nextLine();
+          scanner.close();
+  
+          String[] ops = parseJsonStringArray(opsLine);
+          String[][] vals = parseJsonNestedStringArray(valsLine);
+  
+          Trie trie = null;
+          List<String> results = new ArrayList<>();
+          
+          for (int i = 0; i < ops.length; i++) {
+              String op = ops[i];
+              String val = (vals[i].length > 0) ? vals[i][0] : null;
+  
+              if (op.equals("Trie")) {
+                  trie = new Trie();
+                  results.add("null");
+              } else if (op.equals("insert")) {
+                  trie.insert(val);
+                  results.add("null");
+              } else if (op.equals("search")) {
+                  results.add(String.valueOf(trie.search(val)));
+              } else if (op.equals("startsWith")) {
+                  results.add(String.valueOf(trie.startsWith(val)));
+              }
+          }
+          System.out.println("[" + String.join(",", results) + "]");
+      }
+      
+      private static String[] parseJsonStringArray(String json) {
+          json = json.substring(1, json.length() - 1);
+          if (json.isEmpty()) return new String[0];
+          String[] parts = json.split(",");
+          for (int i=0; i<parts.length; i++) {
+              parts[i] = parts[i].trim().replace("\\"", "");
+          }
+          return parts;
+      }
+  
+      private static String[][] parseJsonNestedStringArray(String json) {
+          json = json.substring(1, json.length() - 1);
+          if (json.isEmpty()) return new String[0][0];
+          List<String[]> list = new ArrayList<>();
+          int level = 0;
+          int start = 0;
+          for (int i = 0; i < json.length(); i++) {
+              if (json.charAt(i) == '[') {
+                  if (level == 0) start = i;
+                  level++;
+              } else if (json.charAt(i) == ']') {
+                  level--;
+                  if (level == 0) {
+                      String sub = json.substring(start, i + 1);
+                      sub = sub.substring(1, sub.length() - 1);
+                      if (sub.isEmpty()) {
+                          list.add(new String[0]);
+                      } else {
+                          list.add(new String[]{sub.replace("\\"", "")});
+                      }
+                  }
+              }
+          }
+          return list.toArray(new String[0][]);
+      }
+  }`},
+
+}
     // Add more problems here to reach 90-100 by following the pattern
   ];
 

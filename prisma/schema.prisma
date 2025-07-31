@@ -53,16 +53,18 @@ model MatchParticipant {
 }
 
 model Problem {
-  id           String      @id @default(cuid())
-  title        String
-  slug         String      @unique 
-  description  String
-  StarterCode  Json?      
-  testCases    Json
-  difficulty   Difficulty  @default(EASY)
-  functionName String?
-  inputSignature Json?
-  
+  id              String      @id @default(cuid())
+  title           String
+  slug            String      @unique 
+  description     String
+  starterCode     Json?  
+  tags            String[] 
+  constraints     Json?   
+  testCases       Json?
+  difficulty      Difficulty  @default(EASY)
+  functionName    String?
+  inputSignature  Json?
+  driverCode      Json?
   rooms        Room[]      
 }
 
