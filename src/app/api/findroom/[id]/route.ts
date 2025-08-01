@@ -40,6 +40,8 @@ export async function GET(
             starterCode: true,
             difficulty: true,
             testCases: true,
+            constraints : true,
+            tags : true
           },
         },
         

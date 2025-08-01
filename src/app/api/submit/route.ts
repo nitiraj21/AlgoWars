@@ -108,18 +108,25 @@ function processSubmissionResult(result: any, testCase: any) {
         const actualOutput = (stdout || '').trim().replace(/\s/g, '');
         const expectedOutput = (testCase.Output || '').trim().replace(/\s/g, '');
         
-        // --- DEBUG LOGS ADDED HERE ---
+        // --- DEBUG LOGS ---
         console.log(`--- COMPARING OUTPUTS ---`);
         console.log(`Actual Output (stdout)  : >${actualOutput}<`);
         console.log(`Expected Output (from DB): >${expectedOutput}<`);
         console.log(`Match: ${actualOutput === expectedOutput}`);
         console.log(`--- END COMPARISON ---`);
-        // --- END OF DEBUG LOGS ---
 
         if (actualOutput === expectedOutput) {
-            return NextResponse.json({ status: { description: 'Accepted' } });
+            return NextResponse.json({ 
+                status: { description: 'Accepted' },
+                actualOutput: stdout?.trim() || '',
+                expectedOutput: testCase.Output?.trim() || ''
+            });
         } else {
-            return NextResponse.json({ status: { description: 'Wrong Answer' } });
+            return NextResponse.json({ 
+                status: { description: 'Wrong Answer' },
+                actualOutput: stdout?.trim() || '',
+                expectedOutput: testCase.Output?.trim() || ''
+            });
         }
     } else {
         return NextResponse.json({ 

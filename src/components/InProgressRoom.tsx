@@ -1,7 +1,7 @@
 'use client'
 import React from "react";
 import { useState, useEffect } from "react";
-import { difficulty, Room } from "../types/global";
+import { difficulty, Room, RoomStatus } from "../types/global";
 import { Editor } from "@monaco-editor/react";
 import Timer from "./Timer";
 import Button from "./button";
@@ -58,7 +58,25 @@ export default function InProgressRoom({room, session, roomCode, socketRef} : In
         const data = await res.json();
 
         if(res.ok){
-          setOutput(`Status: ${data.status}`)
+          const statusDescription = data.status?.description || 'Unknown';
+          let outputMessage = `Status: ${statusDescription}`;
+          if (data.actualOutput !== undefined) {
+            outputMessage += `\nActual Output: ${data.actualOutput}`;
+          }
+          if (data.expectedOutput !== undefined) {
+            outputMessage += `\nExpected Output: ${data.expectedOutput}`;
+          }
+          
+          // Add error details if present
+          if (data.details) {
+            if (data.details.stderr) {
+              outputMessage += `\nError: ${data.details.stderr}`;
+            }
+            if (data.details.compile_output) {
+              outputMessage += `\nCompile Output: ${data.details.compile_output}`;
+            }
+          }
+          setOutput(outputMessage);
           let points = 0
           if(currentQuestion.difficulty === difficulty.EASY){
              points = 5;
@@ -92,13 +110,24 @@ export default function InProgressRoom({room, session, roomCode, socketRef} : In
     }    
     
     const currentQuestion = room.questions[currentQuestionIndex];
+    const formated = JSON.parse(currentQuestion.constraints)
+    const cleaned = formated
+    .replace(/\\n/g, '\n')     // Convert literal \n to real newlines
+    .split('\n')   
+    //@ts-ignore            // Split into lines
+    .map(line => line.trim())  // Trim whitespace
+    .filter(Boolean)           // Remove empty lines
+    .join('\n');               // Rejoin cleanly
+  
+  console.log(cleaned);   
     const displayTestCases = Array.isArray(currentQuestion.testCases) ? currentQuestion.testCases[0] : currentQuestion.testCases;
+    console.log(room);
 
     return (
         <div className="p-6 max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold">Match in Progress...</h1>
-            {room.matchStartedAt && <Timer startTime={room.matchStartedAt} />}
+            {room.matchEndedAt && <Timer endTime={room.matchEndedAt} onTimerEnd={()=>{if(room) room.status = RoomStatus.FINISHED}} />}
             <div className="flex gap-2">
             <Button
                   onClick={()=>{setLanguage('javascript')}}
@@ -126,10 +155,25 @@ export default function InProgressRoom({room, session, roomCode, socketRef} : In
             <div className="p-4 border rounded-lg" key={currentQuestion.id}>
               <h2 className="text-2xl font-semibold mb-2">{currentQuestion.title}</h2>
               <p className="mb-4">{currentQuestion.description}</p>
-              <span className="text-sm font-medium bg-gray-200 text-gray-800 px-2 py-1 rounded">{currentQuestion.difficulty}</span>
+              <span className={`text-sm font-medium ${
+                                  currentQuestion.difficulty === 'EASY' ? 'bg-green-200 text-green-800' :
+                                  currentQuestion.difficulty === 'MEDIUM' ? 'bg-yellow-200 text-yellow-800' :
+                                  'bg-red-200 text-red-800'
+                                } text-gray-800 px-2 py-1 rounded ml-3 mb-2`}>{currentQuestion.difficulty}</span>
+              <div className="mt-2">
+                {currentQuestion.tags.map((tag, index)=>(
+                  <span className="text-sm font-medium bg-gray-200 text-gray-800 px-2 py-1 rounded ml-3 mt-4" key ={index}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
               <h3 className="font-semibold mt-4 mb-2">Test Case:</h3>
               <pre className="bg-gray-100 p-4 rounded-md overflow-auto text-sm">
                 {`Input: ${JSON.stringify(displayTestCases.Input)}\nOutput: ${JSON.stringify(displayTestCases.Output)}`}
+              </pre>
+              <h3 className="font-semibold mt-4 mb-2">Constraints:</h3>
+              <pre className="bg-gray-100 p-4 rounded-md overflow-auto text-sm">
+              {cleaned}
               </pre>
             </div>
             <div>

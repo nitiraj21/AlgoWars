@@ -20,7 +20,7 @@ const io = new Server(server, {
     methods: ['GET', 'POST'],
   },
 });
-
+const MATCH_DURATION_MINUTES  = 5;
 io.on('connection', (socket) => {
   console.log('✅ A user connected:', socket.id);
 
@@ -99,17 +99,60 @@ io.on('connection', (socket) => {
     });
   });
   
-  socket.on('start-match', async (roomId) => {
+  socket.on('start-match', async (roomCode) => {
     try {
-      const startTime = new Date();
-      await prisma.room.update({
-        where: { code: roomId },
-        data: { status: 'IN_PROGRESS', matchStartedAt: startTime },
+      const endTime = new Date(Date.now() + MATCH_DURATION_MINUTES * 60 * 1000);
+
+      const room = await prisma.room.findUnique({
+        where: { code: roomCode },
+        select: { id: true }
       });
-      io.to(roomId).emit('match-started');
+
+      if (!room) {
+        console.error(`Start match failed: Room ${roomCode} not found.`);
+        return;
+      }
+
+      await prisma.room.update({
+        where: { id: room.id },
+        data: {
+          status: 'IN_PROGRESS',
+          matchEndedAt: endTime,
+        },
+      });
+
+      io.to(roomCode).emit('match-started');
+
+      setTimeout(async () => {
+        try {
+          const currentRoom = await prisma.room.findUnique({
+            where: { code: roomCode },
+            select: { id: true }
+          });
+
+          if (!currentRoom) return;
+
+          await prisma.room.update({
+            where: { id: currentRoom.id },
+            data: { status: 'FINISHED' },
+          });
+
+          const winner = await prisma.matchParticipant.findFirst({
+            where: { roomId: currentRoom.id },
+            orderBy: { score: 'desc' },
+            include: { user: { select: { username: true } } },
+          });
+
+          io.to(roomCode).emit('winner-announced', { winner });
+          console.log(`🏆 Match ${roomCode} finished. Winner: ${winner?.user?.username} with a score of ${winner?.score}`);
+
+        } catch (error) {
+            console.error(`Error finishing match for room ${roomCode}:`, error);
+        }
+      }, MATCH_DURATION_MINUTES * 60 * 1000);
+
     } catch (error) {
-      console.error(`Error during match start process:`, error);
-      socket.emit('match-start-error', 'Failed to start match.');
+      console.error(`Error starting match for room ${roomCode}:`, error);
     }
   });
 

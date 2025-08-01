@@ -30,8 +30,10 @@ export interface Room {
       target? : string
     },
     starterCode :JSON,
+    constraints : string
     functionName : String
+    tags   :       String[] 
   }[];
   status?: RoomStatus; 
-  matchStartedAt : string
+  matchEndedAt : string
 }

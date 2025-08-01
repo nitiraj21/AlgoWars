@@ -54,10 +54,23 @@ export async function POST (req :Request){
                 connect : randomProblemIDs
             }
         },
-        include:{
-            questions : true
-        }
-    })
+        include: {
+            questions: {
+              select: {
+                id: true,
+                title: true,
+                description: true,
+                slug: true,
+                difficulty: true,
+                starterCode: true,
+                constraints: true, 
+                testCases: true,
+                functionName: true,
+                tags : true
+              }
+            }
+          }
+        });
 
     await prisma.matchParticipant.create({
         data :{

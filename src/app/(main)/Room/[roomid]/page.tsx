@@ -4,12 +4,13 @@ import {RoomStatus} from '@/src/types/global';
 import WaitingRoom from "@/src/components/WaitingRoom";
 import InProgressRoom from "@/src/components/InProgressRoom";;
 import { useRoomSocket } from "@/src/hooks/useRoomSocket";
+import Winner from "@/src/components/Winner";
 
 
 export default function RoomPage() {
   const params = useParams();
   const roomCode = params?.roomid as string | null;
-  const { room, session, isLoading, error, startMatch, socketRef } = useRoomSocket(roomCode); 
+  const { room, session, isLoading, error, startMatch, socketRef, winner } = useRoomSocket(roomCode); 
 
   if (isLoading) return <div className="text-center mt-10">Loading room...</div>;
 
@@ -36,6 +37,12 @@ export default function RoomPage() {
       
       />
   );
+  }
+
+  if(room.status == RoomStatus.FINISHED){
+    return(
+      <Winner winner = {winner} />
+    )
   }
   return(
       <InProgressRoom

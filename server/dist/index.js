@@ -26,6 +26,7 @@ const io = new socket_io_1.Server(server, {
         methods: ['GET', 'POST'],
     },
 });
+const MATCH_DURATION_MINUTES = 5;
 io.on('connection', (socket) => {
     console.log('✅ A user connected:', socket.id);
     socket.on('join-room', (roomCode, username) => __awaiter(void 0, void 0, void 0, function* () {
@@ -96,18 +97,53 @@ io.on('connection', (socket) => {
             }
         });
     });
-    socket.on('start-match', (roomId) => __awaiter(void 0, void 0, void 0, function* () {
+    socket.on('start-match', (roomCode) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const startTime = new Date();
-            yield prisma.room.update({
-                where: { code: roomId },
-                data: { status: 'IN_PROGRESS', matchStartedAt: startTime },
+            const endTime = new Date(Date.now() + MATCH_DURATION_MINUTES * 60 * 1000);
+            const room = yield prisma.room.findUnique({
+                where: { code: roomCode },
+                select: { id: true }
             });
-            io.to(roomId).emit('match-started');
+            if (!room) {
+                console.error(`Start match failed: Room ${roomCode} not found.`);
+                return;
+            }
+            yield prisma.room.update({
+                where: { id: room.id },
+                data: {
+                    status: 'IN_PROGRESS',
+                    matchEndedAt: endTime,
+                },
+            });
+            io.to(roomCode).emit('match-started');
+            setTimeout(() => __awaiter(void 0, void 0, void 0, function* () {
+                var _a;
+                try {
+                    const currentRoom = yield prisma.room.findUnique({
+                        where: { code: roomCode },
+                        select: { id: true }
+                    });
+                    if (!currentRoom)
+                        return;
+                    yield prisma.room.update({
+                        where: { id: currentRoom.id },
+                        data: { status: 'FINISHED' },
+                    });
+                    const winner = yield prisma.matchParticipant.findFirst({
+                        where: { roomId: currentRoom.id },
+                        orderBy: { score: 'desc' },
+                        include: { user: { select: { username: true } } },
+                    });
+                    io.to(roomCode).emit('winner-announced', { winner });
+                    console.log(`🏆 Match ${roomCode} finished. Winner: ${(_a = winner === null || winner === void 0 ? void 0 : winner.user) === null || _a === void 0 ? void 0 : _a.username} with a score of ${winner === null || winner === void 0 ? void 0 : winner.score}`);
+                }
+                catch (error) {
+                    console.error(`Error finishing match for room ${roomCode}:`, error);
+                }
+            }), MATCH_DURATION_MINUTES * 60 * 1000);
         }
         catch (error) {
-            console.error(`Error during match start process:`, error);
-            socket.emit('match-start-error', 'Failed to start match.');
+            console.error(`Error starting match for room ${roomCode}:`, error);
         }
     }));
     socket.on('correct-submission', ({ roomCode, userEmail, points }) => __awaiter(void 0, void 0, void 0, function* () {

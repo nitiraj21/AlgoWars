@@ -37,7 +37,7 @@ model Room {
   createdAt       DateTime           @default(now())
   participants    MatchParticipant[] @relation("ParticipantsInRoom")  
   questions       Problem[]        
-  matchStartedAt  DateTime?
+  matchEndedAt  DateTime?
 }
 
 model MatchParticipant {
@@ -59,7 +59,7 @@ model Problem {
   description     String
   starterCode     Json?  
   tags            String[] 
-  constraints     Json?   
+  constraints     String   
   testCases       Json?
   difficulty      Difficulty  @default(EASY)
   functionName    String?

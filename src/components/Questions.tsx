@@ -2,6 +2,7 @@ import React from "react";
 import { difficulty } from "../types/global";
 type Question=  {
     id: string;
+    constraints : string,
     title: string;
     description?: string;
     difficulty?: difficulty;

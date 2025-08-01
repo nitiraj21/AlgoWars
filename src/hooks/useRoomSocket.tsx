@@ -7,6 +7,7 @@ import { Room, RoomStatus } from '@/src/types/global';
 
 export function useRoomSocket(roomId: string | null) {
   const [room, setRoom] = useState<Room | null>(null);
+  const [winner, setWinner] = useState(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -84,6 +85,13 @@ export function useRoomSocket(roomId: string | null) {
           if (isMounted) fetchRoom(roomId);
         });
 
+        socket?.on('winner-announced', (data : any)=>{
+          if(isMounted){
+            setWinner(data.winner)
+            setRoom(prevRoom => prevRoom ? {... prevRoom, status : RoomStatus.FINISHED}: null)
+          }
+        })
+
       } catch (err) {
         if (isMounted) setError('Failed to connect or fetch room.');
       }
@@ -98,6 +106,8 @@ export function useRoomSocket(roomId: string | null) {
         socketRef.current = null;
       }
     };
+
+
     
   }, [roomId, fetchRoom]);
 
@@ -107,5 +117,5 @@ export function useRoomSocket(roomId: string | null) {
     }
   }, [roomId]);
 
-  return { room, session, isLoading, error, startMatch, socketRef };
+  return { room, session, isLoading, error, startMatch, socketRef, winner };
 }
