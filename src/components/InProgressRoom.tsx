@@ -1,26 +1,99 @@
 'use client'
 import React from "react";
 import { useState, useEffect } from "react";
-import { difficulty, Room, RoomStatus } from "../types/global";
+import { Room } from "../types/global";
 import { Editor } from "@monaco-editor/react";
 import Timer from "./Timer";
 import Button from "./button";
-import ParticipantList from "./ParticipantList";
 import { Session } from "next-auth";
 
-import { getSession } from "next-auth/react";
-import { useRoomSocket } from "../hooks/useRoomSocket";
-
-interface InProgressProps {
-  room : Room;
-  session : Session | null;
-  roomCode : string | null
-  socketRef: React.MutableRefObject<any>;
+// SubmissionResult component ke liye prop types define karein
+interface SubmissionResultProps {
+    result: {
+        status?: string;
+        overallStatus?: string;
+        passedTests?: number;
+        totalTests?: number;
+        details?: any[];
+    };
 }
 
-export default function InProgressRoom({room, session, roomCode, socketRef} : InProgressProps) {
+// Ek alag component jo results ko aache se display karega
+const SubmissionResult = ({ result }: SubmissionResultProps) => {
+    if (!result || !result.overallStatus) {
+        return <pre className="whitespace-pre-wrap text-gray-400">{result?.status || 'Submit your code to see the result.'}</pre>;
+    }
 
-    if ( room.questions.length === 0) {
+    const isAccepted = result.overallStatus === 'Accepted';
+
+    return (
+        <div>
+            <p className="mb-2">
+                <span className="font-semibold">Overall Status:</span> 
+                <span className={`ml-2 font-bold ${isAccepted ? 'text-green-400' : 'text-red-400'}`}>
+                    {result.overallStatus}
+                </span>
+            </p>
+            <p>
+                <span className="font-semibold">Tests Passed:</span> {result.passedTests} / {result.totalTests}
+            </p>
+            
+            {!isAccepted && result.details && result.details.find(d => !d.passed) && (
+                <div className="mt-3 pt-3 border-t border-gray-700">
+                    <h4 className="font-bold mb-2 text-yellow-400">Failed on Test Case #{result.details.findIndex(d => !d.passed) + 1}</h4>
+                    {(() => {
+                        const failedCase = result.details.find(d => !d.passed);
+                        if (!failedCase) return null;
+                        return (
+                            <div>
+                                <p className="font-semibold">Input:</p>
+                                <pre className="bg-gray-800 p-2 rounded text-sm my-1">{failedCase.input}</pre>
+                                <p className="mt-2 font-semibold">Expected Output:</p>
+                                <pre className="bg-gray-800 p-2 rounded text-sm my-1 text-green-400">{failedCase.expectedOutput}</pre>
+                                <p className="mt-2 font-semibold">Your Output:</p>
+                                <pre className="bg-gray-800 p-2 rounded text-sm my-1 text-red-400">{failedCase.actualOutput}</pre>
+                                {failedCase.stderr && (
+                                    <>
+                                        <p className="mt-2 font-semibold">Error (stderr):</p>
+                                        <pre className="bg-gray-800 p-2 rounded text-sm my-1 text-red-500">{failedCase.stderr}</pre>
+                                    </>
+                                )}
+                            </div>
+                        );
+                    })()}
+                </div>
+            )}
+        </div>
+    );
+};
+
+// Language selector ke liye ek alag component\
+//@ts-ignore
+const LanguageSelector = ({ selectedLanguage, onSelect }) => {
+    const languages = ['javascript', 'python', 'java', 'cpp'];
+    return (
+        <div className="flex space-x-2 bg-gray-800 p-1 rounded-lg">
+            {languages.map(lang => (
+                <button
+                    key={lang}
+                    onClick={() => onSelect(lang)}
+                    className={`px-4 py-2 text-sm font-semibold rounded-md transition-colors duration-200 ${
+                        selectedLanguage === lang 
+                        ? 'bg-blue-600 text-white' 
+                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    }`}
+                >
+                    {lang.charAt(0).toUpperCase() + lang.slice(1)}
+                </button>
+            ))}
+        </div>
+    );
+};
+
+
+export default function InProgressRoom({room, session, roomCode, socketRef}: any) {
+
+    if ( !room.questions || room.questions.length === 0) {
         return <div className="text-center mt-10">Loading question...</div>;
     }
     
@@ -28,21 +101,21 @@ export default function InProgressRoom({room, session, roomCode, socketRef} : In
     const [language, setLanguage] = useState('javascript'); 
     const [code, setCode] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [output, setOutput] = useState('');
+    const [output, setOutput] = useState<any>(null);
+
     useEffect(() => {
       const currentQuestion = room.questions[currentQuestionIndex];
-      
       if (currentQuestion.starterCode && typeof currentQuestion.starterCode === 'object') {
           const starter = (currentQuestion.starterCode as any)[language];
           setCode(starter || `// No starter code available for ${language}.`);
       } else {
           setCode('// Starter code not found.');
       }
-  }, [currentQuestionIndex, language, room.questions]); 
+    }, [currentQuestionIndex, language, room.questions]); 
 
     const handleSubmit = async() => {
       setIsSubmitting(true);
-      setOutput('Executing...');
+      setOutput({ status: 'Executing...' });
 
       try{
         const res = await fetch('/api/submit', {
@@ -56,173 +129,97 @@ export default function InProgressRoom({room, session, roomCode, socketRef} : In
         });
 
         const data = await res.json();
+        setOutput(data);
 
-        if(res.ok){
-          const statusDescription = data.status?.description || 'Unknown';
-          let outputMessage = `Status: ${statusDescription}`;
-          if (data.actualOutput !== undefined) {
-            outputMessage += `\nActual Output: ${data.actualOutput}`;
-          }
-          if (data.expectedOutput !== undefined) {
-            outputMessage += `\nExpected Output: ${data.expectedOutput}`;
-          }
-          
-          // Add error details if present
-          if (data.details) {
-            if (data.details.stderr) {
-              outputMessage += `\nError: ${data.details.stderr}`;
-            }
-            if (data.details.compile_output) {
-              outputMessage += `\nCompile Output: ${data.details.compile_output}`;
-            }
-          }
-          setOutput(outputMessage);
-          let points = 0
-          if(currentQuestion.difficulty === difficulty.EASY){
-             points = 5;
-          }
-          else if(currentQuestion.difficulty === difficulty.MEDIUM){
-            points = 10;
-          }
-          else{
-            points = 15;
-          }
-          if (data.status.description === 'Accepted') {
-            console.log("submission sent")
-            socketRef.current?.emit('correct-submission', {
-              roomCode: roomCode,
-              userEmail: session?.user?.email,
-              points: points 
-            });
-          }
-        }
-        else{
-          setOutput(`Error: ${data.error || 'Failed to submit'}`);
+        if(data.overallStatus === 'Accepted'){
+          socketRef.current?.emit('correct-submission', {
+            roomCode: roomCode,
+            userEmail: session?.user?.email,
+            points: 5 
+          });
         }
       }
       catch(err){
-        setOutput('An unexpected error occurred.');
+        setOutput({ status: 'An unexpected error occurred.' });
       }
       finally{
         setIsSubmitting(false);
-        room.participants.sort()
       }
     }    
     
     const currentQuestion = room.questions[currentQuestionIndex];
-    const formated = JSON.parse(currentQuestion.constraints)
-    const cleaned = formated
-    .replace(/\\n/g, '\n')     // Convert literal \n to real newlines
-    .split('\n')   
-    //@ts-ignore            // Split into lines
-    .map(line => line.trim())  // Trim whitespace
-    .filter(Boolean)           // Remove empty lines
-    .join('\n');               // Rejoin cleanly
-  
-  console.log(cleaned);   
     const displayTestCases = Array.isArray(currentQuestion.testCases) ? currentQuestion.testCases[0] : currentQuestion.testCases;
-    console.log(room);
 
     return (
-        <div className="p-6 max-w-7xl mx-auto">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold">Match in Progress...</h1>
-            {room.matchEndedAt && <Timer endTime={room.matchEndedAt} onTimerEnd={()=>{if(room) room.status = RoomStatus.FINISHED}} />}
-            <div className="flex gap-2">
-            <Button
-                  onClick={()=>{setLanguage('javascript')}}
-                  text={'Javascript'}
+        <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
+          <header className="flex justify-between items-center mb-4">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">CodeClash Arena</h1>
+            {room.matchEndsAt && <Timer endTime={room.matchEndsAt} onTimerEnd={() => {}} />}
+          </header>
 
-                />
-              <Button
-                  onClick={()=>{setLanguage('java')}}
-                  text={'Java'}
-
-                />
-                <Button
-                  onClick={()=>{setLanguage('cpp')}}
-                  text={'C++'}
-
-                />
-                <Button
-                  onClick={()=>{setLanguage('python')}}
-                  text={'Python'}
-
-                />
-          </div>
-          </div>
-          <div className="flex md:justify-between gap-8">
-            <div className="p-4 border rounded-lg" key={currentQuestion.id}>
-              <h2 className="text-2xl font-semibold mb-2">{currentQuestion.title}</h2>
-              <p className="mb-4">{currentQuestion.description}</p>
-              <span className={`text-sm font-medium ${
-                                  currentQuestion.difficulty === 'EASY' ? 'bg-green-200 text-green-800' :
-                                  currentQuestion.difficulty === 'MEDIUM' ? 'bg-yellow-200 text-yellow-800' :
-                                  'bg-red-200 text-red-800'
-                                } text-gray-800 px-2 py-1 rounded ml-3 mb-2`}>{currentQuestion.difficulty}</span>
-              <div className="mt-2">
-                {currentQuestion.tags.map((tag, index)=>(
-                  <span className="text-sm font-medium bg-gray-200 text-gray-800 px-2 py-1 rounded ml-3 mt-4" key ={index}>
-                    {tag}
-                  </span>
-                ))}
-              </div>
-              <h3 className="font-semibold mt-4 mb-2">Test Case:</h3>
-              <pre className="bg-gray-100 p-4 rounded-md overflow-auto text-sm">
+          <div className="flex flex-col lg:flex-row gap-6">
+            
+            {/* Left Panel: Problem Description */}
+            <div className="lg:w-1/3 bg-white p-6 border rounded-xl shadow-sm">
+              <h2 className="text-2xl font-semibold mb-3 text-gray-900">{currentQuestion.title}</h2>
+              <p className="mb-4 text-gray-600">{currentQuestion.description}</p>
+              <span className="text-sm font-medium bg-gray-200 text-gray-800 px-3 py-1 rounded-full">{currentQuestion.difficulty}</span>
+              <h3 className="font-semibold mt-6 mb-2 text-gray-800">Test Case Example:</h3>
+              <pre className="bg-gray-100 p-4 rounded-lg text-sm text-gray-700">
                 {`Input: ${JSON.stringify(displayTestCases.Input)}\nOutput: ${JSON.stringify(displayTestCases.Output)}`}
               </pre>
-              <h3 className="font-semibold mt-4 mb-2">Constraints:</h3>
-              <pre className="bg-gray-100 p-4 rounded-md overflow-auto text-sm">
-              {cleaned}
-              </pre>
             </div>
-            <div>
-              <div  className="border rounded-lg w-70vh" > 
-              <Editor
-                height="60vh"
-                width= "70vh"
-                
-                language={language} 
-                theme="vs-dark"
-                value={code}
-                onChange={(value) => setCode(value || '')}
-                options={{
-                  minimap: { enabled: false },
-                  fontSize: 14,
-                }}
-              />
-              </div>
-              <div className="mt-4 flex items-center gap-4">
-                <Button
-                  onClick={handleSubmit}
-                  text={isSubmitting ? 'Submitting...' : 'Submit Code'}
 
-                />
+            {/* Center Panel: Editor & Output */}
+            <div className="lg:w-2/3 flex flex-col gap-4">
+                <div className="flex justify-between items-center">
+                    <LanguageSelector selectedLanguage={language} onSelect={setLanguage} />
+                    <Button
+                      onClick={handleSubmit}
+                      text={isSubmitting ? 'Submitting...' : 'Submit Code'}
+  
+                    />
+                </div>
+                <div className="border rounded-xl overflow-hidden shadow-lg"> 
+                    <Editor
+                      height="60vh"
+                      language={language} 
+                      theme="vs-dark"
+                      value={code}
+                      onChange={(value) => setCode(value || '')}
+                      options={{ minimap: { enabled: false }, fontSize: 14 }}
+                    />
+                </div>
+                <div className="p-4 bg-gray-900 text-white rounded-xl font-mono min-h-[150px] shadow-lg">
+                    <h3 className="font-bold text-gray-400 mb-2">Output</h3>
+                    <SubmissionResult result={output} />
+                </div>
+            </div>
+
+            {/* Right Panel: Leaderboard (Optional, can be merged or kept separate) */}
+            <div className="lg:w-1/4 bg-white p-6 border rounded-xl shadow-sm">
+              <h3 className="font-bold text-xl mb-4 text-gray-900">Leaderboard</h3>
+              <div className="space-y-3">
+                {[...room.participants]
+                  .sort((a, b) => b.score - a.score)
+                  .map((p: any, index: number) => (
+                    <div key={p?.user?.username} className="p-3 bg-gray-100 rounded-lg flex justify-between items-center">
+                      <span className="font-semibold text-gray-700">{index + 1}. {p?.user?.username}</span>
+                      <span className="font-bold text-blue-600 px-3 py-1 bg-blue-100 rounded-full">
+                        {p.score}
+                      </span>
+                    </div>
+                ))}
               </div>
-              <div className="mt-4 p-4 bg-gray-900 text-white rounded-md font-mono">
-                <h3 className="font-bold text-gray-400 mb-2">Output:</h3>
-                <pre className="whitespace-pre-wrap">{output}</pre>
-              </div>
-            </div>  
-            <div>
-              {[...room.participants] // 1. Create a copy of the array
-              .sort((a, b) => b.score - a.score) // 2. Sort by score, highest first
-              .map(p => ( // 3. Now map over the sorted array
-               <div key={p?.user?.username} className="p-2 bg-gray-100 rounded flex justify-between items-center mb-2">
-                <span>{p?.user?.username}</span>
-                <span className={`px-2 py-1 rounded text-sm`}>
-                  {p.score}
-                </span>
-              </div>
-              ))}
             </div>
           </div>
-          <div className="flex justify-center gap-4 mt-8">
+          
+          <div className="flex justify-center gap-4 mt-6">
             {currentQuestionIndex > 0 && (
-              <Button onClick={() => setQuestionIndex(prev => prev - 1)} text="Previous" />
+              <Button onClick={() => setQuestionIndex(prev => prev - 1)} text="&larr; Previous" />
             )}
             {currentQuestionIndex < room.questions.length - 1 && 
-              <Button onClick={() => setQuestionIndex(prev => prev + 1)} text="Next" />
+              <Button onClick={() => setQuestionIndex(prev => prev + 1)} text="Next &rarr;" />
             }
           </div>
         </div>

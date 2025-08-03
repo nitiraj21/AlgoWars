@@ -26,7 +26,7 @@ const io = new socket_io_1.Server(server, {
         methods: ['GET', 'POST'],
     },
 });
-const MATCH_DURATION_MINUTES = 5;
+const MATCH_DURATION_MINUTES = 60;
 io.on('connection', (socket) => {
     console.log('✅ A user connected:', socket.id);
     socket.on('join-room', (roomCode, username) => __awaiter(void 0, void 0, void 0, function* () {
@@ -176,7 +176,7 @@ io.on('connection', (socket) => {
             console.log(`[DEBUG] Attempting to update score for userId: ${userId} in roomId: ${roomId}`);
             yield prisma.matchParticipant.update({
                 where: {
-                    userId_roomId: { userId: userId, roomId: roomId }, // Now using the correct roomId
+                    userId_roomId: { userId: userId, roomId: roomId },
                 },
                 data: { score: { increment: points } },
             });

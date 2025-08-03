@@ -20,7 +20,7 @@ const io = new Server(server, {
     methods: ['GET', 'POST'],
   },
 });
-const MATCH_DURATION_MINUTES  = 5;
+const MATCH_DURATION_MINUTES  = 60;
 io.on('connection', (socket) => {
   console.log('✅ A user connected:', socket.id);
 
@@ -192,7 +192,7 @@ io.on('connection', (socket) => {
   
       await prisma.matchParticipant.update({
         where: {
-          userId_roomId: { userId: userId, roomId: roomId }, // Now using the correct roomId
+          userId_roomId: { userId: userId, roomId: roomId }, 
         },
         data: { score: { increment: points } },
       });
