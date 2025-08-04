@@ -1,11 +1,13 @@
 'use client';
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {RoomStatus} from '@/src/types/global';
 import WaitingRoom from "@/src/components/WaitingRoom";
 import InProgressRoom from "@/src/components/InProgressRoom";;
 import { useRoomSocket } from "@/src/hooks/useRoomSocket";
 import Winner from "@/src/components/Winner";
 import Leaderboard from "@/src/components/Leaderboard";
+import Button from "@/src/components/button";
+
 
 
 export default function RoomPage() {
@@ -13,6 +15,7 @@ export default function RoomPage() {
   const roomCode = params?.roomid as string | null;
   const { room, session, isLoading, error, startMatch, socketRef, winner  } = useRoomSocket(roomCode); 
   console.log(winner)
+  const router = useRouter()
 
   if (isLoading) return <div className="text-center mt-10">Loading room...</div>;
 
@@ -46,7 +49,6 @@ export default function RoomPage() {
     const sortedParticipants = [...room.participants].sort((a, b) => b.score - a.score);
     const winnerFromLeaderboard = sortedParticipants.length > 0 ? sortedParticipants[0] : null;
 
-    // Use the real-time winner if it exists, otherwise use the derived one.
     const finalWinner = winner || winnerFromLeaderboard;
 
     return(
@@ -59,6 +61,12 @@ export default function RoomPage() {
                     participants={room.participants}
                 />
             </div>
+            <Button
+              text = {"Exit"}
+              onClick={()=>{
+                router.push("/")
+              }}
+            />
          </div>
     )
   }

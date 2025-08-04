@@ -24,6 +24,7 @@ model User {
   isAdmin       Boolean            @default(false)
   wins          Int                @default(0)
   matches       Int                @default(0)
+  XP            Int?                @default(300)
 }
 
 model Room {
