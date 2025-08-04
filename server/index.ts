@@ -13,6 +13,10 @@ const roomUsers: {
 const prisma = new PrismaClient();
 const app = express();
 const server = http.createServer(app);
+let MATCH_DURATION_MINUTES: number | null = null;
+
+ MATCH_DURATION_MINUTES = 45;
+
 
 const io = new Server(server, {
   cors: {
@@ -20,7 +24,6 @@ const io = new Server(server, {
     methods: ['GET', 'POST'],
   },
 });
-const MATCH_DURATION_MINUTES  = 60;
 io.on('connection', (socket) => {
   console.log('✅ A user connected:', socket.id);
 
@@ -30,13 +33,15 @@ io.on('connection', (socket) => {
     try {
       const room = await prisma.room.findUnique({
         where: { code: roomCode },
-        select: { id: true },
+        select: { id: true , duration : true},
+
       });
       if (!room) {
         console.error(`Join-room failed: Room with code '${roomCode}' not found.`);
         return;
       }
       const roomId = room.id;
+      MATCH_DURATION_MINUTES = room.duration || null;
   
       const user = await prisma.user.findFirst({
         where: { OR: [{ username: username }, { email: username }] },
@@ -101,7 +106,10 @@ io.on('connection', (socket) => {
   
   socket.on('start-match', async (roomCode) => {
     try {
-      const endTime = new Date(Date.now() + MATCH_DURATION_MINUTES * 60 * 1000);
+      let endTime = new Date();
+      if(MATCH_DURATION_MINUTES){
+       endTime = new Date(Date.now() + MATCH_DURATION_MINUTES * 60 * 1000);
+      }
 
       const room = await prisma.room.findUnique({
         where: { code: roomCode },
@@ -122,7 +130,7 @@ io.on('connection', (socket) => {
       });
 
       io.to(roomCode).emit('match-started');
-
+      if(MATCH_DURATION_MINUTES){
       setTimeout(async () => {
         try {
           const currentRoom = await prisma.room.findUnique({
@@ -149,7 +157,7 @@ io.on('connection', (socket) => {
         } catch (error) {
             console.error(`Error finishing match for room ${roomCode}:`, error);
         }
-      }, MATCH_DURATION_MINUTES * 60 * 1000);
+      }, MATCH_DURATION_MINUTES * 60 * 1000);}
 
     } catch (error) {
       console.error(`Error starting match for room ${roomCode}:`, error);

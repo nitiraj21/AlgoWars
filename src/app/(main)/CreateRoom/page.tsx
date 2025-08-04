@@ -3,9 +3,11 @@ import { useState } from 'react'
 
 export default function RoomForm() {
   const [name, setName] = useState('')
-  const [code, setCode] = useState('')
-
+  const [duration, setDuration] = useState("")
+  const [questions, setQuestions] = useState("")
   const createRoom = async () => {
+    const MatchDuration = parseInt(duration, 10);
+    const noOFQuestions = parseInt(questions, 10);    
     const res = await fetch('/api/room/create', {
       method: 'POST',
       headers: {
@@ -13,8 +15,9 @@ export default function RoomForm() {
       },
       body: JSON.stringify({
         name,
-        code, 
+        MatchDuration, 
         isPrivate: false,
+        noOFQuestions
       }),
     })
 
@@ -38,9 +41,15 @@ export default function RoomForm() {
       />
       <input
         className="border p-2 mr-2"
-        placeholder="Room Code (optional)"
-        value={code}
-        onChange={(e) => setCode(e.target.value)}
+        placeholder="Duration"
+        value={duration}
+        onChange={(e) => setDuration(e.target.value)}
+      />
+      <input
+        className="border p-2 mr-2"
+        placeholder="No. of Questions"
+        value={questions}
+        onChange={(e) => setQuestions(e.target.value)}
       />
       <button
         className="bg-blue-500 text-white px-4 py-2 rounded"

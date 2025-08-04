@@ -35,5 +35,7 @@ export interface Room {
     tags   :       String[] 
   }[];
   status?: RoomStatus; 
-  matchEndedAt : string
+  matchEndedAt : string;
+  Duration : Number;
+  Questions : Number
 }

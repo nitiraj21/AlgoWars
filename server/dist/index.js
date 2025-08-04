@@ -20,13 +20,14 @@ const roomUsers = {};
 const prisma = new client_1.PrismaClient();
 const app = (0, express_1.default)();
 const server = http_1.default.createServer(app);
+let MATCH_DURATION_MINUTES = null;
+MATCH_DURATION_MINUTES = 45;
 const io = new socket_io_1.Server(server, {
     cors: {
         origin: 'http://localhost:3000',
         methods: ['GET', 'POST'],
     },
 });
-const MATCH_DURATION_MINUTES = 60;
 io.on('connection', (socket) => {
     console.log('✅ A user connected:', socket.id);
     socket.on('join-room', (roomCode, username) => __awaiter(void 0, void 0, void 0, function* () {
@@ -34,13 +35,14 @@ io.on('connection', (socket) => {
         try {
             const room = yield prisma.room.findUnique({
                 where: { code: roomCode },
-                select: { id: true },
+                select: { id: true, duration: true },
             });
             if (!room) {
                 console.error(`Join-room failed: Room with code '${roomCode}' not found.`);
                 return;
             }
             const roomId = room.id;
+            MATCH_DURATION_MINUTES = room.duration || null;
             const user = yield prisma.user.findFirst({
                 where: { OR: [{ username: username }, { email: username }] },
             });
@@ -99,7 +101,10 @@ io.on('connection', (socket) => {
     });
     socket.on('start-match', (roomCode) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const endTime = new Date(Date.now() + MATCH_DURATION_MINUTES * 60 * 1000);
+            let endTime = new Date();
+            if (MATCH_DURATION_MINUTES) {
+                endTime = new Date(Date.now() + MATCH_DURATION_MINUTES * 60 * 1000);
+            }
             const room = yield prisma.room.findUnique({
                 where: { code: roomCode },
                 select: { id: true }
@@ -116,31 +121,33 @@ io.on('connection', (socket) => {
                 },
             });
             io.to(roomCode).emit('match-started');
-            setTimeout(() => __awaiter(void 0, void 0, void 0, function* () {
-                var _a;
-                try {
-                    const currentRoom = yield prisma.room.findUnique({
-                        where: { code: roomCode },
-                        select: { id: true }
-                    });
-                    if (!currentRoom)
-                        return;
-                    yield prisma.room.update({
-                        where: { id: currentRoom.id },
-                        data: { status: 'FINISHED' },
-                    });
-                    const winner = yield prisma.matchParticipant.findFirst({
-                        where: { roomId: currentRoom.id },
-                        orderBy: { score: 'desc' },
-                        include: { user: { select: { username: true } } },
-                    });
-                    io.to(roomCode).emit('winner-announced', { winner });
-                    console.log(`🏆 Match ${roomCode} finished. Winner: ${(_a = winner === null || winner === void 0 ? void 0 : winner.user) === null || _a === void 0 ? void 0 : _a.username} with a score of ${winner === null || winner === void 0 ? void 0 : winner.score}`);
-                }
-                catch (error) {
-                    console.error(`Error finishing match for room ${roomCode}:`, error);
-                }
-            }), MATCH_DURATION_MINUTES * 60 * 1000);
+            if (MATCH_DURATION_MINUTES) {
+                setTimeout(() => __awaiter(void 0, void 0, void 0, function* () {
+                    var _a;
+                    try {
+                        const currentRoom = yield prisma.room.findUnique({
+                            where: { code: roomCode },
+                            select: { id: true }
+                        });
+                        if (!currentRoom)
+                            return;
+                        yield prisma.room.update({
+                            where: { id: currentRoom.id },
+                            data: { status: 'FINISHED' },
+                        });
+                        const winner = yield prisma.matchParticipant.findFirst({
+                            where: { roomId: currentRoom.id },
+                            orderBy: { score: 'desc' },
+                            include: { user: { select: { username: true } } },
+                        });
+                        io.to(roomCode).emit('winner-announced', { winner });
+                        console.log(`🏆 Match ${roomCode} finished. Winner: ${(_a = winner === null || winner === void 0 ? void 0 : winner.user) === null || _a === void 0 ? void 0 : _a.username} with a score of ${winner === null || winner === void 0 ? void 0 : winner.score}`);
+                    }
+                    catch (error) {
+                        console.error(`Error finishing match for room ${roomCode}:`, error);
+                    }
+                }), MATCH_DURATION_MINUTES * 60 * 1000);
+            }
         }
         catch (error) {
             console.error(`Error starting match for room ${roomCode}:`, error);

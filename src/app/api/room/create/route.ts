@@ -25,7 +25,7 @@ export async function POST (req :Request){
 
     const body = await req.json();
 
-    const {name, isPrivate = false} = body;
+    const { name, MatchDuration, noOFQuestions, isPrivate } = body;
 
     const user  = await prisma.user.findUnique({
         where :{ email : session.user.email}
@@ -40,7 +40,8 @@ export async function POST (req :Request){
     })
 
     const shuffledIDs = shuffleArray(allProblemIDs);
-    const randomProblemIDs = shuffledIDs.slice(0, 3).map(p => ({id  : p.id}));
+    console.log("Questions:", noOFQuestions);
+    const randomProblemIDs = shuffledIDs.slice(0, noOFQuestions).map(p => ({id  : p.id}));
 
     const roomcode = generateRoomCode();
 
@@ -50,6 +51,7 @@ export async function POST (req :Request){
             isPrivate,
             code : roomcode || null,
             hostId : user.id,
+            duration : MatchDuration,
             questions :{
                 connect : randomProblemIDs
             }

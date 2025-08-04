@@ -6,6 +6,8 @@ import { Editor } from "@monaco-editor/react";
 import Timer from "./Timer";
 import Button from "./button";
 import { Session } from "next-auth";
+import { RoomStatus } from "@prisma/client";
+import Leaderboard from "./Leaderboard";
 
 // SubmissionResult component ke liye prop types define karein
 interface SubmissionResultProps {
@@ -154,7 +156,7 @@ export default function InProgressRoom({room, session, roomCode, socketRef}: any
         <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
           <header className="flex justify-between items-center mb-4">
             <h1 className="text-2xl md:text-3xl font-bold text-gray-800">CodeClash Arena</h1>
-            {room.matchEndsAt && <Timer endTime={room.matchEndsAt} onTimerEnd={() => {}} />}
+            {room.matchEndedAt && <Timer endTime={room.matchEndedAt} onTimerEnd={()=>{if(room) room.status = RoomStatus.FINISHED}}/>}
           </header>
 
           <div className="flex flex-col lg:flex-row gap-6">
@@ -200,16 +202,9 @@ export default function InProgressRoom({room, session, roomCode, socketRef}: any
             <div className="lg:w-1/4 bg-white p-6 border rounded-xl shadow-sm">
               <h3 className="font-bold text-xl mb-4 text-gray-900">Leaderboard</h3>
               <div className="space-y-3">
-                {[...room.participants]
-                  .sort((a, b) => b.score - a.score)
-                  .map((p: any, index: number) => (
-                    <div key={p?.user?.username} className="p-3 bg-gray-100 rounded-lg flex justify-between items-center">
-                      <span className="font-semibold text-gray-700">{index + 1}. {p?.user?.username}</span>
-                      <span className="font-bold text-blue-600 px-3 py-1 bg-blue-100 rounded-full">
-                        {p.score}
-                      </span>
-                    </div>
-                ))}
+                <Leaderboard
+                  participants={room.participants}
+                />
               </div>
             </div>
           </div>

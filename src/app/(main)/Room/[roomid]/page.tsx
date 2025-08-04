@@ -5,12 +5,14 @@ import WaitingRoom from "@/src/components/WaitingRoom";
 import InProgressRoom from "@/src/components/InProgressRoom";;
 import { useRoomSocket } from "@/src/hooks/useRoomSocket";
 import Winner from "@/src/components/Winner";
+import Leaderboard from "@/src/components/Leaderboard";
 
 
 export default function RoomPage() {
   const params = useParams();
   const roomCode = params?.roomid as string | null;
-  const { room, session, isLoading, error, startMatch, socketRef, winner } = useRoomSocket(roomCode); 
+  const { room, session, isLoading, error, startMatch, socketRef, winner  } = useRoomSocket(roomCode); 
+  console.log(winner)
 
   if (isLoading) return <div className="text-center mt-10">Loading room...</div>;
 
@@ -28,6 +30,7 @@ export default function RoomPage() {
 
 
   if(room.status == RoomStatus.WAITING){
+    
   return (
       <WaitingRoom
         room = {room}
@@ -40,8 +43,23 @@ export default function RoomPage() {
   }
 
   if(room.status == RoomStatus.FINISHED){
+    const sortedParticipants = [...room.participants].sort((a, b) => b.score - a.score);
+    const winnerFromLeaderboard = sortedParticipants.length > 0 ? sortedParticipants[0] : null;
+
+    // Use the real-time winner if it exists, otherwise use the derived one.
+    const finalWinner = winner || winnerFromLeaderboard;
+
     return(
-      <Winner winner = {winner} />
+      <div>
+            <div>
+                <Winner winner = {finalWinner}/>
+            </div>
+            <div className="max-w-64">
+                <Leaderboard 
+                    participants={room.participants}
+                />
+            </div>
+         </div>
     )
   }
   return(

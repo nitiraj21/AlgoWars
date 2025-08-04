@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/src/lib/prisma';
+import { Session } from 'next-auth';
+import { getServerSession } from "next-auth";
+import { AuthOptions } from 'next-auth';
+import { error } from 'console';
+import { redisClient } from '@/src/lib/redis';
 const LANGUAGE_CONFIG = {
     javascript: {
         id: 63,
@@ -33,6 +38,30 @@ const LANGUAGE_CONFIG = {
 
 export async function POST(req: Request) {
     try {
+
+        const session = await getServerSession();
+
+        if(!session?.user?.email){
+            return NextResponse.json({error : "Unauthorized"}, {status : 401});
+        }
+
+        const email = session.user.email;
+        const limit =10;
+        const windowInSeconds = 60;
+        const key = `rate-limit:submit${email}`;
+        const now = Date.now();
+
+        const transaction  = redisClient.multi();
+
+        transaction.zRemRangeByScore(key, 0, now - (windowInSeconds * 1000));
+        transaction.zAdd(key, {score : now, value : now.toString()});
+
+        transaction.zCard(key);
+        const results = await transaction.exec();
+        const reqCount = results[2] as unknown as number;
+        if(reqCount > limit){
+            return NextResponse.json({error : "Too many requests. Please wait a minute"}, {status : 429});
+        }
         const { code: userCode, language, questionId } = await req.json();
 
         const question = await prisma.problem.findUnique({
@@ -80,7 +109,7 @@ export async function POST(req: Request) {
         };
 
         // Get Judge0 URL - hardcoded for now since we know it works
-        const judge0Url = 'http://13.234.59.36:2358';
+        const judge0Url = 'http://52.66.199.48:2358';
         
         if (!judge0Url) {
             console.error("Judge0 URL not found in environment variables");
