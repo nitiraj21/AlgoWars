@@ -45,7 +45,7 @@ export default function Timer({ endTime, onTimerEnd }: TimerProps) {
   };
 
   return (
-    <div className="text-2xl font-mono bg-gray-800 text-white px-4 py-2 rounded-lg">
+    <div className="text-2xl font-mono bg-slate-700 text-white px-4 py-2 rounded-lg">
       <span>{formatTime()}</span>
     </div>
   );

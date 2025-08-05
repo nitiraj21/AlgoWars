@@ -8,8 +8,8 @@ import Button from "./button";
 import { Session } from "next-auth";
 import { RoomStatus } from "@prisma/client";
 import Leaderboard from "./Leaderboard";
-
-// SubmissionResult component ke liye prop types define karein
+import {
+  PanelGroup, Panel, PanelResizeHandle,} from "react-resizable-panels";
 interface SubmissionResultProps {
     result: {
         status?: string;
@@ -20,7 +20,6 @@ interface SubmissionResultProps {
     };
 }
 
-// Ek alag component jo results ko aache se display karega
 const SubmissionResult = ({ result }: SubmissionResultProps) => {
     if (!result || !result.overallStatus) {
         return <pre className="whitespace-pre-wrap text-gray-400">{result?.status || 'Submit your code to see the result.'}</pre>;
@@ -69,19 +68,18 @@ const SubmissionResult = ({ result }: SubmissionResultProps) => {
     );
 };
 
-// Language selector ke liye ek alag component\
 //@ts-ignore
 const LanguageSelector = ({ selectedLanguage, onSelect }) => {
     const languages = ['javascript', 'python', 'java', 'cpp'];
     return (
-        <div className="flex space-x-2 bg-gray-800 p-1 rounded-lg">
+        <div className="flex space-x-2 bg-slate-700 p-2 rounded-lg shadow-sm">
             {languages.map(lang => (
                 <button
                     key={lang}
                     onClick={() => onSelect(lang)}
                     className={`px-4 py-2 text-sm font-semibold rounded-md transition-colors duration-200 ${
                         selectedLanguage === lang 
-                        ? 'bg-blue-600 text-white' 
+                        ? 'bg-slate-200 text-black' 
                         : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                     }`}
                 >
@@ -104,9 +102,14 @@ export default function InProgressRoom({room, session, roomCode, socketRef}: any
     const [code, setCode] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [output, setOutput] = useState<any>(null);
-
+    const currentQuestion = room.questions[currentQuestionIndex];
+    console.log(currentQuestion);
+    const Description = currentQuestion.description
+    //@ts-ignore
+    const newDesc = Description.split(".").map(s => s.trim()).filter(Boolean);
     useEffect(() => {
-      const currentQuestion = room.questions[currentQuestionIndex];
+      
+
       if (currentQuestion.starterCode && typeof currentQuestion.starterCode === 'object') {
           const starter = (currentQuestion.starterCode as any)[language];
           setCode(starter || `// No starter code available for ${language}.`);
@@ -149,58 +152,84 @@ export default function InProgressRoom({room, session, roomCode, socketRef}: any
       }
     }    
     
-    const currentQuestion = room.questions[currentQuestionIndex];
     const displayTestCases = Array.isArray(currentQuestion.testCases) ? currentQuestion.testCases[0] : currentQuestion.testCases;
+   
 
     return (
-        <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
-          <header className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">CodeClash Arena</h1>
-            {room.matchEndedAt && <Timer endTime={room.matchEndedAt} onTimerEnd={()=>{if(room) room.status = RoomStatus.FINISHED}}/>}
-          </header>
-
-          <div className="flex flex-col lg:flex-row gap-6">
-            
-            {/* Left Panel: Problem Description */}
-            <div className="lg:w-1/3 bg-white p-6 border rounded-xl shadow-sm">
-              <h2 className="text-2xl font-semibold mb-3 text-gray-900">{currentQuestion.title}</h2>
-              <p className="mb-4 text-gray-600">{currentQuestion.description}</p>
-              <span className="text-sm font-medium bg-gray-200 text-gray-800 px-3 py-1 rounded-full">{currentQuestion.difficulty}</span>
-              <h3 className="font-semibold mt-6 mb-2 text-gray-800">Test Case Example:</h3>
-              <pre className="bg-gray-100 p-4 rounded-lg text-sm text-gray-700">
-                {`Input: ${JSON.stringify(displayTestCases.Input)}\nOutput: ${JSON.stringify(displayTestCases.Output)}`}
-              </pre>
-            </div>
-
-            {/* Center Panel: Editor & Output */}
-            <div className="lg:w-2/3 flex flex-col gap-4">
-                <div className="flex justify-between items-center">
+        <div className="p-4 md:p-6 bg-gray-50 min-h-screen w-screen bg-neutral-900">
+            <div className="flex justify-center items-center gap-6 my-5 ml-36 pl-10">
                     <LanguageSelector selectedLanguage={language} onSelect={setLanguage} />
                     <Button
                       onClick={handleSubmit}
                       text={isSubmitting ? 'Submitting...' : 'Submit Code'}
+                      Class = {"bg-slate-700 text-white hover:bg-slate-200"}
   
                     />
+                     <header className="flex justify-center items-center ">
+                      {room.matchEndedAt && <Timer endTime={room.matchEndedAt} onTimerEnd={()=>{if(room) room.status = RoomStatus.FINISHED}}/>}
+                    </header>
+                    <div className="flex justify-center gap-4 ">
+                      {currentQuestionIndex > 0 && (
+                      <Button onClick={() => {
+                        setQuestionIndex(prev => prev - 1);
+                        setOutput("");
+                      }}
+                      
+                      text="&larr; Previous" 
+                      Class = {"bg-slate-700 text-white hover:bg-slate-200 text-neutral-800"}/>
+                      )}
+                      {currentQuestionIndex < room.questions.length - 1 && 
+                      <Button onClick={() => setQuestionIndex(prev => prev + 1)} 
+                      text="Next &rarr;" 
+                      Class = {"bg-slate-700 text-white hover:bg-slate-200"}/>
+                      }
+                    </div>
                 </div>
-                <div className="border rounded-xl overflow-hidden shadow-lg"> 
+
+          <div className="flex flex-col lg:flex-row gap-6 h-xl">
+            <div className="lg:min-w-64  p-6   bg-slate-700 border border-slate-500 rounded-xl shadow-md">
+              <h2 className="text-2xl font-bold mb-3 text-white">{currentQuestion.title}</h2>
+              <span className= {`text-sm font-medium shadow-md ${currentQuestion.difficulty === 'EASY' ? 'bg-green-200 text-green-800' : currentQuestion.difficulty === 'MEDIUM' ? 'bg-yellow-400 text-yellow-800' : 'bg-red-200 text-red-800'} px-3 py-1 rounded-full`}>{currentQuestion.difficulty}</span>
+              <div className="text-white">
+                {newDesc.map((newDesc, idx) => (
+                <span key={idx} className="block py-2 text-md">{newDesc}.</span>
+                ))}
+              </div>
+              <h3 className="font-semibold mt-6 mb-2 text-white">Test Case Example:</h3>
+              <span className="p-4 rounded-lg text-md font-semibold text-white">
+                {`Input: ${JSON.stringify(displayTestCases.Input)}\nOutput: ${JSON.stringify(displayTestCases.Output)}`}
+              </span>
+              <div className="text-white">
+                <h3 className="font-semibold mt-6 mb-2 text-white">Constraints</h3>
+                <div className=" bg-gray-600 rounded-lg">
+                <p className="p-2">{currentQuestion.constraints}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Center Panel: Editor & Output */}
+            <div className="lg:w-2/3 flex flex-col gap-4">
+              
+                <div className="md : border-2 border-slate-600 rounded-xl overflow-hidden bg-neutral-800 shadow-lg"> 
+                  <div className="bg-[#1e1e1e]"><span className="text-[#1e1e1e]">Editor</span></div>
                     <Editor
                       height="60vh"
                       language={language} 
                       theme="vs-dark"
                       value={code}
                       onChange={(value) => setCode(value || '')}
-                      options={{ minimap: { enabled: false }, fontSize: 14 }}
+                      options={{ minimap: { enabled: false }, fontSize: 16 }}
                     />
                 </div>
-                <div className="p-4 bg-gray-900 text-white rounded-xl font-mono min-h-[150px] shadow-lg">
+                <div className="p-4 bg-slate-700 text-white border border-slate-400 rounded-xl  font-mono min-h-[150px] shadow-md">
                     <h3 className="font-bold text-gray-400 mb-2">Output</h3>
                     <SubmissionResult result={output} />
                 </div>
             </div>
 
             {/* Right Panel: Leaderboard (Optional, can be merged or kept separate) */}
-            <div className="lg:w-1/4 bg-white p-6 border rounded-xl shadow-sm">
-              <h3 className="font-bold text-xl mb-4 text-gray-900">Leaderboard</h3>
+            <div className="lg:w-1/3 bg-slate-700 p-6 border border-slate-400 rounded-xl shadow-md">
+              <h3 className="font-bold text-xl mb-4 text-slate-200">Leaderboard</h3>
               <div className="space-y-3">
                 <Leaderboard
                   participants={room.participants}
@@ -209,14 +238,7 @@ export default function InProgressRoom({room, session, roomCode, socketRef}: any
             </div>
           </div>
           
-          <div className="flex justify-center gap-4 mt-6">
-            {currentQuestionIndex > 0 && (
-              <Button onClick={() => setQuestionIndex(prev => prev - 1)} text="&larr; Previous" />
-            )}
-            {currentQuestionIndex < room.questions.length - 1 && 
-              <Button onClick={() => setQuestionIndex(prev => prev + 1)} text="Next &rarr;" />
-            }
-          </div>
+          
         </div>
     )
 }

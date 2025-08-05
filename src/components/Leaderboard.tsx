@@ -29,9 +29,9 @@ export default function Leaderboard({ participants }: LeaderboardProps) {
         <Table>
             <TableHeader>
                 <TableRow>
-                    <TableHead className="w-[80px] text-gray-600">Rank</TableHead>
-                    <TableHead className="text-gray-600">Name</TableHead>
-                    <TableHead className="text-right text-gray-600">Score</TableHead>
+                    <TableHead className="w-[80px] text-center text-slate-200">Rank</TableHead>
+                    <TableHead className="text-center text-slate-200">Name</TableHead>
+                    <TableHead className="text-center text-slate-200">Score</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
@@ -40,9 +40,9 @@ export default function Leaderboard({ participants }: LeaderboardProps) {
                     .sort((a, b) => b.score - a.score)
                     .map((p, index) => ( 
                         <TableRow key={p.user?.username || index}>
-                            <TableCell className="text-center font-medium">{index + 1}</TableCell>
-                            <TableCell className="text-center ">{p.user?.username}</TableCell>
-                            <TableCell className="text-center font-bold">{p.score}</TableCell>
+                            <TableCell className="text-center font-medium text-slate-100 ">{index + 1}</TableCell>
+                            <TableCell className="text-center font-medium text-slate-100">{p.user?.username}</TableCell>
+                            <TableCell className="text-center font-bold text-slate-100">{p.score}</TableCell>
                         </TableRow>
                     ))
                 }

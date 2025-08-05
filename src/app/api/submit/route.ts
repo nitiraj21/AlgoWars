@@ -109,7 +109,7 @@ export async function POST(req: Request) {
         };
 
         // Get Judge0 URL - hardcoded for now since we know it works
-        const judge0Url = 'http://52.66.199.48:2358';
+        const judge0Url = 'http://65.2.191.74:2358';
         
         if (!judge0Url) {
             console.error("Judge0 URL not found in environment variables");
