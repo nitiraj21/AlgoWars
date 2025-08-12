@@ -35,14 +35,14 @@ export default function Leaderboard({ participants }: LeaderboardProps) {
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {/* FIX: Sort karein aur fir seedha participants array par map karein */}
                 {[...participants]
                     .sort((a, b) => b.score - a.score)
                     .map((p, index) => ( 
                         <TableRow key={p.user?.username || index}>
-                            <TableCell className="text-center font-medium text-slate-100 ">{index + 1}</TableCell>
-                            <TableCell className="text-center font-medium text-slate-100">{p.user?.username}</TableCell>
-                            <TableCell className="text-center font-bold text-slate-100">{p.score}</TableCell>
+                            <TableCell className="text-center font-medium text-slate-200 ">{index + 1}</TableCell>
+                            <TableCell className="text-center font-medium text-slate-200">{p.user?.username} {index === 0 && p.score > 0 && <span>🥇</span>} {index === 1  && p.score > 0  && <span>🥈</span>} {index === 2  && p.score > 0  && <span>🥉</span>}</TableCell>
+                            
+                            <TableCell className="text-center font-bold text-slate-200">{p.score}</TableCell>
                         </TableRow>
                     ))
                 }

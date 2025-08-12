@@ -156,8 +156,9 @@ export default function InProgressRoom({room, session, roomCode, socketRef}: any
    
 
     return (
-        <div className="p-4 md:p-6 bg-gray-50 min-h-screen w-screen bg-neutral-900">
-            <div className="flex justify-center items-center gap-6 my-5 ml-36 pl-10">
+        <div className="sm:h-full w-full p-3 mr-3  bg-[#212429] md:pt-6 pl-6 mr-6 min-h-screen ">
+            <div className="w-auto grid grid-row justify-center items-center m-10 mr-60 sm: grid grid-row-3 lg:flex justify-center items-center gap-6 my-5 ml-36 pl-10">
+                  <div className="flex justify-start">Room = {room.name}</div>
                     <LanguageSelector selectedLanguage={language} onSelect={setLanguage} />
                     <Button
                       onClick={handleSubmit}
@@ -175,24 +176,25 @@ export default function InProgressRoom({room, session, roomCode, socketRef}: any
                         setOutput("");
                       }}
                       
-                      text="&larr; Previous" 
+                      text="&larr;" 
                       Class = {"bg-slate-700 text-white hover:bg-slate-200 text-neutral-800"}/>
                       )}
                       {currentQuestionIndex < room.questions.length - 1 && 
                       <Button onClick={() => setQuestionIndex(prev => prev + 1)} 
-                      text="Next &rarr;" 
+                      text="&rarr;" 
                       Class = {"bg-slate-700 text-white hover:bg-slate-200"}/>
                       }
                     </div>
                 </div>
 
           <div className="flex flex-col lg:flex-row gap-6 h-xl">
-            <div className="lg:min-w-64  p-6   bg-slate-700 border border-slate-500 rounded-xl shadow-md">
+            <div className="sm:w-md mr-3 md:w-auto lg:w-3xl  p-6   bg-[#2b2e33] border-2 border-slate-600 rounded-xl shadow-md">
               <h2 className="text-2xl font-bold mb-3 text-white">{currentQuestion.title}</h2>
-              <span className= {`text-sm font-medium shadow-md ${currentQuestion.difficulty === 'EASY' ? 'bg-green-200 text-green-800' : currentQuestion.difficulty === 'MEDIUM' ? 'bg-yellow-400 text-yellow-800' : 'bg-red-200 text-red-800'} px-3 py-1 rounded-full`}>{currentQuestion.difficulty}</span>
+              <span className= {`text-sm  shadow-md ${currentQuestion.difficulty === 'EASY' ? 'bg-green-200 text-green-800' : currentQuestion.difficulty === 'MEDIUM' ? 'bg-yellow-400 text-yellow-800' : 'bg-red-200 text-red-800'} px-3 py-1 rounded-full`}>{currentQuestion.difficulty}</span>
               <div className="text-white">
-                {newDesc.map((newDesc, idx) => (
-                <span key={idx} className="block py-2 text-md">{newDesc}.</span>
+      
+                {newDesc.map((newDesc , idx) => (
+                <span key={idx} className="block py-2 text-md font-fina ">{newDesc}.</span>
                 ))}
               </div>
               <h3 className="font-semibold mt-6 mb-2 text-white">Test Case Example:</h3>
@@ -201,16 +203,16 @@ export default function InProgressRoom({room, session, roomCode, socketRef}: any
               </span>
               <div className="text-white">
                 <h3 className="font-semibold mt-6 mb-2 text-white">Constraints</h3>
-                <div className=" bg-gray-600 rounded-lg">
-                <p className="p-2">{currentQuestion.constraints}</p>
+                <div className=" bg-[#212429] border  border-slate-600 rounded-lg">
+                <p className="p-2 text-neutral-500">{currentQuestion.constraints}</p>
                 </div>
               </div>
             </div>
 
             {/* Center Panel: Editor & Output */}
-            <div className="lg:w-2/3 flex flex-col gap-4">
+            <div className="mr-3 lg:w-2/3 flex flex-col gap-4">
               
-                <div className="md : border-2 border-slate-600 rounded-xl overflow-hidden bg-neutral-800 shadow-lg"> 
+                <div className="md : border-2 border-slate-600 rounded-xl overflow-hidden bg-[#2b2e33] shadow-lg"> 
                   <div className="bg-[#1e1e1e]"><span className="text-[#1e1e1e]">Editor</span></div>
                     <Editor
                       height="60vh"
@@ -221,14 +223,14 @@ export default function InProgressRoom({room, session, roomCode, socketRef}: any
                       options={{ minimap: { enabled: false }, fontSize: 16 }}
                     />
                 </div>
-                <div className="p-4 bg-slate-700 text-white border border-slate-400 rounded-xl  font-mono min-h-[150px] shadow-md">
+                <div className="p-4 bg-[#2b2e33] text-white border-2 border-slate-600 rounded-xl  font-mono min-h-[150px] shadow-md">
                     <h3 className="font-bold text-gray-400 mb-2">Output</h3>
                     <SubmissionResult result={output} />
                 </div>
             </div>
 
             {/* Right Panel: Leaderboard (Optional, can be merged or kept separate) */}
-            <div className="lg:w-1/3 bg-slate-700 p-6 border border-slate-400 rounded-xl shadow-md">
+            <div className="sm : mr-3 lg:w-1/3 bg-[#2b2e33] p-6 border-2 border-slate-600 rounded-xl shadow-md">
               <h3 className="font-bold text-xl mb-4 text-slate-200">Leaderboard</h3>
               <div className="space-y-3">
                 <Leaderboard
