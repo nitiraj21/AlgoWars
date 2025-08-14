@@ -15,8 +15,7 @@ const app = express();
 const server = http.createServer(app);
 let MATCH_DURATION_MINUTES: number | null = null;
 
- MATCH_DURATION_MINUTES = 45;
-
+MATCH_DURATION_MINUTES = 45;
 
 const io = new Server(server, {
   cors: {
@@ -24,6 +23,95 @@ const io = new Server(server, {
     methods: ['GET', 'POST'],
   },
 });
+
+// Helper function to calculate XP based on rank
+function calculateXPByRank(rank: number): number {
+  switch (rank) {
+    case 1: return 100; // Winner
+    case 2: return 40;  // Second place
+    case 3: return 30;  // Third place
+    default: return 20; // Everyone else
+  }
+}
+
+// Helper function to assign ranks and distribute XP
+async function finishMatchWithRanking(roomCode: string, roomId: string) {
+  try {
+    // Get all participants ordered by score (descending)
+    const participants = await prisma.matchParticipant.findMany({
+      where: { roomId: roomId },
+      include: { user: { select: { username: true, id: true } } },
+      orderBy: { score: 'desc' },
+    });
+
+    if (participants.length === 0) {
+      console.log(`No participants found for room ${roomCode}`);
+      return;
+    }
+
+    // Assign ranks and update participants
+    const updates = participants.map(async (participant, index) => {
+      const rank = index + 1;
+      const xpGained = calculateXPByRank(rank);
+      
+      // Update participant rank
+      await prisma.matchParticipant.update({
+        where: { id: participant.id },
+        data: { rank: rank },
+      });
+
+      // Update user stats
+      const updateData: any = {
+        XP: { increment: xpGained },
+      };
+
+      // Only increment wins for the winner (rank 1)
+      if (rank === 1) {
+        updateData.wins = { increment: 1 };
+      }
+
+      await prisma.user.update({
+        where: { id: participant.user.id },
+        data: updateData,
+      });
+
+      return {
+        ...participant,
+        rank,
+        xpGained,
+      };
+    });
+
+    const rankedParticipants = await Promise.all(updates);
+
+    // Get the winner (first participant)
+    const winner = rankedParticipants[0];
+
+    // Emit results to all participants
+    io.to(roomCode).emit('match-finished', {
+      winner: {
+        user: winner.user,
+        score: winner.score,
+        rank: winner.rank,
+      },
+      finalRankings: rankedParticipants.map(p => ({
+        user: p.user,
+        score: p.score,
+        rank: p.rank,
+        xpGained: p.xpGained,
+      })),
+    });
+
+    console.log(`🏆 Match ${roomCode} finished with rankings:`);
+    rankedParticipants.forEach(p => {
+      console.log(`  ${p.rank}. ${p.user.username} - Score: ${p.score} (+${p.xpGained} XP)`);
+    });
+
+  } catch (error) {
+    console.error(`Error finishing match with ranking for room ${roomCode}:`, error);
+  }
+}
+
 io.on('connection', (socket) => {
   console.log('✅ A user connected:', socket.id);
 
@@ -33,19 +121,21 @@ io.on('connection', (socket) => {
     try {
       const room = await prisma.room.findUnique({
         where: { code: roomCode },
-        select: { id: true , duration : true},
-
+        select: { id: true, duration: true },
       });
+      
       if (!room) {
         console.error(`Join-room failed: Room with code '${roomCode}' not found.`);
         return;
       }
+      
       const roomId = room.id;
       MATCH_DURATION_MINUTES = room.duration || null;
   
       const user = await prisma.user.findFirst({
         where: { OR: [{ username: username }, { email: username }] },
       });
+      
       if (!user) {
         console.error(`Join-room failed: User '${username}' not found.`);
         return;
@@ -58,28 +148,25 @@ io.on('connection', (socket) => {
         create: { userId: user.id, roomId: roomId, role: 'PARTICIPANT' },
       });
   
-      // --- YEH SABSE ZAROORI BADLAV HAI ---
       // Memory se list banane ke bajaye, hamesha database se latest participant list fetch karein
       const updatedParticipants = await prisma.matchParticipant.findMany({
-          where: { roomId: roomId },
-          select: {
-              // Yahan wahi fields select karein jo frontend ko chahiye
-              role: true,
-              score: true,
-              user: { select: { username: true } }
-          }
+        where: { roomId: roomId },
+        select: {
+          role: true,
+          score: true,
+          rank: true,
+          user: { select: { username: true } }
+        }
       });
   
       // Sabhi ko updated list (naye score ke saath) bhejein
       io.to(roomCode).emit('room-participants-updated', { participants: updatedParticipants });
-      // --- END OF FIX ---
   
     } catch (error) {
       console.error('Error on join-room:', error);
     }
   });
   
-
   socket.on('disconnect', () => {
     console.log('❌ A user disconnected:', socket.id);
     socket.rooms.forEach(roomId => {
@@ -107,8 +194,8 @@ io.on('connection', (socket) => {
   socket.on('start-match', async (roomCode) => {
     try {
       let endTime = new Date();
-      if(MATCH_DURATION_MINUTES){
-       endTime = new Date(Date.now() + MATCH_DURATION_MINUTES * 60 * 1000);
+      if (MATCH_DURATION_MINUTES) {
+        endTime = new Date(Date.now() + MATCH_DURATION_MINUTES * 60 * 1000);
       }
 
       const room = await prisma.room.findUnique({
@@ -130,34 +217,30 @@ io.on('connection', (socket) => {
       });
 
       io.to(roomCode).emit('match-started');
-      if(MATCH_DURATION_MINUTES){
-      setTimeout(async () => {
-        try {
-          const currentRoom = await prisma.room.findUnique({
-            where: { code: roomCode },
-            select: { id: true }
-          });
+      
+      if (MATCH_DURATION_MINUTES) {
+        setTimeout(async () => {
+          try {
+            const currentRoom = await prisma.room.findUnique({
+              where: { code: roomCode },
+              select: { id: true }
+            });
 
-          if (!currentRoom) return;
+            if (!currentRoom) return;
 
-          await prisma.room.update({
-            where: { id: currentRoom.id },
-            data: { status: 'FINISHED' },
-          });
+            await prisma.room.update({
+              where: { id: currentRoom.id },
+              data: { status: 'FINISHED' },
+            });
 
-          const winner = await prisma.matchParticipant.findFirst({
-            where: { roomId: currentRoom.id },
-            orderBy: { score: 'desc' },
-            include: { user: { select: { username: true } } },
-          });
+            // Use the new ranking system instead of just announcing winner
+            await finishMatchWithRanking(roomCode, currentRoom.id);
 
-          io.to(roomCode).emit('winner-announced', { winner });
-          console.log(`🏆 Match ${roomCode} finished. Winner: ${winner?.user?.username} with a score of ${winner?.score}`);
-
-        } catch (error) {
+          } catch (error) {
             console.error(`Error finishing match for room ${roomCode}:`, error);
-        }
-      }, MATCH_DURATION_MINUTES * 60 * 1000);}
+          }
+        }, MATCH_DURATION_MINUTES * 60 * 1000);
+      }
 
     } catch (error) {
       console.error(`Error starting match for room ${roomCode}:`, error);
@@ -172,7 +255,7 @@ io.on('connection', (socket) => {
         return;
       }
   
-      // --- FIX: First, find the room by its code to get the actual ID ---
+      // First, find the room by its code to get the actual ID
       const room = await prisma.room.findUnique({
         where: { code: roomCode },
         select: { id: true },
@@ -182,8 +265,8 @@ io.on('connection', (socket) => {
         console.error(`[DEBUG] Score update failed: Room with code '${roomCode}' not found.`);
         return;
       }
-      const roomId = room.id; // Use the actual database ID
-      // --- END OF FIX ---
+      
+      const roomId = room.id;
 
       const user = await prisma.user.findUnique({
         where: { email: userEmail },
@@ -223,6 +306,31 @@ io.on('connection', (socket) => {
       }
     } catch (error) {
       console.error('Error updating score:', error);
+    }
+  });
+
+  // Optional: Add endpoint to manually finish match (for testing or admin purposes)
+  socket.on('force-finish-match', async (roomCode) => {
+    try {
+      const room = await prisma.room.findUnique({
+        where: { code: roomCode },
+        select: { id: true }
+      });
+
+      if (!room) {
+        console.error(`Force finish failed: Room ${roomCode} not found.`);
+        return;
+      }
+
+      await prisma.room.update({
+        where: { id: room.id },
+        data: { status: 'FINISHED' },
+      });
+
+      await finishMatchWithRanking(roomCode, room.id);
+      
+    } catch (error) {
+      console.error(`Error force finishing match for room ${roomCode}:`, error);
     }
   });
 });

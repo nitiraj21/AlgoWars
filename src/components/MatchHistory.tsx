@@ -23,6 +23,7 @@ async function MatchHistory() {
               score: true, 
               joinedAt: true,
               role: true,
+              rank : true,
               room: {
                 select: {
                   id: true,
@@ -39,27 +40,27 @@ async function MatchHistory() {
       const rows = data?.matchHistory.map(match => ({
         room: match.room.name,
         score: match.score,
-        rank: "TBD",
+        rank: match.rank,
         date:match.joinedAt.toDateString()
       }));
   return (
-    <div className='bg-[#222627] w-auto  md:w-[800px] rounded-lg overflow-hidden border border-gray-600 shadow-lg' >
+    <div className='bg-[#222627] w-auto  md:w-[715px] text-lg rounded-lg overflow-hidden border border-gray-600 shadow-lg' >
         <Table>
             <TableHeader>
                 <TableRow>
-                    <TableHead className="w-[80px] text-center text-slate-200 font-semibold">Room</TableHead>
-                    <TableHead className="text-center text-slate-200 font-semibold">Score</TableHead>
-                    <TableHead className="text-center text-slate-200 font-semibold">Rank</TableHead>
-                    <TableHead className="text-center text-slate-200 font-semibold">Date</TableHead>
+                    <TableHead className="w-[80px] text-center text-slate-200 font-semibold text-lg">Room</TableHead>
+                    <TableHead className="text-center text-slate-200 font-semibold text-lg">Score</TableHead>
+                    <TableHead className="text-center text-slate-200 font-semibold text-lg">Rank</TableHead>
+                    <TableHead className="text-center text-slate-200 font-semibold text-lg">Date</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
                 {rows?.map((row, index) => (
                     <TableRow key={index} className='border-b border-gray-600 '>
-                        <TableCell className="text-center">{row.room}</TableCell>
-                        <TableCell className="text-center">{row.score}</TableCell>
-                        <TableCell className="text-center">{row.rank}</TableCell>
-                        <TableCell className="text-center">{row.date}</TableCell>
+                        <TableCell className="text-center text-gray-200 text-lg">{row.room}</TableCell>
+                        <TableCell className="text-center text-gray-200 text-lg">{row.score}</TableCell>
+                        <TableCell className="text-center text-gray-200 text-lg">{row.rank}</TableCell>
+                        <TableCell className="text-center text-gray-200 text-lg">{row.date}</TableCell>
                     </TableRow>
                 ))}
 </TableBody>

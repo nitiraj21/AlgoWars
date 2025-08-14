@@ -28,6 +28,81 @@ const io = new socket_io_1.Server(server, {
         methods: ['GET', 'POST'],
     },
 });
+// Helper function to calculate XP based on rank
+function calculateXPByRank(rank) {
+    switch (rank) {
+        case 1: return 100; // Winner
+        case 2: return 40; // Second place
+        case 3: return 30; // Third place
+        default: return 20; // Everyone else
+    }
+}
+// Helper function to assign ranks and distribute XP
+function finishMatchWithRanking(roomCode, roomId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            // Get all participants ordered by score (descending)
+            const participants = yield prisma.matchParticipant.findMany({
+                where: { roomId: roomId },
+                include: { user: { select: { username: true, id: true } } },
+                orderBy: { score: 'desc' },
+            });
+            if (participants.length === 0) {
+                console.log(`No participants found for room ${roomCode}`);
+                return;
+            }
+            // Assign ranks and update participants
+            const updates = participants.map((participant, index) => __awaiter(this, void 0, void 0, function* () {
+                const rank = index + 1;
+                const xpGained = calculateXPByRank(rank);
+                // Update participant rank
+                yield prisma.matchParticipant.update({
+                    where: { id: participant.id },
+                    data: { rank: rank },
+                });
+                // Update user stats
+                const updateData = {
+                    matches: { increment: 1 },
+                    XP: { increment: xpGained },
+                };
+                // Only increment wins for the winner (rank 1)
+                if (rank === 1) {
+                    updateData.wins = { increment: 1 };
+                }
+                yield prisma.user.update({
+                    where: { id: participant.user.id },
+                    data: updateData,
+                });
+                return Object.assign(Object.assign({}, participant), { rank,
+                    xpGained });
+            }));
+            const rankedParticipants = yield Promise.all(updates);
+            // Get the winner (first participant)
+            const winner = rankedParticipants[0];
+            // Emit results to all participants
+            io.to(roomCode).emit('match-finished', {
+                winner: {
+                    user: winner.user,
+                    score: winner.score,
+                    rank: winner.rank,
+                },
+                finalRankings: rankedParticipants.map(p => ({
+                    user: p.user,
+                    score: p.score,
+                    rank: p.rank,
+                    xpGained: p.xpGained,
+                })),
+            });
+            console.log(`🏆 Match ${roomCode} finished with rankings:`);
+            rankedParticipants.forEach(p => {
+                console.log(`  ${p.rank}. ${p.user.username} - Score: ${p.score} (+${p.xpGained} XP)`);
+            });
+        }
+        catch (error) {
+            console.error(`Error finishing match with ranking for room ${roomCode}:`, error);
+        }
+    });
+}
 io.on('connection', (socket) => {
     console.log('✅ A user connected:', socket.id);
     socket.on('join-room', (roomCode, username) => __awaiter(void 0, void 0, void 0, function* () {
@@ -56,20 +131,18 @@ io.on('connection', (socket) => {
                 update: {},
                 create: { userId: user.id, roomId: roomId, role: 'PARTICIPANT' },
             });
-            // --- YEH SABSE ZAROORI BADLAV HAI ---
             // Memory se list banane ke bajaye, hamesha database se latest participant list fetch karein
             const updatedParticipants = yield prisma.matchParticipant.findMany({
                 where: { roomId: roomId },
                 select: {
-                    // Yahan wahi fields select karein jo frontend ko chahiye
                     role: true,
                     score: true,
+                    rank: true,
                     user: { select: { username: true } }
                 }
             });
             // Sabhi ko updated list (naye score ke saath) bhejein
             io.to(roomCode).emit('room-participants-updated', { participants: updatedParticipants });
-            // --- END OF FIX ---
         }
         catch (error) {
             console.error('Error on join-room:', error);
@@ -123,7 +196,6 @@ io.on('connection', (socket) => {
             io.to(roomCode).emit('match-started');
             if (MATCH_DURATION_MINUTES) {
                 setTimeout(() => __awaiter(void 0, void 0, void 0, function* () {
-                    var _a;
                     try {
                         const currentRoom = yield prisma.room.findUnique({
                             where: { code: roomCode },
@@ -135,13 +207,8 @@ io.on('connection', (socket) => {
                             where: { id: currentRoom.id },
                             data: { status: 'FINISHED' },
                         });
-                        const winner = yield prisma.matchParticipant.findFirst({
-                            where: { roomId: currentRoom.id },
-                            orderBy: { score: 'desc' },
-                            include: { user: { select: { username: true } } },
-                        });
-                        io.to(roomCode).emit('winner-announced', { winner });
-                        console.log(`🏆 Match ${roomCode} finished. Winner: ${(_a = winner === null || winner === void 0 ? void 0 : winner.user) === null || _a === void 0 ? void 0 : _a.username} with a score of ${winner === null || winner === void 0 ? void 0 : winner.score}`);
+                        // Use the new ranking system instead of just announcing winner
+                        yield finishMatchWithRanking(roomCode, currentRoom.id);
                     }
                     catch (error) {
                         console.error(`Error finishing match for room ${roomCode}:`, error);
@@ -160,7 +227,7 @@ io.on('connection', (socket) => {
                 console.error('User email not provided for score update.');
                 return;
             }
-            // --- FIX: First, find the room by its code to get the actual ID ---
+            // First, find the room by its code to get the actual ID
             const room = yield prisma.room.findUnique({
                 where: { code: roomCode },
                 select: { id: true },
@@ -169,8 +236,7 @@ io.on('connection', (socket) => {
                 console.error(`[DEBUG] Score update failed: Room with code '${roomCode}' not found.`);
                 return;
             }
-            const roomId = room.id; // Use the actual database ID
-            // --- END OF FIX ---
+            const roomId = room.id;
             const user = yield prisma.user.findUnique({
                 where: { email: userEmail },
                 select: { id: true },
@@ -205,6 +271,27 @@ io.on('connection', (socket) => {
         }
         catch (error) {
             console.error('Error updating score:', error);
+        }
+    }));
+    // Optional: Add endpoint to manually finish match (for testing or admin purposes)
+    socket.on('force-finish-match', (roomCode) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const room = yield prisma.room.findUnique({
+                where: { code: roomCode },
+                select: { id: true }
+            });
+            if (!room) {
+                console.error(`Force finish failed: Room ${roomCode} not found.`);
+                return;
+            }
+            yield prisma.room.update({
+                where: { id: room.id },
+                data: { status: 'FINISHED' },
+            });
+            yield finishMatchWithRanking(roomCode, room.id);
+        }
+        catch (error) {
+            console.error(`Error force finishing match for room ${roomCode}:`, error);
         }
     }));
 });

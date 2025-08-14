@@ -109,7 +109,7 @@ export async function POST(req: Request) {
         };
 
         // Get Judge0 URL - hardcoded for now since we know it works
-        const judge0Url = 'http://65.2.191.74:2358';
+        const judge0Url = 'http://43.205.136.152:2358';
         
         if (!judge0Url) {
             console.error("Judge0 URL not found in environment variables");
@@ -210,15 +210,21 @@ export async function POST(req: Request) {
             overallStatus: allPassed ? 'Accepted' : 'Failed',
             passedTests,
             totalTests,
+            // Add compile_output at the root level
+            compile_output: processedResults[0]?.compile_output || null,
+            stderr: processedResults[0]?.stderr || null,
             results: processedResults,
-             //@ts-ignore
+            //@ts-ignore
             details: processedResults.map(r => ({
                 testCase: r.testCase,
                 status: r.status,
                 passed: r.passed,
                 actualOutput: r.actualOutput,
                 expectedOutput: r.expectedOutput,
-                error: r.error
+                error: r.error,
+                // Also include at detail level
+                compile_output: r.compile_output,
+                stderr: r.stderr
             }))
         });
 

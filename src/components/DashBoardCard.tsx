@@ -20,7 +20,6 @@ export const DashBoardCard =  async () => {
             <div>cant fetch the data</div>
         )
     }
-    const WinPercentage = Math.ceil(user.wins/ user.matches * 100);
     const Rank = getRank(user.XP);
 
     const stats = [
@@ -32,10 +31,13 @@ export const DashBoardCard =  async () => {
       ];
 
   return (
-    <div className='flex justify-start items-center w-84   bg-[#222627] rounded-xl shadow-lg'>
-        <div className='gap-4'>
-            <div className='flex item-center justify-start ml-7 mb-2 text-2xl font-semibold'>{user.username}</div>
-            <div className='flex justify-start'>
+    <div className='flex justify-start items-center w-full   bg-[#222627] rounded-xl shadow-xl'>
+        <div className='gap-5'>
+            <div className='flex justify-start items-center ml-6'>
+                <div className='rounded-3xl overflow-hidden'><img  src={"./Profile.jpeg"} width={50} height={50}/></div>
+                <div className='flex item-center justify-start ml-2 mb-2 text-2xl font-semibold'>@{user.username}</div>
+            </div>
+            <div className='flex justify-start mt-2'>
            {stats.map((stat)=>(
             <div
                 key={stat.label}
@@ -49,7 +51,11 @@ export const DashBoardCard =  async () => {
         </div>
         </div>
         <div className='ml-6 mt-0'>
-        {Rank === "Gold" && <img className='mb-4' src="/Gold2.png" alt="Gold Rank" width={60} height={60} />}
+        {Rank === "Silver" && <img className='mb-10' src="/Silver.png" alt="Gold Rank" width={65} height={65} />}
+        {Rank === "Bronze" && <img className='mb-10' src="/Bronze.png" alt="Gold Rank" width={65} height={65} />}
+        {Rank === "Platinum" && <img className='mb-10' src="/Platinum.png" alt="Gold Rank" width={65} height={65} />}
+        {Rank === "Gold" && <img className='mb-10' src="/Gold2.png" alt="Gold Rank" width={65} height={65} />}
+        {Rank === "Legend" && <img className='mb-10' src="/Legend2.png" alt="Gold Rank" width={65} height={65} />}
         </div>
     </div>
   )

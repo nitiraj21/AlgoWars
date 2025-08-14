@@ -50,6 +50,7 @@ model MatchParticipant {
   room      Room     @relation("ParticipantsInRoom", fields: [roomId], references: [id])
   roomId    String
   score     Int      @default(0)
+  rank      Int?   
   joinedAt  DateTime @default(now())
    @@unique([userId, roomId])
 }

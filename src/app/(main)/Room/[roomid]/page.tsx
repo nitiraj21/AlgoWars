@@ -17,7 +17,18 @@ export default function RoomPage() {
   const { width, height } = useWindowSize();
   const params = useParams();
   const roomCode = params?.roomid as string | null;
-  const { room, session, isLoading, error, startMatch, socketRef, winner  } = useRoomSocket(roomCode); 
+  const {  room, 
+    session, 
+    isLoading, 
+    error, 
+    startMatch,
+    forceFinishMatch, // For testing purposes
+    socketRef, 
+    winner,
+    finalRankings,
+    isMatchFinished,
+    getCurrentUserStats,
+    isCurrentUserWinner  } = useRoomSocket(roomCode); 
   console.log(winner)
   const router = useRouter()
 
@@ -71,6 +82,14 @@ export default function RoomPage() {
           <div className="text-center mb-8 animate-slide-up">
             <Winner winner={finalWinner} />
           </div>
+          {getCurrentUserStats() && (
+        <div>
+          <h3>Your Performance:</h3>
+          <p>Rank: #{getCurrentUserStats()?.rank}</p>
+          <p>Score: {getCurrentUserStats()?.score}</p>
+          <p>XP Gained: +{getCurrentUserStats()?.xpGained}</p>
+        </div>
+      )}
   
           <div className="animate-slide-up delay-100">
             <div className="bg-[#151820] rounded-xl border border-[#2d3138] p-6">
