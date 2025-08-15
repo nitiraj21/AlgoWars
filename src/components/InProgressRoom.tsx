@@ -303,7 +303,7 @@ export default function InProgressRoom({room, session, roomCode, socketRef}: any
    
 
     return (
-        <div className="sm:h-full w-full p-3 mr-3  bg-[#171717] md:pt-6 pl-6 mr-6 min-h-screen ">
+        <div className="sm:h-full w-full p-3 mr-3  bg-neutral-950 md:pt-6 pl-6 mr-6 min-h-screen ">
             <div className="w-auto grid grid-row justify-center items-center m-10 mr-60 sm: grid grid-row-3 lg:flex justify-center items-center gap-6 my-5 ml-36 pl-10">
                   <div className="flex justify-start">Room = {room.name}</div>
                     <LanguageSelector selectedLanguage={language} onSelect={setLanguage} />

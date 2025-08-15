@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 
 type SpotlightProps = {
@@ -25,13 +25,33 @@ export const Spotlight = ({
   duration = 7,
   xOffset = 100,
 }: SpotlightProps = {}) => {
-  // Responsive adjustments
-  const isSmallScreen = typeof window !== "undefined" && window.innerWidth < 768;
-  const responsiveWidth = isSmallScreen ? 300 : width;
-  const responsiveSmallWidth = isSmallScreen ? 120 : smallWidth;
-  const responsiveHeight = isSmallScreen ? 1200 : height;
-  const responsiveTranslateY = isSmallScreen ? -600 : translateY;
-  const responsiveXOffset = isSmallScreen ? 50 : xOffset;
+  const [dimensions, setDimensions] = useState({
+    responsiveWidth: width,
+    responsiveSmallWidth: smallWidth,
+    responsiveHeight: height,
+    responsiveTranslateY: translateY,
+    responsiveXOffset: xOffset,
+  });
+
+  // Run only on client after mount
+  useEffect(() => {
+    const isSmallScreen = window.innerWidth < 768;
+    setDimensions({
+      responsiveWidth: isSmallScreen ? 300 : width,
+      responsiveSmallWidth: isSmallScreen ? 120 : smallWidth,
+      responsiveHeight: isSmallScreen ? 1200 : height,
+      responsiveTranslateY: isSmallScreen ? -600 : translateY,
+      responsiveXOffset: isSmallScreen ? 50 : xOffset,
+    });
+  }, [width, height, smallWidth, translateY, xOffset]);
+
+  const {
+    responsiveWidth,
+    responsiveSmallWidth,
+    responsiveHeight,
+    responsiveTranslateY,
+    responsiveXOffset,
+  } = dimensions;
 
   return (
     <motion.div
@@ -39,16 +59,10 @@ export const Spotlight = ({
       animate={{ opacity: 1 }}
       className="pointer-events-none absolute inset-0 h-full w-full mt-40"
     >
+      {/* Left side */}
       <motion.div
-        animate={{
-          x: [0, responsiveXOffset, 0],
-        }}
-        transition={{
-          duration,
-          repeat: Infinity,
-          repeatType: "reverse",
-          ease: "easeInOut",
-        }}
+        animate={{ x: [0, responsiveXOffset, 0] }}
+        transition={{ duration, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
         className="absolute top-0 left-0 w-screen h-screen z-40 pointer-events-none"
       >
         <div
@@ -60,7 +74,6 @@ export const Spotlight = ({
           }}
           className="absolute top-0 left-0"
         />
-
         <div
           style={{
             transform: "rotate(-45deg) translate(5%, -50%)",
@@ -70,7 +83,6 @@ export const Spotlight = ({
           }}
           className="absolute top-0 left-0 origin-top-left"
         />
-
         <div
           style={{
             transform: "rotate(-45deg) translate(-180%, -70%)",
@@ -82,16 +94,10 @@ export const Spotlight = ({
         />
       </motion.div>
 
+      {/* Right side */}
       <motion.div
-        animate={{
-          x: [0, -responsiveXOffset, 0],
-        }}
-        transition={{
-          duration,
-          repeat: Infinity,
-          repeatType: "reverse",
-          ease: "easeInOut",
-        }}
+        animate={{ x: [0, -responsiveXOffset, 0] }}
+        transition={{ duration, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
         className="absolute top-0 right-0 w-screen h-screen z-40 pointer-events-none"
       >
         <div
@@ -103,7 +109,6 @@ export const Spotlight = ({
           }}
           className="absolute top-0 right-0"
         />
-
         <div
           style={{
             transform: "rotate(45deg) translate(-5%, -50%)",
@@ -113,7 +118,6 @@ export const Spotlight = ({
           }}
           className="absolute top-0 right-0 origin-top-right"
         />
-
         <div
           style={{
             transform: "rotate(45deg) translate(180%, -70%)",

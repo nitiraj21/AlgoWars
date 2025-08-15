@@ -32,7 +32,7 @@ export default function RoomForm() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 bg-[#262626] min-h-screen">
       <input
         className="border p-2 mr-2"
         placeholder="Room Name"
