@@ -7,6 +7,8 @@ import { Spotlight } from '../ui/spotlight-new'
 import Mockup from './Mockup'
 import SupportedLanguages from './Languages'
 import { motion } from 'framer-motion'
+import Testimonials from './Testimonials'
+import HowItWorks from './HowItWorks'
 
 
 export default function MainPage() {
@@ -17,10 +19,11 @@ export default function MainPage() {
         <Navbar/>
         <HeroSection/>
         <Mockup/>
+        <HowItWorks/>
         <div>
-
         <SupportedLanguages/>
         </div>
+        <Testimonials/>
         
     </Container>
 

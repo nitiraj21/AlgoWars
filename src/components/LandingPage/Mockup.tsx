@@ -8,7 +8,7 @@ export default function Mockup() {
         Challenge → Solve → Win.
         </h1>
       </div>
-      <div className='z-50 flex flex-col justify-center items-center  md:flex-row flex-wrap mx-2'>
+      <div className='z-50 flex flex-col justify-center items-center  md:flex-row '>
 
         <div data-aos="fade-right">
         <img src={"./Question.png"} className='transform ' />
@@ -17,11 +17,9 @@ export default function Mockup() {
         <div data-aos="fade-up">
         <img src={"./CodeEditor.png"} className='transform ' />
         </div>
-
         <div data-aos="fade-left">
-        <img src={"./LeaderBoard.png"} className='hidden xl:block transform ' />
+        <img src={"./LeaderBoard.png"} className='transform ' />
         </div>
-
       </div>
     </div>
   )

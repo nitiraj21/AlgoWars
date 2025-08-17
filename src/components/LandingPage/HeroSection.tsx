@@ -36,9 +36,8 @@ export default function HeroSection() {
       Class= {`
     bg-gradient-to-b from-zinc-200 to-zinc-400 
     rounded-lg shadow-[0_0_15px_0_rgba(0,0,0,0.4)]
-    transition-all duration-300
-    ease-out
-    hover:shadow-[0_0_35px_10px_rgba(80,120,200,0.4)]
+    hover:shadow-[0_0_35px_10px_rgba(80,120,200,0.4)] transform transition-all duration-800
+        ease-out
       `}
     />
   </div>
