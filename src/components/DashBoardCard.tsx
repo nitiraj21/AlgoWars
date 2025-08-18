@@ -42,7 +42,7 @@ export const DashBoardCard =  async () => {
     height={50} 
     alt="profile"
   /></div>
-                <div className='flex item-center justify-start ml-2 mb-2 text-2xl font-semibold'>@{user.username.split("")}</div>
+                <div className='flex item-center justify-start ml-2 mb-2 text-2xl font-semibold flex-wrap'>@{user.username.split("")}</div>
             </div>
             <div className='flex justify-start mt-2'>
            {stats.map((stat)=>(
