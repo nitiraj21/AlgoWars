@@ -1,20 +1,25 @@
 import { NextResponse } from "next/server";
-import { getToken} from "next-auth/jwt";
-import type { NextRequest} from "next/server";
+import { getToken } from "next-auth/jwt";
+import type { NextRequest } from "next/server";
 
 const secret = process.env.NEXTAUTH_SECRET;
 
-export async function middleware(request : NextRequest){
-    const token = await getToken({req : request, secret});
-    const isAuth = request.nextUrl.pathname.startsWith("/signin") || request.nextUrl.pathname.startsWith("/register");
+export async function middleware(request: NextRequest) {
+  const token = await getToken({ req: request, secret });
+  const { pathname } = request.nextUrl;
 
-    if(token && isAuth){
-        return NextResponse.redirect(new URL ("/dashboard", request.url));
-    }
+  // Public routes
+  const publicPaths = ["/signin", "/register"];
 
-    if(!token && request.nextUrl.pathname.startsWith("/dashboard")){
-        return NextResponse.redirect(new URL("/signin", request.url));
-    }
+  // If user is logged in and goes to signin/register -> redirect to dashboard
+  if (token && publicPaths.some(path => pathname.startsWith(path))) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
 
-    return NextResponse.next();
+  // If user is NOT logged in and goes to a protected route -> redirect to signin
+  if (!token && !publicPaths.some(path => pathname.startsWith(path))) {
+    return NextResponse.redirect(new URL("/signin", request.url));
+  }
+
+  return NextResponse.next();
 }

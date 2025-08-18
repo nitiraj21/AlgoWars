@@ -8,8 +8,8 @@ function HowItWorks() {
     ]
 
   return (
-    <div className='mt-10 mb-10 bg-black/80 h-full'>
-        <div className="mb-10 bg-black/80 transform hover:scale-103 transition-transform duration-400 ease-in-out  overflow-hidden
+    <div className='mt-10 mb-10 h-full z-50'>
+        <div className="mb-10 transform hover:scale-103 transition-transform duration-400 ease-in-out  overflow-hidden
          bg-gradient-to-r from-gray-700/15 to-gray-500/15 backdrop-blur-lg relative mt-16 mx-16 md:mx-40 px-4 flex flex-col items-center
           border-2 border-slate-600 cursor-pointer rounded-2xl py-12 mb-10 z-50 hover:shadow-[0_0_40px_10px_rgba(80,120,200,0.2)] ">
         <div>

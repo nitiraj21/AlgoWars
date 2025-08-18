@@ -1,7 +1,10 @@
+"use client"
 import React from 'react'
 import Button from '../button'
+import { useRouter } from 'next/navigation'
 
 export default function Navbar() {
+  const router = useRouter();
   return (
 <>
   <div className="bg-black/80 h-full shadow-xl fixed inset-0 fixed" />
@@ -21,6 +24,9 @@ export default function Navbar() {
         ease-out mr-6
         hover:shadow-[0_0_30px_10px_rgba(80,120,200,0.2)]
         `}
+        onClick={()=>{
+          router.push("/api/auth/signin/1")
+        }}
       />
       <Button
         text={"Signup"}

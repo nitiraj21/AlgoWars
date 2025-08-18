@@ -17,8 +17,13 @@ async function UserStatsCard()  {
               <div>cant fetch the data</div>
           )
       }
-      const win = Math.ceil(user.wins/user.matches *100);
-      console.log(win + "win percentage");
+      let win = 0
+      if(user.matches > 0){
+        win = Math.ceil(user.wins/user.matches *100);
+      }
+
+
+
   return (
     <div className='w-full   bg-[#222627] rounded-xl shadow-xl '>
         <div className='flex items-center justify-center mt-3'>

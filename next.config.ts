@@ -10,5 +10,11 @@ const nextConfig: NextConfig = {
     "/register"
   ]
 };
+module.exports = {
+  images: {
+    domains: ['lh3.googleusercontent.com'],
+  },
+};
+
 
 export default nextConfig;

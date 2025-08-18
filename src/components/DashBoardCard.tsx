@@ -3,6 +3,7 @@ import { prisma } from '../lib/prisma'
 import { getServerSession } from 'next-auth';
 import UserIcon from 'public/Gold.svg'
 import getRank from '../Functions/getRank';
+import Image from 'next/image';
 
 export const DashBoardCard =  async () => {
 
@@ -29,13 +30,19 @@ export const DashBoardCard =  async () => {
         { label: "Points", value: user.XP },
         
       ];
+      console.log(user.ProfilePic)
 
   return (
     <div className='flex justify-start items-center w-full   bg-[#222627] rounded-xl shadow-xl'>
         <div className='gap-5'>
             <div className='flex justify-start items-center ml-6'>
-                <div className='rounded-3xl overflow-hidden'><img  src={"./Profile.jpeg"} width={50} height={50}/></div>
-                <div className='flex item-center justify-start ml-2 mb-2 text-2xl font-semibold'>@{user.username}</div>
+                <div className='rounded-3xl overflow-hidden'>  <Image 
+    src={user.ProfilePic || "/Profile.jpeg"} 
+    width={50} 
+    height={50} 
+    alt="profile"
+  /></div>
+                <div className='flex item-center justify-start ml-2 mb-2 text-2xl font-semibold'>@{user.username.split("")}</div>
             </div>
             <div className='flex justify-start mt-2'>
            {stats.map((stat)=>(

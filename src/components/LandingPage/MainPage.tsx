@@ -9,6 +9,7 @@ import SupportedLanguages from './Languages'
 import { motion } from 'framer-motion'
 import Testimonials from './Testimonials'
 import HowItWorks from './HowItWorks'
+import Table from './Table'
 
 
 export default function MainPage() {
@@ -23,6 +24,7 @@ export default function MainPage() {
         <div>
         <SupportedLanguages/>
         </div>
+        <Table/>
         <Testimonials/>
         
     </Container>

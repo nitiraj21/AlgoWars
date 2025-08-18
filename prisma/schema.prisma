@@ -18,6 +18,7 @@ model User {
   username      String             @unique
   email         String             @unique
   password      String
+  ProfilePic    String?
   createdAt     DateTime           @default(now())
   roomsHosted   Room[]             @relation("RoomsHostedByUser")                               
   matchHistory  MatchParticipant[] @relation("UserRoomsJoined")
