@@ -8,11 +8,11 @@ const ComparisonTable = () => {
     {
       feature: "Room Creation",
       codeclash: "✅ Randomized questions to ensure fairness",
-      others: "❌ Host selects questions (possible bias)",
+      others: "❌ Host selects questions",
     },
     {
       feature: "Question Settings",
-      codeclash: "✅ Choose number of questions, difficulty, and timer",
+      codeclash: "✅ Choose no. of questions, difficulty, and timer",
       others: "❌ Limited or no control",
     },
     {
@@ -43,7 +43,7 @@ const ComparisonTable = () => {
   ];
 
   return (
-    <div className="max-w-5xl mx-auto mt-25 mb-28 mx-5 rounded-2xl shadow-lg border-2 border-slate-600 py-5 overflow-hidden z-50
+    <div className="max-w-5xl mx-auto mt-25 mb-28 mx-5 rounded-2xl shadow-lg border-2 border-slate-600 pt-5 overflow-hidden z-50
      bg-gradient-to-r from-gray-700/15 to-gray-500/15 backdrop-blur-xl cursor-pointer
      transform hover:scale-103 transition-transform duration-400 ease-in-out hover:shadow-[0_0_40px_10px_rgba(80,120,200,0.2)]
      ">
@@ -70,7 +70,7 @@ const ComparisonTable = () => {
                 <tbody>
                     {features.map((row, idx)=>(
                         <tr
-                            className=""
+                            className="border hover:bg-slate-800 border-slate-600"
                             key={idx}>
                                 <td className="py-3 px-4 text-slate-200 text-sm font-small md:text-lg md:font-medium ">{row.feature}</td>
                                 <td className="py-3 px-4 text-slate-200 text-sm font-small md:text-lg md:font-medium">{row.codeclash}</td>
