@@ -44,7 +44,7 @@ async function MatchHistory() {
         date:match.joinedAt.toDateString()
       }));
   return (
-    <div className='bg-gray-500/15 w-auto  md:w-[715px] text-lg rounded-lg overflow-hidden border border-gray-600 shadow-lg mb-4' >
+    <div className='bg-gray-500/15 w-auto  text-lg rounded-lg overflow-hidden border border-gray-600 shadow-lg mb-4' >
         <div className="text-center text-2xl font-semibold text-slate-200 mb-2 mt-4">
           Match History
         </div>

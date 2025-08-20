@@ -141,14 +141,12 @@ io.on('connection', (socket) => {
         return;
       }
   
-      // Participant ko database mein create/update karein
       await prisma.matchParticipant.upsert({
         where: { userId_roomId: { userId: user.id, roomId: roomId } },
         update: {},
         create: { userId: user.id, roomId: roomId, role: 'PARTICIPANT' },
       });
   
-      // Memory se list banane ke bajaye, hamesha database se latest participant list fetch karein
       const updatedParticipants = await prisma.matchParticipant.findMany({
         where: { roomId: roomId },
         select: {
@@ -159,7 +157,6 @@ io.on('connection', (socket) => {
         }
       });
   
-      // Sabhi ko updated list (naye score ke saath) bhejein
       io.to(roomCode).emit('room-participants-updated', { participants: updatedParticipants });
   
     } catch (error) {

@@ -1,12 +1,9 @@
-"use client"
-import React, { useEffect } from 'react'
+import React from 'react'
 import Container from './Container'
 import Navbar from './Navbar'
 import HeroSection from './HeroSection'
-import { Spotlight } from '../ui/spotlight-new'
 import Mockup from './Mockup'
 import SupportedLanguages from './Languages'
-import { motion } from 'framer-motion'
 import Testimonials from './Testimonials'
 import HowItWorks from './HowItWorks'
 import Table from './Table'

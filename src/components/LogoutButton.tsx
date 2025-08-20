@@ -8,7 +8,7 @@ export default function LogoutButton(){
         <Button
             text="Logout"
             onClick={()=>signOut({callbackUrl : "/"})}
-            Class="bg-[#222627] mt-3"
+            Class="bg-gradient-to-r from-gray-500/15 to-gray-500/15 backdrop-blur-xl mt-3 mr-3"
         />
     )
 }

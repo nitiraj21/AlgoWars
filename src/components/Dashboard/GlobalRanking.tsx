@@ -17,7 +17,7 @@ export default async function GlobalRanking() {
     }
   })
   return (
-    <div className='bg-gray-500/15 w-auto h-auto md:w-[715px] text-lg rounded-lg overflow-hidden border border-gray-600 shadow-lg mb-6 mr-4' >
+    <div className='bg-gray-500/15 w-auto h-auto  text-lg rounded-lg overflow-hidden border border-gray-600 shadow-lg mb-6 mr-4' >
       <div className="text-center text-2xl font-semibold text-slate-200 mb-3 mt-5">
         Global Rankings
       </div>
