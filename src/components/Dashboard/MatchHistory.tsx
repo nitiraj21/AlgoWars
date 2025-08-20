@@ -1,8 +1,8 @@
 import React from 'react'
-import Leaderboard from './Leaderboard'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import Leaderboard from '../Leaderboard'
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { getServerSession } from 'next-auth';
-import { prisma } from '../lib/prisma';
+import { prisma } from '../../lib/prisma';
 
 async function MatchHistory() {
 
@@ -18,7 +18,7 @@ async function MatchHistory() {
           username: true,
           matchHistory: {
             orderBy: { joinedAt: "desc" },
-            take: 14,
+            take: 12,
             select: {
               score: true, 
               joinedAt: true,
@@ -44,7 +44,10 @@ async function MatchHistory() {
         date:match.joinedAt.toDateString()
       }));
   return (
-    <div className='bg-[#222627] w-auto  md:w-[715px] text-lg rounded-lg overflow-hidden border border-gray-600 shadow-lg mb-6' >
+    <div className='bg-gray-500/15 w-auto  md:w-[715px] text-lg rounded-lg overflow-hidden border border-gray-600 shadow-lg mb-4' >
+        <div className="text-center text-2xl font-semibold text-slate-200 mb-2 mt-4">
+          Match History
+        </div>
         <Table>
             <TableHeader>
                 <TableRow>

@@ -1,18 +1,18 @@
-import { DashBoardCard } from "@/src/components/DashBoardCard";
-import { DashboardLayout } from "@/src/components/DashboardLayout";
+import { DashBoardCard } from "@/src/components/Dashboard/DashBoardCard";
+import { DashboardLayout } from "@/src/components/Dashboard/DashboardLayout";
 import LogoutButton from "@/src/components/LogoutButton";
-import MatchHistory from "@/src/components/MatchHistory";
-import UserStatsCard from "@/src/components/UserStatsCard";
-import { authOptions } from "@/src/lib/auth"; // 👈 import your next-auth config
+import MatchHistory from "@/src/components/Dashboard/MatchHistory";
+import UserStatsCard from "@/src/components/Dashboard/UserStatsCard";
 import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
+import GlobalRanking from "@/src/components/Dashboard/GlobalRanking";
 
 export default async function Dashboard() {
   // ✅ Check session on server
   const session = await getServerSession();
 
   if (!session) {
-    redirect("api/auth/signin"); // 👈 redirect if not logged in
+    redirect("api/auth/signin"); 
   }
 
   return (
@@ -24,7 +24,7 @@ export default async function Dashboard() {
             <LogoutButton />
           </div>
         </div>
-        <div className="flex flex-col md:flex-row justify-between">
+        <div className="flex flex-col md:flex-row justify-end gap-20">
           <div className="ml-3 mr-3 md:mx-10  gap-10">
             <div className="grid my-4 gap-6 md:grid-cols-2">
               <DashBoardCard />
@@ -32,6 +32,7 @@ export default async function Dashboard() {
             </div>
             <MatchHistory />
           </div>
+          <GlobalRanking/>
         </div>
       </div>
     </DashboardLayout>

@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth";
-import { prisma } from "../lib/prisma";
+import { prisma } from "../../lib/prisma";
 
 async function UserStatsCard()  {
 
@@ -30,12 +30,10 @@ async function UserStatsCard()  {
         grade = "👑Champion"
       }
 
-      grade = "👑Champion"
-
 
 
   return (
-    <div className='w-full   bg-[#222627] rounded-xl shadow-xl '>
+    <div className='w-full bg-gradient-to-r from-gray-500/15 to-gray-500/15 backdrop-blur-xl rounded-xl shadow-xl '>
         <div className='flex items-center justify-center mt-3'>
             <h1 className='font-semibold text-xl'>Win Percentage</h1>
         </div>

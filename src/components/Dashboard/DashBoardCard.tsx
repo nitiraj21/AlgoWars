@@ -1,8 +1,8 @@
 import React from 'react'
-import { prisma } from '../lib/prisma'
+import { prisma } from '../../lib/prisma'
 import { getServerSession } from 'next-auth';
 import UserIcon from 'public/Gold.svg'
-import getRank from '../Functions/getRank';
+import getRank from '../../Functions/getRank';
 import Image from 'next/image';
 
 export const DashBoardCard =  async () => {
@@ -33,7 +33,7 @@ export const DashBoardCard =  async () => {
       console.log(user.ProfilePic)
 
   return (
-    <div className='flex justify-start items-center w-full   bg-[#222627] rounded-xl shadow-xl'>
+    <div className='flex justify-start items-center w-full  bg-gradient-to-r from-gray-500/15 to-gray-500/15 backdrop-blur-xl rounded-xl shadow-xl'>
         <div className='gap-5'>
             <div className='flex justify-start items-center ml-6'>
                 <div className='rounded-3xl overflow-hidden'>  <Image 
