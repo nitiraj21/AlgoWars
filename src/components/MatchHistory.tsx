@@ -18,7 +18,7 @@ async function MatchHistory() {
           username: true,
           matchHistory: {
             orderBy: { joinedAt: "desc" },
-            take: 10,
+            take: 14,
             select: {
               score: true, 
               joinedAt: true,
@@ -44,7 +44,7 @@ async function MatchHistory() {
         date:match.joinedAt.toDateString()
       }));
   return (
-    <div className='bg-[#222627] w-auto  md:w-[715px] text-lg rounded-lg overflow-hidden border border-gray-600 shadow-lg' >
+    <div className='bg-[#222627] w-auto  md:w-[715px] text-lg rounded-lg overflow-hidden border border-gray-600 shadow-lg mb-6' >
         <Table>
             <TableHeader>
                 <TableRow>
@@ -63,7 +63,7 @@ async function MatchHistory() {
                         <TableCell className="text-center text-gray-200 text-lg">{row.date}</TableCell>
                     </TableRow>
                 ))}
-</TableBody>
+              </TableBody>
         </Table>
     </div>
   )
