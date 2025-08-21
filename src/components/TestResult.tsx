@@ -297,8 +297,8 @@ const TestResultDisplay = ({ result }: { result: TestResult }) => {
     // Handle case where result is null or undefined
     if (!result) {
         return (
-            <div className="p-4 bg-gray-900 rounded-lg border border-gray-700">
-                <p className="text-red-400 font-semibold">No test result available</p>
+            <div className="p-4 flex justify-center">
+                <p className="text-gray-400 font-md">Submission Results will be shown here</p>
             </div>
         );
     }
@@ -308,7 +308,7 @@ const TestResultDisplay = ({ result }: { result: TestResult }) => {
     const totalTests = result.totalTests ?? 0;
 
     return (
-        <div className="p-4 bg-gray-900 rounded-lg border border-gray-700">
+        <div className="">
             {/* Overall Status Section */}
             <div className="mb-4">
                 <p className="mb-2">
@@ -538,10 +538,7 @@ const TestResultDisplay = ({ result }: { result: TestResult }) => {
 
             {/* No Test Details Available */}
             {!isAccepted && !result.compile_output && !result.stderr && (!result.details || result.details.length === 0) && (
-                <div className="mt-4 p-4 border border-gray-500 rounded-lg bg-gray-800/30">
-                    <p className="text-gray-400">
-                        ⚠️ No detailed test information available. Please check your solution and try again.
-                    </p>
+                <div className="">
                 </div>
             )}
         </div>
