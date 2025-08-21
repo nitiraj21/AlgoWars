@@ -163,6 +163,7 @@ export async function POST(req: Request) {
             compile_output: results[0]?.compile_output || null,
             stderr: results[0]?.stderr || null,
             results,
+            testCases,
             details: results.map(r => ({
                 testCase: r.testCase,
                 status: r.status,
