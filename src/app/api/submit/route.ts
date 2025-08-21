@@ -1,208 +1,158 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/src/lib/prisma';
-import { Session } from 'next-auth';
 import { getServerSession } from "next-auth";
-import { AuthOptions } from 'next-auth';
-import { error } from 'console';
 import { redisClient } from '@/src/lib/redis';
+
 const LANGUAGE_CONFIG = {
     javascript: {
         id: 63,
         timeout: 5000,
         memory: 128,
         compileTimeout: 10,
-        extension: '.js'
+        extension: '.js',
+        pollInterval: 500 // ms
     },
     python: {
         id: 71,
         timeout: 15000,
         memory: 256,
         compileTimeout: 10,
-        extension: '.py'
+        extension: '.py',
+        pollInterval: 800 // ms
     },
     java: {
         id: 62,
         timeout: 15000,
         memory: 512,
         compileTimeout: 30,
-        extension: '.java'
+        extension: '.java',
+        pollInterval: 1500 // ms - longer for Java due to compilation
     },
     cpp: {
         id: 54,
         timeout: 10000,
         memory: 256,
         compileTimeout: 30,
-        extension: '.cpp'
+        extension: '.cpp',
+        pollInterval: 1000 // ms
+    }
+} as const;
+
+type Language = keyof typeof LANGUAGE_CONFIG;
+
+interface TestCase {
+    Input: string;
+    Output: string;
+}
+
+interface SubmissionResult {
+    testCase: number;
+    status: string;
+    passed: boolean;
+    actualOutput: string;
+    expectedOutput: string;
+    executionTime?: number | null;
+    memoryUsed?: number | null;
+    error?: {
+        stderr?: string | null;
+        compile_output?: string | null;
+        message?: string;
+    } | null;
+    compile_output?: string | null;
+    stderr?: string | null;
+}
+
+// Create a fetch function with timeout
+const fetchWithTimeout = async (url: string, options: RequestInit, timeoutMs: number = 30000): Promise<Response> => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    
+    try {
+        const response = await fetch(url, {
+            ...options,
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        return response;
+    } catch (error) {
+        clearTimeout(timeoutId);
+        throw error;
     }
 };
 
 export async function POST(req: Request) {
     try {
-
+        // Authentication and rate limiting
         const session = await getServerSession();
-
-        if(!session?.user?.email){
-            return NextResponse.json({error : "Unauthorized"}, {status : 401});
+        if (!session?.user?.email) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const email = session.user.email;
-        const limit =10;
-        const windowInSeconds = 60;
-        const key = `rate-limit:submit${email}`;
-        const now = Date.now();
-
-        const transaction  = redisClient.multi();
-
-        transaction.zRemRangeByScore(key, 0, now - (windowInSeconds * 1000));
-        transaction.zAdd(key, {score : now, value : now.toString()});
-
-        transaction.zCard(key);
-        const results = await transaction.exec();
-        const reqCount = results[2] as unknown as number;
-        if(reqCount > limit){
-            return NextResponse.json({error : "Too many requests. Please wait a minute"}, {status : 429});
+        const rateLimitResult = await checkRateLimit(session.user.email);
+        if (!rateLimitResult.allowed) {
+            return NextResponse.json(
+                { error: "Too many requests. Please wait a minute" }, 
+                { status: 429 }
+            );
         }
+
         const { code: userCode, language, questionId } = await req.json();
+        
+        // Validate inputs
+        if (!userCode || !language || !questionId) {
+            return NextResponse.json(
+                { error: "Missing required fields: code, language, or questionId" }, 
+                { status: 400 }
+            );
+        }
 
+        const lang = language.toLowerCase() as Language;
+        if (!(lang in LANGUAGE_CONFIG)) {
+            return NextResponse.json(
+                { error: `Unsupported language: ${language}` }, 
+                { status: 400 }
+            );
+        }
+
+        // Fetch question data
         const question = await prisma.problem.findUnique({
             where: { id: questionId },
             select: { testCases: true, driverCode: true },
         });
 
-        if (!question || !question.driverCode) {
-            return NextResponse.json({ error: 'Question or driver code not found.' }, { status: 404 });
+        if (!question?.driverCode) {
+            return NextResponse.json(
+                { error: 'Question or driver code not found.' }, 
+                { status: 404 }
+            );
         }
 
-        const testCases = Array.isArray(question.testCases) ? question.testCases : [question.testCases];
-        const lang = language.toLowerCase();
+        const testCases = Array.isArray(question.testCases) 
+            ? question.testCases as unknown as TestCase[]
+            : [question.testCases] as unknown as TestCase[];
         
         const driverCodeTemplate = (question.driverCode as any)[lang];
         if (!driverCodeTemplate) {
-            return NextResponse.json({ error: `Driver code for ${language} not found.` }, { status: 404 });
-        }
-
-        const fullCode = driverCodeTemplate.replace('// USER_CODE_PLACEHOLDER', userCode)
-                                            .replace('# USER_CODE_PLACEHOLDER', userCode);
-        
-        console.log("Generated full code preview (first 500 chars):");
-        console.log(fullCode.substring(0, 500));
-        console.log("Generated full code length:", fullCode.length);
-        
-        //@ts-ignore
-        const languageId = LANGUAGE_CONFIG[lang].id;
-        
-        // Create batch submissions for all test cases
-        const submissions = testCases.map((testCase: any) => ({
-            source_code: Buffer.from(fullCode).toString('base64'),
-            language_id: languageId,
-            stdin: Buffer.from(testCase.Input || '').toString('base64'),
-            expected_output: Buffer.from(testCase.Output || '').toString('base64'),
-        }));
-
-        const judge0Headers = {
-            'Content-Type': 'application/json',
-            // Remove API key headers if using your own VM
-            ...(process.env.JUDGE0_API_KEY && {
-                'X-RapidAPI-Key': process.env.JUDGE0_API_KEY,
-                'X-RapidAPI-Host': process.env.JUDGE0_HOST || 'localhost'
-            })
-        };
-
-        // Get Judge0 URL - hardcoded for now since we know it works
-        const judge0Url = 'http://43.205.136.152:2358';
-        
-        if (!judge0Url) {
-            console.error("Judge0 URL not found in environment variables");
-            return NextResponse.json({ 
-                error: 'Judge0 URL not configured. Please set JUDGE0_URL or NEXT_PUBLIC_JUDGE0_URL environment variable.' 
-            }, { status: 500 });
-        }
-
-        console.log("Using Judge0 URL:", judge0Url);
-        console.log("Language ID:", languageId);
-        console.log("Number of test cases:", testCases.length);
-        //@ts-ignore
-        console.log("First test case input:", testCases[0]?.Input);
-         //@ts-ignore
-        console.log("First test case expected output:", testCases[0]?.Output);
-        
-        // Test Judge0 connectivity first
-        try {
-            const testResponse = await fetch(`${judge0Url}/system_info`, {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' }
-            });
-            
-            if (!testResponse.ok) {
-                console.error("Judge0 system_info failed:", testResponse.status);
-            } else {
-                console.log("Judge0 connectivity: OK");
-            }
-        } catch (connectError) {
-            console.error("Judge0 connectivity error:", connectError);
-        }
-
-        // Try batch submission first, fallback to individual if it fails
-        let processedResults;
-        
-        try {
-            // Submit batch request
-            const batchResponse = await fetch(
-                `${judge0Url}/submissions/batch?base64_encoded=true&fields=*`,
-                {
-                    method: 'POST',
-                    headers: judge0Headers,
-                    body: JSON.stringify({
-                        submissions: submissions
-                    }),
-                }
+            return NextResponse.json(
+                { error: `Driver code for ${language} not found.` }, 
+                { status: 404 }
             );
-
-            if (!batchResponse.ok) {
-                const errorText = await batchResponse.text();
-                console.error(`Batch submission failed with status: ${batchResponse.status}`, errorText);
-                throw new Error(`Batch submission failed with status: ${batchResponse.status}`);
-            }
-            
-            const batchResults = await batchResponse.json();
-            console.log("Batch submission results:", JSON.stringify(batchResults, null, 2));
-
-            // Check if we got tokens or direct results
-            let finalResults = batchResults;
-            
-            if (Array.isArray(batchResults) && batchResults[0]?.token) {
-                console.log("Got tokens, polling for results...");
-                finalResults = await Promise.all(
-                    batchResults.map(async (result: any) => {
-                        if (result.token) {
-                            return await pollForResult(judge0Url, result.token, judge0Headers);
-                        }
-                        return result;
-                    })
-                );
-            }
-
-            // Process all results
-            processedResults = finalResults.map((result: any, index: number) => {
-                // Decode base64 outputs
-                if (result.stdout) result.stdout = Buffer.from(result.stdout, 'base64').toString('utf-8');
-                if (result.stderr) result.stderr = Buffer.from(result.stderr, 'base64').toString('utf-8');
-                if (result.compile_output) result.compile_output = Buffer.from(result.compile_output, 'base64').toString('utf-8');
-
-                return processSubmissionResult(result, testCases[index], index + 1);
-            });
-            
-        } catch (batchError) {
-             //@ts-ignore
-            console.log("Batch submission failed, falling back to individual submissions:", batchError.message);
-            
-            // Fallback to individual submissions
-            processedResults = await submitIndividualTestCases(testCases, fullCode, languageId, judge0Headers, judge0Url);
         }
 
-        // Calculate overall result
-         //@ts-ignore
-        const passedTests = processedResults.filter(r => r.passed).length;
+        // Generate full code more efficiently
+        const fullCode = driverCodeTemplate
+            .replace('// USER_CODE_PLACEHOLDER', userCode)
+            .replace('# USER_CODE_PLACEHOLDER', userCode);
+        
+        // Only log in development
+        if (process.env.NODE_ENV === 'development') {
+            console.log("Generated full code preview (first 200 chars):", fullCode.substring(0, 200));
+            console.log("Language:", lang, "Test cases:", testCases.length);
+        }
+
+        const results = await executeTestCases(fullCode, lang, testCases);
+        
+        const passedTests = results.filter(r => r.passed).length;
         const totalTests = testCases.length;
         const allPassed = passedTests === totalTests;
 
@@ -210,59 +160,289 @@ export async function POST(req: Request) {
             overallStatus: allPassed ? 'Accepted' : 'Failed',
             passedTests,
             totalTests,
-            // Add compile_output at the root level
-            compile_output: processedResults[0]?.compile_output || null,
-            stderr: processedResults[0]?.stderr || null,
-            results: processedResults,
-            //@ts-ignore
-            details: processedResults.map(r => ({
+            compile_output: results[0]?.compile_output || null,
+            stderr: results[0]?.stderr || null,
+            results,
+            details: results.map(r => ({
                 testCase: r.testCase,
                 status: r.status,
                 passed: r.passed,
                 actualOutput: r.actualOutput,
                 expectedOutput: r.expectedOutput,
                 error: r.error,
-                // Also include at detail level
                 compile_output: r.compile_output,
                 stderr: r.stderr
             }))
         });
 
     } catch (error) {
-        console.error("Top-level submission error:", error);
+        console.error("Submission error:", error);
         return NextResponse.json({ 
             error: 'Server error processing your request.',
-            details: error instanceof Error ? error.message : 'Unknown error'
+            details: process.env.NODE_ENV === 'development' 
+                ? (error instanceof Error ? error.message : 'Unknown error')
+                : undefined
         }, { status: 500 });
     }
 }
 
-function processSubmissionResult(result: any, testCase: any, testCaseNumber: number) {
-    console.log(`Raw result for test case ${testCaseNumber}:`, JSON.stringify(result, null, 2));
-    
-    const { status, stdout, stderr, compile_output, time, memory } = result;
+async function checkRateLimit(email: string): Promise<{ allowed: boolean }> {
+    const limit = 10;
+    const windowInSeconds = 60;
+    const key = `rate-limit:submit:${email}`;
+    const now = Date.now();
 
-    console.log(`--- TEST CASE ${testCaseNumber} ---`);
-    console.log(`Status: ${status?.description || 'Unknown'} (ID: ${status?.id || 'Unknown'})`);
+    const transaction = redisClient.multi();
+    transaction.zRemRangeByScore(key, 0, now - (windowInSeconds * 1000));
+    transaction.zAdd(key, { score: now, value: now.toString() });
+    transaction.zCard(key);
+    transaction.expire(key, windowInSeconds);
+
+    const results = await transaction.exec();
+    const reqCount = results[2] as unknown as number;
     
-    // Handle case where status might be directly in result
+    return { allowed: reqCount <= limit };
+}
+
+async function executeTestCases(fullCode: string, lang: Language, testCases: TestCase[]): Promise<SubmissionResult[]> {
+    const judge0Url = process.env.JUDGE0_URL || 'http://43.205.136.152:2358';
+    const languageConfig = LANGUAGE_CONFIG[lang];
+    
+    const judge0Headers = {
+        'Content-Type': 'application/json',
+        ...(process.env.JUDGE0_API_KEY && {
+            'X-RapidAPI-Key': process.env.JUDGE0_API_KEY,
+            'X-RapidAPI-Host': process.env.JUDGE0_HOST || 'localhost'
+        })
+    };
+
+    // Pre-encode the source code once
+    const encodedSourceCode = Buffer.from(fullCode).toString('base64');
+
+    try {
+        // Try batch submission first
+        return await batchSubmission(judge0Url, judge0Headers, encodedSourceCode, languageConfig, testCases);
+    } catch (batchError) {
+        console.warn("Batch submission failed, using individual submissions:", (batchError as Error).message);
+        // Fallback to optimized individual submissions
+        return await individualSubmissions(judge0Url, judge0Headers, encodedSourceCode, languageConfig, testCases);
+    }
+}
+
+async function batchSubmission(
+    judge0Url: string, 
+    headers: any, 
+    encodedSourceCode: string, 
+    languageConfig: typeof LANGUAGE_CONFIG[Language], 
+    testCases: TestCase[]
+): Promise<SubmissionResult[]> {
+    
+    const submissions = testCases.map(testCase => ({
+        source_code: encodedSourceCode,
+        language_id: languageConfig.id,
+        stdin: Buffer.from(testCase.Input || '').toString('base64'),
+        expected_output: Buffer.from(testCase.Output || '').toString('base64'),
+    }));
+
+    const response = await fetchWithTimeout(
+        `${judge0Url}/submissions/batch?base64_encoded=true&fields=*`,
+        {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ submissions }),
+        },
+        45000 // 45s timeout for batch
+    );
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Batch submission failed: ${response.status} ${errorText}`);
+    }
+    
+    const batchResults = await response.json();
+    
+    let finalResults = batchResults;
+    
+    // Handle token-based results
+    if (Array.isArray(batchResults) && batchResults[0]?.token) {
+        finalResults = await Promise.all(
+            batchResults.map(async (result: any) => {
+                if (result.token) {
+                    return await pollForResult(judge0Url, result.token, headers, languageConfig.pollInterval);
+                }
+                return result;
+            })
+        );
+    }
+
+    return finalResults.map((result: any, index: number) => {
+        decodeResult(result);
+        return processSubmissionResult(result, testCases[index], index + 1);
+    });
+}
+
+async function individualSubmissions(
+    judge0Url: string, 
+    headers: any, 
+    encodedSourceCode: string, 
+    languageConfig: typeof LANGUAGE_CONFIG[Language], 
+    testCases: TestCase[]
+): Promise<SubmissionResult[]> {
+    
+    // Use Promise.all with concurrency limit instead of sequential processing
+    const concurrencyLimit = 3; // Adjust based on your Judge0 server capacity
+    const results: SubmissionResult[] = [];
+    
+    for (let i = 0; i < testCases.length; i += concurrencyLimit) {
+        const batch = testCases.slice(i, i + concurrencyLimit);
+        const batchPromises = batch.map(async (testCase, batchIndex) => {
+            const actualIndex = i + batchIndex;
+            return await submitSingleTestCase(
+                judge0Url, 
+                headers, 
+                encodedSourceCode, 
+                languageConfig, 
+                testCase, 
+                actualIndex + 1
+            );
+        });
+        
+        const batchResults = await Promise.all(batchPromises);
+        results.push(...batchResults);
+    }
+    
+    return results;
+}
+
+async function submitSingleTestCase(
+    judge0Url: string,
+    headers: any,
+    encodedSourceCode: string,
+    languageConfig: typeof LANGUAGE_CONFIG[Language],
+    testCase: TestCase,
+    testCaseNumber: number
+): Promise<SubmissionResult> {
+    
+    try {
+        const submissionPayload = {
+            source_code: encodedSourceCode,
+            language_id: languageConfig.id,
+            stdin: Buffer.from(testCase.Input || '').toString('base64'),
+        };
+        
+        const response = await fetchWithTimeout(
+            `${judge0Url}/submissions?base64_encoded=true&fields=*`,
+            {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(submissionPayload),
+            },
+            30000 // 30s timeout
+        );
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Submit failed: ${response.status} ${errorText}`);
+        }
+
+        const submissionResult = await response.json();
+        
+        let result;
+        if (submissionResult.token) {
+            result = await pollForResult(judge0Url, submissionResult.token, headers, languageConfig.pollInterval);
+        } else {
+            result = submissionResult;
+        }
+        
+        decodeResult(result);
+        return processSubmissionResult(result, testCase, testCaseNumber);
+        
+    } catch (error) {
+        console.error(`Error in test case ${testCaseNumber}:`, error);
+        return {
+            testCase: testCaseNumber,
+            status: 'Submission Error',
+            passed: false,
+            actualOutput: '',
+            expectedOutput: testCase.Output || '',
+            executionTime: null,
+            memoryUsed: null,
+            error: { 
+                message: error instanceof Error ? error.message : 'Unknown submission error' 
+            }
+        };
+    }
+}
+
+async function pollForResult(
+    judge0Url: string, 
+    token: string, 
+    headers: any, 
+    pollInterval: number = 1000,
+    maxAttempts: number = 30
+): Promise<any> {
+    
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+            const response = await fetchWithTimeout(
+                `${judge0Url}/submissions/${token}?base64_encoded=true&fields=*`,
+                { method: 'GET', headers },
+                10000 // 10s timeout per poll
+            );
+            
+            if (!response.ok) {
+                throw new Error(`Poll failed: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            
+            // Check if processing is complete (not in queue or processing)
+            const statusId = result.status?.id || result.id;
+            if (statusId && statusId !== 1 && statusId !== 2) {
+                return result;
+            }
+            
+            // Dynamic wait time based on language and attempt
+            const waitTime = Math.min(pollInterval * attempt, 3000);
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+            
+        } catch (error) {
+            if (attempt === maxAttempts) {
+                throw new Error(`Polling timeout after ${maxAttempts} attempts: ${(error as Error).message}`);
+            }
+            // Exponential backoff on errors
+            await new Promise(resolve => setTimeout(resolve, pollInterval * attempt));
+        }
+    }
+    
+    throw new Error(`Polling timeout for token ${token}`);
+}
+
+function decodeResult(result: any): void {
+    if (result.stdout) {
+        result.stdout = Buffer.from(result.stdout, 'base64').toString('utf-8');
+    }
+    if (result.stderr) {
+        result.stderr = Buffer.from(result.stderr, 'base64').toString('utf-8');
+    }
+    if (result.compile_output) {
+        result.compile_output = Buffer.from(result.compile_output, 'base64').toString('utf-8');
+    }
+}
+
+function processSubmissionResult(result: any, testCase: TestCase, testCaseNumber: number): SubmissionResult {
+    const { status, stdout, stderr, compile_output, time, memory } = result;
+    
     const statusId = status?.id || result.id;
-    const statusDescription = status?.description || result.description;
+    const statusDescription = status?.description || result.description || 'Unknown';
     
     if (statusId === 3) { // Accepted
         const actualOutput = (stdout || '').trim();
         const expectedOutput = (testCase.Output || '').trim();
         
-        // For exact comparison, you might want to normalize whitespace
-        const normalizedActual = actualOutput.replace(/\s+/g, ' ').trim();
-        const normalizedExpected = expectedOutput.replace(/\s+/g, ' ').trim();
-        
-        console.log(`Actual Output: >${actualOutput}<`);
-        console.log(`Expected Output: >${expectedOutput}<`);
-        console.log(`Normalized Match: ${normalizedActual === normalizedExpected}`);
-        console.log(`--- END TEST CASE ${testCaseNumber} ---`);
-
-        const passed = normalizedActual === normalizedExpected;
+        // More efficient string comparison
+        const passed = actualOutput === expectedOutput || 
+                      actualOutput.replace(/\s+/g, ' ') === expectedOutput.replace(/\s+/g, ' ');
         
         return {
             testCase: testCaseNumber,
@@ -272,16 +452,15 @@ function processSubmissionResult(result: any, testCase: any, testCaseNumber: num
             expectedOutput,
             executionTime: time,
             memoryUsed: memory,
-            error: null
+            error: null,
+            compile_output: compile_output || null,
+            stderr: stderr || null
         };
     } else {
-        // Handle compilation errors, runtime errors, etc.
-        console.log(`Error Details:`, { stderr, compile_output });
-        console.log(`--- END TEST CASE ${testCaseNumber} ---`);
-        
+        // Handle errors
         return {
             testCase: testCaseNumber,
-            status: status?.description || 'Unknown Error',
+            status: statusDescription,
             passed: false,
             actualOutput: stdout || '',
             expectedOutput: testCase.Output || '',
@@ -290,127 +469,9 @@ function processSubmissionResult(result: any, testCase: any, testCaseNumber: num
             error: {
                 stderr: stderr || null,
                 compile_output: compile_output || null
-            }
+            },
+            compile_output: compile_output || null,
+            stderr: stderr || null
         };
     }
-}
-
-// Alternative function for individual submission approach (if batch doesn't work)
-async function submitIndividualTestCases(testCases: any[], fullCode: string, languageId: number, judge0Headers: any, judge0Url: string) {
-    const results = [];
-    
-    for (let i = 0; i < testCases.length; i++) {
-        const testCase = testCases[i];
-        
-        try {
-            console.log(`Submitting test case ${i + 1}...`);
-            
-            const submissionPayload = {
-                source_code: Buffer.from(fullCode).toString('base64'),
-                language_id: languageId,
-                stdin: Buffer.from(testCase.Input || '').toString('base64'),
-            };
-            
-            console.log(`Payload for test case ${i + 1}:`, {
-                source_code_length: submissionPayload.source_code.length,
-                language_id: submissionPayload.language_id,
-                stdin_length: submissionPayload.stdin.length
-            });
-            
-            const submissionResponse = await fetch(
-                `${judge0Url}/submissions?base64_encoded=true&fields=*`,
-                {
-                    method: 'POST',
-                    headers: judge0Headers,
-                    body: JSON.stringify(submissionPayload),
-                }
-            );
-
-            if (!submissionResponse.ok) {
-                const errorText = await submissionResponse.text();
-                console.error(`Test case ${i + 1} failed with status: ${submissionResponse.status}`, errorText);
-                throw new Error(`Failed to submit test case ${i + 1}: ${submissionResponse.status} ${errorText}`);
-            }
-
-            const submissionResult = await submissionResponse.json();
-            console.log(`Submission result for test case ${i + 1}:`, submissionResult);
-            
-            let result;
-            
-            if (submissionResult.token) {
-                // Need to poll for results using token
-                console.log(`Polling for results of test case ${i + 1} with token: ${submissionResult.token}`);
-                result = await pollForResult(judge0Url, submissionResult.token, judge0Headers);
-            } else {
-                // Direct result (wait=true worked)
-                result = submissionResult;
-            }
-            
-            console.log(`Final result for test case ${i + 1}:`, JSON.stringify(result, null, 2));
-            
-            // Decode outputs
-            if (result.stdout) result.stdout = Buffer.from(result.stdout, 'base64').toString('utf-8');
-            if (result.stderr) result.stderr = Buffer.from(result.stderr, 'base64').toString('utf-8');
-            if (result.compile_output) result.compile_output = Buffer.from(result.compile_output, 'base64').toString('utf-8');
-
-            results.push(processSubmissionResult(result, testCase, i + 1));
-            
-            // Small delay between requests to avoid overwhelming your VM
-            await new Promise(resolve => setTimeout(resolve, 100));
-            
-        } catch (error) {
-            console.error(`Error submitting test case ${i + 1}:`, error);
-            results.push({
-                testCase: i + 1,
-                status: 'Submission Error',
-                passed: false,
-                actualOutput: '',
-                expectedOutput: testCase.Output || '',
-                executionTime: null,
-                memoryUsed: null,
-                error: { message: error instanceof Error ? error.message : 'Unknown error' }
-            });
-        }
-    }
-    
-    return results;
-}
-
-// Function to poll Judge0 for results using token
-async function pollForResult(judge0Url: string, token: string, headers: any, maxAttempts: number = 10): Promise<any> {
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-        try {
-            console.log(`Polling attempt ${attempt} for token ${token}`);
-            
-            const response = await fetch(`${judge0Url}/submissions/${token}?base64_encoded=true&fields=*`, {
-                method: 'GET',
-                headers: headers
-            });
-            
-            if (!response.ok) {
-                throw new Error(`Polling failed with status: ${response.status}`);
-            }
-            
-            const result = await response.json();
-            console.log(`Polling result for ${token}:`, JSON.stringify(result, null, 2));
-            
-            // Check if processing is complete
-            if (result.status && result.status.id !== 1 && result.status.id !== 2) {
-                // Status 1 = In Queue, Status 2 = Processing
-                // Any other status means it's done
-                return result;
-            }
-            
-            // Wait before next attempt
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
-            
-        } catch (error) {
-            console.error(`Polling attempt ${attempt} failed:`, error);
-            if (attempt === maxAttempts) {
-                throw error;
-            }
-        }
-    }
-    
-    throw new Error(`Polling timeout after ${maxAttempts} attempts for token ${token}`);
 }

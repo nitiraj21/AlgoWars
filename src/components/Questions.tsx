@@ -20,23 +20,34 @@ type Question=  {
 
 export default function Questions( {questions}: QuestionsList){
     return (
-        <div>
-          <h2 className="font-bold text-lg mb-3">Questions ({questions.length}):</h2>
-          <div className="space-y-2">
-            {questions.map(q => (
-              <div key={q.id} className="p-2 bg-gray-100 rounded">
-                <div className="font-medium">{q.title}</div>
-                {q.difficulty && (
-                  <span className={`inline-block px-2 py-1 rounded text-xs mt-1 ${
-                    q.difficulty === 'EASY' ? 'bg-green-200 text-green-800' :
-                    q.difficulty === 'MEDIUM' ? 'bg-yellow-200 text-yellow-800' :
-                    'bg-red-200 text-red-800'
-                  }`}>
-                    {q.difficulty}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>)
+<div className="bg-[#1c1d21] rounded-xl p-6 shadow-md border border-gray-700">
+  <h2 className="text-xl font-semibold mb-4">
+    Questions <span className="text-gray-400">({questions.length})</span>
+  </h2>
+  <div className="space-y-3">
+    {questions.map((q) => (
+      <div
+        key={q.id}
+        className="p-4 bg-[#2a2b31] rounded-lg border border-gray-700 
+                   hover:bg-[#34363c] transition-colors"
+      >
+        <div className="font-medium mb-1">{q.title}</div>
+        {q.difficulty && (
+          <span
+            className={`inline-block px-3 py-1 rounded-lg text-xs font-semibold border
+              ${
+                q.difficulty === "EASY"
+                  ? "bg-green-600/20 text-green-400 border-green-500/40"
+                  : q.difficulty === "MEDIUM"
+                  ? "bg-yellow-600/20 text-yellow-400 border-yellow-500/40"
+                  : "bg-red-600/20 text-red-400 border-red-500/40"
+              }`}
+          >
+            {q.difficulty}
+          </span>
+        )}
+      </div>
+    ))}
+  </div>
+</div>)
 }

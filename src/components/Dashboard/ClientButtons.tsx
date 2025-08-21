@@ -10,12 +10,12 @@ export default function ClientButtons() {
       <Button
         text="Create Room"
         onClick={() => router.push("/CreateRoom")}
-        Class="bg-gradient-to-r from-gray-500/15 to-gray-500/15 backdrop-blur-xl mt-3 mr-3"
+        Class="bg-gradient-to-r from-gray-500/15 to-gray-500/15 text-lg backdrop-blur-xl mt-3 mr-3"
       />
       <Button
         text="Join Room"
         onClick={() => router.push("/joinRoom")}
-        Class="bg-gradient-to-r from-gray-500/15 to-gray-500/15 backdrop-blur-xl mt-3 mr-3"
+        Class="bg-gradient-to-r from-gray-500/15 to-gray-500/15 text-lg backdrop-blur-xl mt-3 mr-3"
       />
     </>
   );

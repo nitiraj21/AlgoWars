@@ -34,7 +34,7 @@ export interface Room {
     functionName : String
     tags   :       String[] 
   }[];
-  status?: RoomStatus; 
+  status: RoomStatus; 
   matchEndedAt : string;
   Duration : Number;
   Questions : Number

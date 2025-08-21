@@ -37,11 +37,11 @@ export const DashBoardCard =  async () => {
         <div className='gap-5'>
             <div className='flex justify-start items-center ml-6'>
                 <div className='rounded-3xl overflow-hidden'>  <Image 
-    src={user.ProfilePic || "/Profile.jpeg"} 
-    width={50} 
-    height={50} 
-    alt="profile"
-  /></div>
+                    src={user.ProfilePic || "/Profile.jpeg"} 
+                    width={50} 
+                    height={50} 
+                    alt="profile"
+                /></div>
                 <div className='flex item-center justify-start ml-2 mb-2 text-2xl font-semibold flex-wrap'>@{user.username.split("")}</div>
             </div>
             <div className='flex justify-start mt-2'>
@@ -57,7 +57,7 @@ export const DashBoardCard =  async () => {
            ))}
         </div>
         </div>
-        <div className='ml-6 mt-0'>
+        <div className='ml-19 mt-0'>
         {Rank === "Silver" && <img className='mb-10' src="/Silver.png" alt="Gold Rank" width={65} height={65} />}
         {Rank === "Bronze" && <img className='mb-10' src="/Bronze.png" alt="Gold Rank" width={65} height={65} />}
         {Rank === "Platinum" && <img className='mb-10' src="/Platinum.png" alt="Gold Rank" width={65} height={65} />}

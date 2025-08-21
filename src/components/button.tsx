@@ -5,15 +5,15 @@ type button = {
     onClick? : ()=>void
     text : string
     Class? : string
-    Disabled? : boolean
+    disabled? : boolean
 }
 
-export default function Button ({onClick, text, Class, Disabled} : button){
+export default function Button ({onClick, text, Class, disabled} : button){
     return (
     <button 
     onClick={onClick}
     className={`px-4 py-2 rounded-lg  font-medium cursor-pointer text-shadow-md ${Class} transition-colors`}
-    disabled = {Disabled}
+    disabled = {disabled}
   >
    {text}
   </button>)

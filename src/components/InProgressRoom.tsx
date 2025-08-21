@@ -10,216 +10,13 @@ import { RoomStatus } from "@prisma/client";
 import Leaderboard from "./Leaderboard";
 import {
   PanelGroup, Panel, PanelResizeHandle,} from "react-resizable-panels";
-  interface SubmissionResultProps {
-    result: {
-        status?: string;
-        overallStatus?: string;
-        passedTests?: number;
-        totalTests?: number;
-        details?: any[];
-        compile_output?: string; // Compilation errors at result level
-        stderr?: string; // Runtime errors at result level
-    };
-}
+import TestResultDisplay from "./TestResult";
 
-const SubmissionResult = ({ result }: SubmissionResultProps) => {
-    // Add this for debugging
-    console.log('Full result object:', result);
-    console.log('Compile output:', result?.compile_output);
-    console.log('Details:', result?.details);
-    
-    if (!result || !result.overallStatus) {
-        return <pre className="whitespace-pre-wrap text-gray-400">{result?.status || 'Submit your code to see the result.'}</pre>;
-    }
-
-    const isAccepted = result.overallStatus === 'Accepted';
-
-    return (
-        <div>
-            <p className="mb-2">
-                <span className="font-semibold">Overall Status:</span> 
-                <span className={`ml-2 font-bold ${isAccepted ? 'text-green-400' : 'text-red-400'}`}>
-                    {result.overallStatus}
-                </span>
-            </p>
-            <p>
-                <span className="font-semibold">Tests Passed:</span> {result.passedTests} / {result.totalTests}
-            </p>
-            
-            {/* Show compilation error at result level */}
-            {!isAccepted && result.compile_output && (
-                <div className="mt-3 pt-3 border-t border-gray-700">
-                    <h4 className="font-bold mb-2 text-red-400">Compilation Error</h4>
-                    <pre className="bg-gray-800 p-3 rounded text-sm text-red-300 whitespace-pre-wrap overflow-x-auto">
-                        {result.compile_output}
-                    </pre>
-                </div>
-            )}
-
-            {/* Show JavaScript runtime errors at result level */}
-            {!isAccepted && !result.compile_output && result.details && 
-             result.details.some(d => d.actualOutput && d.actualOutput.includes('CAUGHT_ERROR:')) && (
-                <div className="mt-3 pt-3 border-t border-gray-700">
-                    <h4 className="font-bold mb-2 text-red-400">Runtime Error</h4>
-                    <pre className="bg-gray-800 p-3 rounded text-sm text-red-300 whitespace-pre-wrap overflow-x-auto">
-                        {result.details.find(d => d.actualOutput && d.actualOutput.includes('CAUGHT_ERROR:'))
-                         ?.actualOutput.replace('CAUGHT_ERROR:', '').trim()}
-                    </pre>
-                    <p className="mt-2 text-gray-300 text-sm">
-                        Check your code for undefined variables, incorrect property access, or logic errors.
-                    </p>
-                </div>
-            )}
-
-            {/* Show runtime error at result level */}
-            {!isAccepted && !result.compile_output && result.stderr && (
-                <div className="mt-3 pt-3 border-t border-gray-700">
-                    <h4 className="font-bold mb-2 text-red-400">Runtime Error</h4>
-                    <pre className="bg-gray-800 p-3 rounded text-sm text-red-300 whitespace-pre-wrap overflow-x-auto">
-                        {result.stderr}
-                    </pre>
-                </div>
-            )}
-            
-            {/* Show test case details only if no compilation/runtime errors */}
-            {!isAccepted && !result.compile_output && !result.stderr && result.details && result.details.find(d => !d.passed) && (
-                <div className="mt-3 pt-3 border-t border-gray-700">
-                    {(() => {
-                        const failedCase = result.details.find(d => !d.passed);
-                        if (!failedCase) return null;
-
-                        // Helper function to detect and format errors
-                        const detectError = (testCase: any) => {
-                            // JavaScript runtime errors
-                            if (testCase.actualOutput && testCase.actualOutput.includes('CAUGHT_ERROR:')) {
-                                const errorMessage = testCase.actualOutput.replace('CAUGHT_ERROR:', '').trim();
-                                return {
-                                    type: 'Runtime Error',
-                                    message: errorMessage,
-                                    language: 'JavaScript'
-                                };
-                            }
-
-                            // Java compilation errors
-                            if (testCase.compile_output || (testCase.stderr && testCase.stderr.includes('.java:'))) {
-                                return {
-                                    type: 'Compilation Error',
-                                    message: testCase.compile_output || testCase.stderr,
-                                    language: 'Java'
-                                };
-                            }
-
-                            // C++ compilation errors
-                            if (testCase.stderr && (
-                                testCase.stderr.includes('error:') || 
-                                testCase.stderr.includes('undefined reference') ||
-                                testCase.stderr.includes('fatal error') ||
-                                testCase.stderr.includes('.cpp:') ||
-                                testCase.stderr.includes('.cc:') ||
-                                testCase.stderr.includes('g++:')
-                            )) {
-                                return {
-                                    type: 'Compilation Error',
-                                    message: testCase.stderr,
-                                    language: 'C++'
-                                };
-                            }
-
-                            // Python runtime errors
-                            if (testCase.stderr && (
-                                testCase.stderr.includes('Traceback') ||
-                                testCase.stderr.includes('File "<string>"') ||
-                                testCase.stderr.includes('Error:') ||
-                                testCase.stderr.includes('Exception:') ||
-                                testCase.stderr.includes('IndentationError') ||
-                                testCase.stderr.includes('SyntaxError') ||
-                                testCase.stderr.includes('NameError') ||
-                                testCase.stderr.includes('TypeError') ||
-                                testCase.stderr.includes('ValueError') ||
-                                testCase.stderr.includes('AttributeError')
-                            )) {
-                                return {
-                                    type: testCase.stderr.includes('SyntaxError') || testCase.stderr.includes('IndentationError') 
-                                          ? 'Syntax Error' : 'Runtime Error',
-                                    message: testCase.stderr,
-                                    language: 'Python'
-                                };
-                            }
-
-                            // General runtime errors (segmentation fault, etc.)
-                            if (testCase.stderr && (
-                                testCase.stderr.includes('Segmentation fault') ||
-                                testCase.stderr.includes('segfault') ||
-                                testCase.stderr.includes('SIGSEGV') ||
-                                testCase.stderr.includes('core dumped') ||
-                                testCase.stderr.includes('runtime error')
-                            )) {
-                                return {
-                                    type: 'Runtime Error',
-                                    message: testCase.stderr,
-                                    language: 'System'
-                                };
-                            }
-
-                            return null;
-                        };
-
-                        const error = detectError(failedCase);
-                        
-                        if (error) {
-                            return (
-                                <div>
-                                    <h4 className="font-bold mb-2 text-red-400">
-                                        {error.type} ({error.language})
-                                    </h4>
-                                    <pre className="bg-gray-800 p-3 rounded text-sm text-red-300 whitespace-pre-wrap overflow-x-auto max-h-60">
-                                        {error.message}
-                                    </pre>
-                                    {error.type === 'Runtime Error' && (
-                                        <p className="mt-2 text-gray-300 text-sm">
-                                            Check your code for undefined variables, null pointer access, array bounds, or logic errors.
-                                        </p>
-                                    )}
-                                    {error.type === 'Compilation Error' && (
-                                        <p className="mt-2 text-gray-300 text-sm">
-                                            Fix the syntax errors and missing declarations before running the code.
-                                        </p>
-                                    )}
-                                    {error.type === 'Syntax Error' && (
-                                        <p className="mt-2 text-gray-300 text-sm">
-                                            Check your indentation, brackets, and Python syntax.
-                                        </p>
-                                    )}
-                                </div>
-                            );
-                        }
-
-                        // Default case: Wrong Answer - show expected vs actual
-                        const testIndex = result.details.findIndex(d => !d.passed) + 1;
-                        return (
-                            <div>
-                                <h4 className="font-bold mb-2 text-yellow-400">Failed on Test Case #{testIndex}</h4>
-                                <p className="mt-2 font-semibold">Expected Output:</p>
-                                <pre className="bg-gray-800 p-2 rounded text-sm my-1 text-green-400">
-                                    {failedCase.expectedOutput}
-                                </pre>
-                                <p className="mt-2 font-semibold">Your Output:</p>
-                                <pre className="bg-gray-800 p-2 rounded text-sm my-1 text-red-400">
-                                    {failedCase.actualOutput}
-                                </pre>
-                            </div>
-                        );
-                    })()}
-                </div>
-            )}
-        </div>
-    );
-};
 //@ts-ignore
 const LanguageSelector = ({ selectedLanguage, onSelect }) => {
     const languages = ['javascript', 'python', 'java', 'cpp'];
     return (
-        <div className="flex space-x-2 bg-slate-700 p-2 rounded-lg shadow-sm">
+        <div className="flex space-x-2  bg-gradient-to-r from-gray-500/15 to-gray-500/15 backdrop-blur-xl p-2 rounded-lg shadow-sm">
             {languages.map(lang => (
                 <button
                     key={lang}
@@ -227,7 +24,7 @@ const LanguageSelector = ({ selectedLanguage, onSelect }) => {
                     className={`px-4 py-2 text-sm font-semibold rounded-md transition-colors duration-200 ${
                         selectedLanguage === lang 
                         ? 'bg-slate-200 text-black' 
-                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                        : ' bg-gradient-to-r from-gray-500/15 to-gray-500/15 backdrop-blur-xl text-gray-300 '
                     }`}
                 >
                     {lang.charAt(0).toUpperCase() + lang.slice(1)}
@@ -303,9 +100,8 @@ export default function InProgressRoom({room, session, roomCode, socketRef}: any
    
 
     return (
-        <div className="sm:h-full w-full p-3 mr-3  bg-neutral-950 md:pt-6 pl-6 mr-6 min-h-screen ">
-            <div className="w-auto grid grid-row justify-center items-center m-10 mr-60 sm: grid grid-row-3 lg:flex justify-center items-center gap-6 my-5 ml-36 pl-10">
-                  <div className="flex justify-start">Room = {room.name}</div>
+        <div className="sm:h-full w-full p-3 mr-3  bg-[#121315] md:pt-1 pl-6 mr-6 min-h-screen ">
+            <div className="w-auto grid grid-row justify-center items-center m-10 lg:mr-60 sm:grid grid-row-3 lg:flex justify-center items-center gap-6 my-4 lg:ml-60 md:pl-10">
                     <LanguageSelector selectedLanguage={language} onSelect={setLanguage} />
                     <Button
                       onClick={handleSubmit}
@@ -317,30 +113,38 @@ export default function InProgressRoom({room, session, roomCode, socketRef}: any
                       {room.matchEndedAt && <Timer endTime={room.matchEndedAt} onTimerEnd={()=>{if(room) room.status = RoomStatus.FINISHED}}/>}
                     </header>
                     <div className="flex justify-center gap-4 ">
-                      {currentQuestionIndex > 0 && (
-                      <Button onClick={() => {
-                        setQuestionIndex(prev => prev - 1);
-                        setOutput("");
-                      }}
-                      
-                      text="&larr;" 
-                      Class = {"bg-slate-700 text-white hover:bg-slate-200 text-neutral-800"}/>
-                      )}
-                      {currentQuestionIndex < room.questions.length - 1 && 
-                      <Button onClick={() => setQuestionIndex(prev => prev + 1)} 
-                      text="&rarr;" 
-                      Class = {"bg-slate-700 text-white hover:bg-slate-200"}/>
-                      }
+                    <Button
+  onClick={() => {
+    setQuestionIndex(prev => prev - 1);
+    setOutput("");
+  }}
+  text="&larr;"
+  Class="bg-slate-700 text-white hover:bg-slate-200 text-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed"
+  disabled={currentQuestionIndex === 0}
+/>
+
+<Button
+  onClick={() => setQuestionIndex(prev => prev + 1)}
+  text="&rarr;"
+  Class="bg-slate-700 text-white hover:bg-slate-200 text-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed"
+  disabled={currentQuestionIndex === room.questions.length - 1}
+/>
+
                     </div>
                 </div>
 
           <div className="flex flex-col lg:flex-row gap-6 h-xl">
-            <div className="sm:w-md mr-3 md:w-auto lg:w-3xl  p-6   bg-[#1e1e1e] border-2 border-slate-600 rounded-xl shadow-md">
+            <div className="sm:w-md mr-3 md:w-auto lg:w-3xl 
+                p-6  
+                overflow-y-auto
+                bg-gradient-to-r from-gray-500/15 to-gray-500/15 
+                backdrop-blur-xl border-2 border-slate-600 
+                rounded-xl shadow-md">
               <h2 className="text-2xl font-bold mb-3 text-white">{currentQuestion.title}</h2>
               <span className= {`text-sm  shadow-md ${currentQuestion.difficulty === 'EASY' ? 'bg-green-200 text-green-800' : currentQuestion.difficulty === 'MEDIUM' ? 'bg-yellow-400 text-yellow-800' : 'bg-red-200 text-red-800'} px-3 py-1 rounded-full`}>{currentQuestion.difficulty}</span>
               <div className="text-white">
       
-                {newDesc.map((newDesc , idx) => (
+                {newDesc.map((newDesc: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined , idx: React.Key | null | undefined) => (
                 <span key={idx} className="block py-2 text-md font-fina ">{newDesc}.</span>
                 ))}
               </div>
@@ -370,14 +174,14 @@ export default function InProgressRoom({room, session, roomCode, socketRef}: any
                       options={{ minimap: { enabled: false }, fontSize: 16 }}
                     />
                 </div>
-                <div className="p-4 bg-[#1e1e1e] text-white border-2 border-slate-600 rounded-xl  font-mono min-h-[150px] shadow-md">
+                <div className="p-4  bg-gradient-to-r from-gray-500/15 to-gray-500/15 backdrop-blur-xl text-white border-2 border-slate-600 rounded-xl  font-mono min-h-[150px] shadow-md">
                     <h3 className="font-bold text-gray-400 mb-2">Output</h3>
-                    <SubmissionResult result={output} />
+                    <TestResultDisplay result={ output } />
                 </div>
             </div>
 
             {/* Right Panel: Leaderboard (Optional, can be merged or kept separate) */}
-            <div className="sm : mr-3 lg:w-1/3 bg-[#1e1e1e] p-6 border-2 border-slate-600 rounded-xl shadow-md">
+            <div className="sm : mr-3 lg:w-1/3  bg-gradient-to-r from-gray-500/15 to-gray-500/15 backdrop-blur-xl p-6 border-2 border-slate-600 rounded-xl shadow-md">
               <h3 className="font-bold text-xl mb-4 text-slate-200">Leaderboard</h3>
               <div className="space-y-3">
                 <Leaderboard
