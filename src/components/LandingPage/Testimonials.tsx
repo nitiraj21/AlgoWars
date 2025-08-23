@@ -2,10 +2,11 @@ import React from 'react'
 
 export default function Testimonials() {
     const testimonials = [
-      { name: "Alice", text: "This platform is a game changer!" },
-      { name: "Bob", text: "Helped me improve my coding skills fast." },
-      { name: "Charlie", text: "I love how simple and effective it is." },
-      { name: "Diana", text: "Feels like magic ✨ Highly recommend!" }
+      { name: "Goutam", text: "This platform is a game changer!" },
+      { name: "Bobby", text: "Helped me improve my coding skills fast." },
+      { name: "Aryan", text: "I love how simple and effective it is." },
+      { name: "Abhay", text: "Feels like magic ✨ Highly recommend!" },
+      { name: "Raghav", text: "Gamified my learnings" }
     ];
   
     return (
@@ -14,7 +15,7 @@ export default function Testimonials() {
           {testimonials.map((t, i) => (
             <div
               key={i}
-              className="min-w-[300px] bg-zinc-900 rounded-2xl p-6 mx-4 shadow-lg flex flex-wrap text-center"
+              className="min-w-[350px] bg-slate-500 rounded-2xl p-6 mx-4 shadow-lg "
             >
               <p className="text-md text-zinc-200 italic">"{t.text}"</p>
               <p className="mt-3 text-sm text-zinc-400">— {t.name}</p>
@@ -25,7 +26,7 @@ export default function Testimonials() {
           {testimonials.map((t, i) => (
             <div
               key={`dup-${i}`}
-              className="min-w-[300px] bg-zinc-900 rounded-2xl p-6 mx-4 shadow-lg text-center flex flex-wrap"
+              className="min-w-[350px] bg-slate-500 rounded-2xl p-6 mx-4 shadow-lg"
             >
               <p className="text-md text-zinc-200 italic">"{t.text}"</p>
               <p className="mt-3 text-sm text-zinc-400">— {t.name}</p>
@@ -35,7 +36,34 @@ export default function Testimonials() {
           {testimonials.map((t, i) => (
             <div
               key={`dup-${i}`}
-              className="min-w-[300px] bg-zinc-900 rounded-2xl p-6 mx-4 shadow-lg text-center flex flex-wrap"
+              className="min-w-[350px] bg-slate-500 rounded-2xl p-6 mx-4 shadow-lg "
+            >
+              <p className="text-md text-zinc-200 italic">"{t.text}"</p>
+              <p className="mt-3 text-sm text-zinc-400">— {t.name}</p>
+            </div>
+          ))}
+          {testimonials.map((t, i) => (
+            <div
+              key={`dup-${i}`}
+              className="min-w-[350px] bg-slate-500 rounded-2xl p-6 mx-4 shadow-lg "
+            >
+              <p className="text-md text-zinc-200 italic">"{t.text}"</p>
+              <p className="mt-3 text-sm text-zinc-400">— {t.name}</p>
+            </div>
+          ))}
+          {testimonials.map((t, i) => (
+            <div
+              key={`dup-${i}`}
+              className="min-w-[350px] bg-slate-500 rounded-2xl p-6 mx-4 shadow-lg "
+            >
+              <p className="text-md text-zinc-200 italic">"{t.text}"</p>
+              <p className="mt-3 text-sm text-zinc-400">— {t.name}</p>
+            </div>
+          ))}
+          {testimonials.map((t, i) => (
+            <div
+              key={`dup-${i}`}
+              className="min-w-[350px] bg-slate-500 rounded-2xl p-6 mx-4 shadow-lg "
             >
               <p className="text-md text-zinc-200 italic">"{t.text}"</p>
               <p className="mt-3 text-sm text-zinc-400">— {t.name}</p>

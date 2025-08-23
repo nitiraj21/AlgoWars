@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import Button from '../button';
 
 export default function CreateRoom() {
   const [name, setName] = useState('')
@@ -65,13 +66,14 @@ export default function CreateRoom() {
         />
       </div>
 
-      <button
-        className="w-full bg-blue-600 hover:bg-blue-700 transition-colors duration-200 
+      <Button
+        Class="w-full bg-slate-600 hover:bg-slate-700 transition-colors duration-200 
                    text-white font-semibold py-3 rounded-lg shadow-md"
         onClick={createRoom}
+        text='Create Room'
       >
-        Create Room
-      </button>
+        
+        </Button>
     </div>
   </div>
 </div>

@@ -60,7 +60,7 @@ async function MatchHistory() {
             <TableBody>
                 {rows?.map((row, index) => (
                     <TableRow key={index} className='border-b border-gray-600 hover:bg-gray-700/30 transition'>
-                        <TableCell className="text-center text-gray-200 text-lg">{row.room}</TableCell>
+                        <TableCell className="text-start text-gray-200 text-lg pl-6">{row.room}</TableCell>
                         <TableCell className="text-center text-gray-200 text-lg">{row.score}</TableCell>
                         <TableCell className="text-center text-gray-200 text-lg">{row.rank}</TableCell>
                         <TableCell className="text-center text-gray-200 text-lg">{row.date}</TableCell>

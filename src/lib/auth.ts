@@ -92,4 +92,8 @@ export const authOptions: NextAuthOptions = {
       return session
     },
   },
+  pages: {
+    signIn: '/signin', 
+    newUser: '/signup', // optional: after first login redirect
+  },
 }

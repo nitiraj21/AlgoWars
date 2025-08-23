@@ -8,6 +8,7 @@ import Testimonials from './Testimonials'
 import HowItWorks from './HowItWorks'
 import Table from './Table'
 import CTA from './CTA'
+import Footer from './Footer'
 
 
 export default function MainPage() {
@@ -25,7 +26,7 @@ export default function MainPage() {
         <Table/>
         <CTA/>
         <Testimonials/>
-        
+        <Footer/>
     </Container>
 
     </div>

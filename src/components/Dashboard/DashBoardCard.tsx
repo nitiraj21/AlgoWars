@@ -57,7 +57,7 @@ export const DashBoardCard =  async () => {
            ))}
         </div>
         </div>
-        <div className='ml-19 mt-0'>
+        <div className='ml-19 mt-0 w-fixed h-fixed'>
         {Rank === "Silver" && <img className='mb-10' src="/Silver.png" alt="Gold Rank" width={65} height={65} />}
         {Rank === "Bronze" && <img className='mb-10' src="/Bronze.png" alt="Gold Rank" width={65} height={65} />}
         {Rank === "Platinum" && <img className='mb-10' src="/Platinum.png" alt="Gold Rank" width={65} height={65} />}
