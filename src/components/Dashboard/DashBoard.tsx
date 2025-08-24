@@ -20,7 +20,7 @@ export default async function DashBoard() {
         <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-8 mt-4 gap-4">
           <div className="flex">
           <img src={"./LogoHero.png"} width={90} height={90} className=""/>
-          <h1 className="text-3xl mt-1 md:text-5xl font-bold text-center cursor-pointer md:text-left">
+          <h1 className="text-3xl mt-1 md:text-5xl font-bold text-center cursor-pointer relative bg-clip-text text-transparent bg-gradient-to-b from-neutral-100 to-neutral-400 bg-opacity-50 md:text-left">
             AlgoWars
           </h1>
           </div>

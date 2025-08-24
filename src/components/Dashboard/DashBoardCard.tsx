@@ -33,7 +33,7 @@ export const DashBoardCard =  async () => {
       console.log(user.ProfilePic)
 
   return (
-    <div className='flex justify-start items-center w-full  bg-gradient-to-r from-gray-500/15 to-gray-500/15 backdrop-blur-xl rounded-xl shadow-xl'>
+    <div className='flex justify-start items-center w-auto  bg-gradient-to-r from-gray-500/15 to-gray-500/15 backdrop-blur-xl rounded-xl shadow-xl'>
         <div className='gap-5'>
             <div className='flex justify-start items-center ml-6'>
                 <div className='rounded-3xl overflow-hidden'>  <Image 
@@ -57,12 +57,12 @@ export const DashBoardCard =  async () => {
            ))}
         </div>
         </div>
-        <div className='ml-19 mt-0 w-fixed h-fixed'>
-        {Rank === "Silver" && <img className='mb-10' src="/Silver.png" alt="Gold Rank" width={65} height={65} />}
-        {Rank === "Bronze" && <img className='mb-10' src="/Bronze.png" alt="Gold Rank" width={65} height={65} />}
-        {Rank === "Platinum" && <img className='mb-10' src="/Platinum.png" alt="Gold Rank" width={65} height={65} />}
-        {Rank === "Gold" && <img className='mb-10' src="/Gold2.png" alt="Gold Rank" width={65} height={65} />}
-        {Rank === "Legend" && <img className='mb-10' src="/Legend2.png" alt="Gold Rank" width={65} height={65} />}
+        <div className='ml-auto mt-0 mt-0 w-fixed h-fixed'>
+        {Rank === "Silver" && <img className='mb-15 mr-5' src="/Silver.png" alt="Gold Rank" width={65} height={65} />}
+        {Rank === "Bronze" && <img className='mb-15 mr-5' src="/Bronze.png" alt="Gold Rank" width={65} height={65} />}
+        {Rank === "Platinum" && <img className='mb-15 mr-5' src="/Platinum.png" alt="Gold Rank" width={65} height={65} />}
+        {Rank === "Gold" && <img className='mb-15 mr-5' src="/Gold2.png" alt="Gold Rank" width={65} height={65} />}
+        {Rank === "Legend" && <img className='mb-15 mr-5 ' src="/Legend2.png" alt="Gold Rank" width={65} height={65} />}
         </div>
     </div>
   )

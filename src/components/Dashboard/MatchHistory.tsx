@@ -43,14 +43,23 @@ async function MatchHistory() {
         rank: match.rank,
         date:match.joinedAt.toDateString()
       }));
+
+      let nuser = false;
+      //@ts-ignore
+      if(rows.length == 0){
+        nuser = true;
+      }
   return (
     <div className='bg-gray-500/15 w-auto  text-lg rounded-lg overflow-hidden border border-gray-600 shadow-lg mb-4' >
         <div className="text-center text-2xl font-semibold text-slate-200 mb-2 mt-4">
           Match History
+          {nuser && (<div className='py-50 text-md font-md'>
+            No Matches has been played
+          </div>)}
         </div>
-        <Table>
+        {!nuser &&(<Table>
             <TableHeader>
-                <TableRow>
+                <TableRow className=''>
                     <TableHead className="w-[80px] text-center text-slate-200 font-semibold text-lg">Room</TableHead>
                     <TableHead className="text-center text-slate-200 font-semibold text-lg">Score</TableHead>
                     <TableHead className="text-center text-slate-200 font-semibold text-lg">Rank</TableHead>
@@ -67,7 +76,7 @@ async function MatchHistory() {
                     </TableRow>
                 ))}
               </TableBody>
-        </Table>
+        </Table>)}
     </div>
   )
 }

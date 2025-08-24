@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import authOptions from "@/src/lib/auth";
 import { prisma } from '@/src/lib/prisma'
 import { connect } from "http2";
 import Email from "next-auth/providers/email";
@@ -25,7 +24,7 @@ export async function POST (req :Request){
 
     const body = await req.json();
 
-    const { name, MatchDuration, noOFQuestions, isPrivate } = body;
+    const { name, Duration, isPrivate, Questions } = body;
 
     const user  = await prisma.user.findUnique({
         where :{ email : session.user.email}
@@ -40,8 +39,8 @@ export async function POST (req :Request){
     })
 
     const shuffledIDs = shuffleArray(allProblemIDs);
-    console.log("Questions:", noOFQuestions);
-    const randomProblemIDs = shuffledIDs.slice(0, noOFQuestions).map(p => ({id  : p.id}));
+    console.log("Questions:", Questions);
+    const randomProblemIDs = shuffledIDs.slice(0, Questions).map(p => ({id  : p.id}));
 
     const roomcode = generateRoomCode();
 
@@ -51,7 +50,7 @@ export async function POST (req :Request){
             isPrivate,
             code : roomcode || null,
             hostId : user.id,
-            duration : MatchDuration,
+            duration : Duration,
             questions :{
                 connect : randomProblemIDs
             }

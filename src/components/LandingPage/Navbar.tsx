@@ -37,6 +37,9 @@ export default function Navbar() {
         hover:shadow-[0_0_30px_10px_rgba(80,120,200,0.2)] transform transition-all duration-400
         ease-out
         `}
+        onClick={()=>{
+          router.push("/signup")
+        }}
       />
     </div>
   </div>

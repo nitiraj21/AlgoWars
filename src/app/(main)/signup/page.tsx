@@ -18,7 +18,7 @@ export default function SignUp() {
     const password = formData.get("password") as string;
     const confirmPassword = formData.get("confirmPassword") as string;
 
-    // Basic validation
+
     if (password !== confirmPassword) {
       setError("Passwords don't match");
       setIsLoading(false);
@@ -32,8 +32,8 @@ export default function SignUp() {
     }
 
     try {
-      // Call your API to create the user
-      const response = await fetch("/api/auth/signup", {
+
+      const response = await fetch("/api/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -50,7 +50,7 @@ export default function SignUp() {
         await signIn("credentials", {
           email,
           password,
-          callbackUrl: "/",
+          callbackUrl: "/dashboard",
         });
       } else {
         const data = await response.json();
@@ -65,20 +65,20 @@ export default function SignUp() {
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
-    await signIn("google", { callbackUrl: "/" });
+    await signIn("google", { callbackUrl: "/dashboard" });
     setIsLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-black flex items-center justify-center p-4">
       {/* Background pattern */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1),transparent_50%)]"></div>
       
       <div className="relative w-full max-w-md">
         {/* Logo and Brand */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl mb-4">
-            <div className="text-white text-2xl font-bold">&lt;/&gt;</div>
+          <div className="inline-flex items-center justify-center rounded-xl mb-4">
+            <div className="text-white text-2xl font-bold"><img src={"./LogoHero.png"} width={160} height={160} /></div>
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">Join AlgoWars</h1>
           <p className="text-gray-400">Start your coding battle journey today</p>
@@ -90,7 +90,7 @@ export default function SignUp() {
           <button
             onClick={handleGoogleSignIn}
             disabled={isLoading}
-            className="w-full bg-white text-gray-800 font-semibold py-3 px-4 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center mb-6"
+            className="w-full bg-white text-gray-800 cursor-pointer font-semibold py-3 px-4 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center mb-6"
           >
             <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -130,7 +130,7 @@ export default function SignUp() {
                 type="email"
                 required
                 placeholder="Enter your email"
-                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all duration-200"
               />
             </div>
 
@@ -144,7 +144,7 @@ export default function SignUp() {
                 type="text"
                 required
                 placeholder="Choose a username"
-                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all duration-200"
               />
             </div>
 
@@ -159,7 +159,7 @@ export default function SignUp() {
                 required
                 placeholder="Create a password"
                 minLength={6}
-                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all duration-200"
               />
             </div>
 
@@ -174,14 +174,14 @@ export default function SignUp() {
                 required
                 placeholder="Confirm your password"
                 minLength={6}
-                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all duration-200"
               />
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-3 px-4 rounded-lg hover:from-blue-600 hover:to-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-gray-500 to-gray-600 text-white cursor-pointer font-semibold py-3 px-4 rounded-lg hover:from-gray-600 hover:to-gray-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
@@ -194,23 +194,11 @@ export default function SignUp() {
             </button>
           </form>
 
-          {/* Terms and Privacy */}
-          <p className="mt-4 text-xs text-gray-400 text-center">
-            By creating an account, you agree to our{" "}
-            <a href="/terms" className="text-blue-400 hover:text-blue-300 transition-colors">
-              Terms of Service
-            </a>{" "}
-            and{" "}
-            <a href="/privacy" className="text-blue-400 hover:text-blue-300 transition-colors">
-              Privacy Policy
-            </a>
-          </p>
-
           {/* Footer Links */}
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-400">
               Already have an account?{" "}
-              <a href="/signin" className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
+              <a href="/signin" className="text-gray-200 hover:text-gray-500 font-medium transition-colors">
                 Sign in
               </a>
             </p>

@@ -3,79 +3,137 @@ import { useState } from 'react'
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import Button from '../button';
+import { Router } from 'next/router';
 
 export default function CreateRoom() {
-  const [name, setName] = useState('')
-  const [duration, setDuration] = useState("")
-  const [questions, setQuestions] = useState("")
   const router = useRouter();
-  const createRoom = async () => {
-    const MatchDuration = parseInt(duration, 10);
-    const noOFQuestions = parseInt(questions, 10);    
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const createRoom = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get("Room") as string;
+    const Duration = Number(formData.get("Duration"));
+    const Questions = Number(formData.get("Questions"));    
+
+    if (!name) {
+      setError("Please enter room name");
+      setIsLoading(false);
+      return;
+    }
+
+    if (Duration < 1) {
+      setError("Minimum Duration is 1 minute");
+      setIsLoading(false);
+      return;
+    }
+    if (Questions < 1) {
+      setError("Select atleat one Question");
+      setIsLoading(false);
+      return;
+    }
+
     try {
-        const res = await axios.post('/api/room/create', {
-          name,
-          MatchDuration,
-          isPrivate: false,
-          noOFQuestions,
-        });
+
+      const res = await axios.post('/api/room/create', {
+        name,
+        Duration,
+        isPrivate: false,
+        Questions,
+      });
+
+      if (res) {
         router.push(`/Room/${res.data.roomcode}`)
-        
-      } catch (error: any) {
-        alert(`Error: ${error.response?.data?.error || error.message}`);
+        }
+       else {
+        setError( "Something went wrong");
       }
-  }
+    }
+   catch (err) {
+      setError("Network error. Please try again.");
+    }
+
+    setIsLoading(false);
+  };
 
   return (
+    
+
 <div className="flex justify-center items-center min-h-screen bg-[#0e0f11]">
-  <div className="w-full max-w-md p-8 bg-gradient-to-b from-gray-800/60 to-gray-900/60 
-                  backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-700">
-    <h2 className="text-2xl font-bold text-center text-white mb-6">Create a Room</h2>
 
-    <div className="flex flex-col space-y-4">
-      <div>
-        <label className="block text-gray-300 mb-1 text-sm">Room Name</label>
-        <input
-          className="w-full p-3 rounded-lg border border-gray-600 bg-gray-800/50 text-white 
-                     placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Enter room name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-      </div>
+          {/* Room Form */}
+          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl px-13 pb-6 pt-1 shadow-2xl">
+          {error && (
+            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
+              {error}
+            </div>
+          )}
+          <div className='flex items-center justify-center mb-3'>
+          <img src={"./Logo.png"} width={140} height={140} />
+          </div>
+          <form onSubmit={createRoom} className="space-y-5">
+            <div>
+              <label htmlFor="text" className="block text-sm font-medium text-gray-300 mb-2">
+                Room Name
+              </label>
+              <input
+                id="Room"
+                name="Room"
+                type="text"
+                required
+                placeholder="Enter Room name"
+                className="w-full px-7 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all duration-200"
+              />
+            </div>
 
-      <div>
-        <label className="block text-gray-300 mb-1 text-sm">Match Duration (mins)</label>
-        <input
-          className="w-full p-3 rounded-lg border border-gray-600 bg-gray-800/50 text-white 
-                     placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Duration"
-          value={duration}
-          onChange={(e) => setDuration(e.target.value)}
-        />
-      </div>
+            <div>
+              <label htmlFor="number" className="block text-sm font-medium text-gray-300 mb-2">
+                Match Duration (mins)
+              </label>
+              <input
+                id="Duration"
+                name="Duration"
+                type="number"
+                required
+                placeholder="Duration"
+                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all duration-200"
+              />
+            </div>
 
-      <div>
-        <label className="block text-gray-300 mb-1 text-sm">No. of Questions</label>
-        <input
-          className="w-full p-3 rounded-lg border border-gray-600 bg-gray-800/50 text-white 
-                     placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Number of questions"
-          value={questions}
-          onChange={(e) => setQuestions(e.target.value)}
-        />
-      </div>
-
-      <Button
-        Class="w-full bg-slate-600 hover:bg-slate-700 transition-colors duration-200 
-                   text-white font-semibold py-3 rounded-lg shadow-md"
-        onClick={createRoom}
-        text='Create Room'
-      >
-        
-        </Button>
-    </div>
-  </div>
+            <div>
+              <label htmlFor="text" className="block text-sm font-medium text-gray-300 mb-2">
+                No. of Questions
+              </label>
+              <input
+                id="Questions"
+                name="Questions"
+                type="number"
+                required
+                placeholder="Number of Questions"
+                minLength={6}
+                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all duration-200"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-gray-500 to-gray-600 text-white cursor-pointer font-semibold py-3 px-4 rounded-lg hover:from-gray-600 hover:to-gray-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
+                  Creating Room...
+                </div>
+              ) : (
+                "Create Room"
+              )}
+            </button>
+          </form>
+          </div>
 </div>
 
   )
