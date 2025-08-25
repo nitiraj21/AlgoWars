@@ -62,7 +62,6 @@ function finishMatchWithRanking(roomCode, roomId) {
                 });
                 // Update user stats
                 const updateData = {
-                    matches: { increment: 1 },
                     XP: { increment: xpGained },
                 };
                 // Only increment wins for the winner (rank 1)
@@ -110,10 +109,13 @@ io.on('connection', (socket) => {
         try {
             const room = yield prisma.room.findUnique({
                 where: { code: roomCode },
-                select: { id: true, duration: true },
+                select: { id: true, duration: true, status: true },
             });
             if (!room) {
                 console.error(`Join-room failed: Room with code '${roomCode}' not found.`);
+                return;
+            }
+            if (room.status === 'WAITING') {
                 return;
             }
             const roomId = room.id;
@@ -125,23 +127,20 @@ io.on('connection', (socket) => {
                 console.error(`Join-room failed: User '${username}' not found.`);
                 return;
             }
-            // Participant ko database mein create/update karein
             yield prisma.matchParticipant.upsert({
                 where: { userId_roomId: { userId: user.id, roomId: roomId } },
                 update: {},
                 create: { userId: user.id, roomId: roomId, role: 'PARTICIPANT' },
             });
-            // Memory se list banane ke bajaye, hamesha database se latest participant list fetch karein
             const updatedParticipants = yield prisma.matchParticipant.findMany({
                 where: { roomId: roomId },
                 select: {
                     role: true,
                     score: true,
                     rank: true,
-                    user: { select: { username: true } }
+                    user: { select: { username: true, ProfilePic: true } }
                 }
             });
-            // Sabhi ko updated list (naye score ke saath) bhejein
             io.to(roomCode).emit('room-participants-updated', { participants: updatedParticipants });
         }
         catch (error) {

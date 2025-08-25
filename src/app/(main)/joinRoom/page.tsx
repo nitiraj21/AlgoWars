@@ -23,7 +23,7 @@ export default function JoinRoom() {
     }
 
     try{
-      const res = await axios.post("/api/room/create", {
+      const res = await axios.post("/api/room/join", {
         code
       });
 
@@ -68,10 +68,10 @@ export default function JoinRoom() {
               {isLoading ? (
                 <div className="flex items-center justify-center">
                   <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
-                  Creating Room...
+                  Joining Room...
                 </div>
               ) : (
-                "Create Room"
+                "Join Room"
               )}
             </button>
             </div>

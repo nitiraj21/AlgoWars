@@ -1,3 +1,5 @@
+//old frontend code
+
 'use client';
 import { useParams, useRouter } from "next/navigation";
 import {RoomStatus} from '@/src/types/global';
@@ -9,6 +11,7 @@ import Leaderboard from "@/src/components/Leaderboard";
 import Button from "@/src/components/button";
 import Confetti from "react-confetti";
 import { useWindowSize } from "@uidotdev/usehooks";
+import { LeaderboardWin } from "@/src/components/LeaderboardWin";
 
 
 
@@ -59,7 +62,7 @@ export default function RoomPage() {
       />
   );
   }
-
+  //old frontend
   if(room.status == RoomStatus.FINISHED){
     const sortedParticipants = [...room.participants].sort((a, b) => b.score - a.score);
     const winnerFromLeaderboard = sortedParticipants.length > 0 ? sortedParticipants[0] : null;
@@ -67,45 +70,42 @@ export default function RoomPage() {
     const finalWinner = winner || winnerFromLeaderboard;
 
     return(
-      <div className="bg-[#0a0f1a] min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
-      {/* Background gradient overlay matching room theme */}
-      <div className="absolute inset-0 opacity-90"></div>
-      
-  
+      <div className="bg-[#121315] min-h-screen flex  justify-center px-4 relative overflow-hidden">
       <Confetti width={width} height={height} numberOfPieces={200} recycle={false} />
       
-      <div className="relative z-10 w-full max-w-5xl mx-auto space-y-4">
+      <div className="relative z-10 w-full max-w-5xl mx-auto space-y-4 my-20">
         {/* Main Winner Card - Matching room page styling */}
-        <div className="bg-[#212429] rounded-2xl border border-[#2d3138] shadow-2xl p-8 backdrop-blur-sm">
           
           {/* Winner Section */}
           <div className="text-center mb-8 animate-slide-up">
+          <header className="text-center mb-6">
+          <h1 className="text-7xl font-thin tracking-wider mb-6 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+            RESULTS
+          </h1>
+          <div className="w-24 h-px bg-white mx-auto mb-8"></div>
+          <p className="text-slate-400 font-light text-lg tracking-wide">
+            Room: {room.name}
+          </p>
+          <p className="text-gray-500 text-md mt-2">
+            {room.participants.length || 0} participants
+          </p>
+        </header>
             <Winner winner={finalWinner} />
           </div>
-          {getCurrentUserStats() && (
-        <div>
-          <h3>Your Performance:</h3>
-          <p>Rank: #{getCurrentUserStats()?.rank}</p>
-          <p>Score: {getCurrentUserStats()?.score}</p>
-          <p>XP Gained: +{getCurrentUserStats()?.xpGained}</p>
-        </div>
-      )}
-  
+
           <div className="animate-slide-up delay-100">
-            <div className="bg-[#151820] rounded-xl border border-[#2d3138] p-6">
-              <h2 className="text-2xl font-bold text-white mb-6 text-center">Final Standings</h2>
-              <Leaderboard participants={room.participants} />
-            </div>
+
+              <LeaderboardWin participants={room.participants}/>
+
           </div>
   
           <div className="flex justify-center gap-4 mt-8 animate-slide-up delay-200">
             <Button
               text="Exit to Home"
-              onClick={() => router.push("/")}
+              onClick={() => router.push("/dashboard")}
               Class="bg-[#2d3138] hover:bg-[#373c45] text-white font-semibold py-3 px-8 rounded-lg cursor-pointer transition-all duration-200 transform hover:scale-105 shadow-lg"
             />
           </div>
-        </div>
       </div>
     </div>
 

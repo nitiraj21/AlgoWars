@@ -104,7 +104,7 @@ export default function InProgressRoom({room, session, roomCode, socketRef}: any
     return (
         <div className="sm:h-full w-full p-3 mr-3  bg-[#121315] md:pt-1 pl-6 mr-6 min-h-screen ">
 
-            <div className="w-auto grid grid-row justify-center items-center m-10 lg:mr-60 sm:grid grid-row-3 lg:flex justify-center items-center gap-6 my-4 lg:ml-60 md:pl-10">
+            <div className="w-auto grid grid-row justify-center items-center m-10 lg:mr-60 sm:grid grid-row-3 lg:flex justify-center items-center gap-6 my-8 lg:ml-60 md:pl-10">
                     <LanguageSelector selectedLanguage={language} onSelect={setLanguage} />
                     <Button
                       onClick={handleSubmit}
@@ -134,7 +134,7 @@ export default function InProgressRoom({room, session, roomCode, socketRef}: any
 />
 <Button
             text="Exit Room"
-            Class="px-3 py-2 bg-slate-500 hover:bg=slate-600 couror-pointer"
+            Class="px-3 py-2 bg-slate-700 text-white hover:bg-slate-500 couror-pointer"
             onClick={()=>{router.push("/dashboard")}}
             />
 
@@ -150,6 +150,9 @@ export default function InProgressRoom({room, session, roomCode, socketRef}: any
                 rounded-xl shadow-md">
               <h2 className="text-2xl font-bold mb-3 text-white">{currentQuestion.title}</h2>
               <span className= {`text-sm  shadow-md ${currentQuestion.difficulty === 'EASY' ? 'bg-green-200 text-green-800' : currentQuestion.difficulty === 'MEDIUM' ? 'bg-yellow-400 text-yellow-800' : 'bg-red-200 text-red-800'} px-3 py-1 rounded-full`}>{currentQuestion.difficulty}</span>
+              {currentQuestion.difficulty === 'EASY' && (<span className="px-3 py-1 ml-2 rounded-full bg-gray-200 text-sm">5 Points</span>)}
+              {currentQuestion.difficulty === 'MEDIUM' && (<span className="px-3 py-1 ml-2 rounded-full bg-gray-200 text-sm">10 Points</span>)}
+              {currentQuestion.difficulty === 'HARD' && (<span className="px-3 py-1 ml-2 rounded-full bg-gray-200 text-sm">15 Points</span>)}
               <div className="text-white">
       
                 {newDesc.map((newDesc: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined , idx: React.Key | null | undefined) => (

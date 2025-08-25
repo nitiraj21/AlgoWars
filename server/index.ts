@@ -121,13 +121,19 @@ io.on('connection', (socket) => {
     try {
       const room = await prisma.room.findUnique({
         where: { code: roomCode },
-        select: { id: true, duration: true },
+        select: { id: true, duration: true, status: true },
       });
       
       if (!room) {
         console.error(`Join-room failed: Room with code '${roomCode}' not found.`);
         return;
       }
+
+      if(room.status ==='WAITING'){
+        return;
+      }
+
+      
       
       const roomId = room.id;
       MATCH_DURATION_MINUTES = room.duration || null;

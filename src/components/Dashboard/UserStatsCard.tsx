@@ -37,9 +37,9 @@ async function UserStatsCard()  {
         <div className='flex items-center justify-center mt-3'>
             <h1 className='font-semibold text-xl'>Win Percentage</h1>
         </div>
-        <div className='rounded-3xl bg-[#121315] overflow-hidden mx-5 my-3 shadow-xl'>
+        <div className='rounded-3xl bg-[#121315] overflow-hidden mx-5 my-3 shadow-xl relative'>
             <div  className="flex justify-end items-center h-5 bg-[#4ade80]" style={{width : `${win}%`}}>
-              <span className="text-lg font-semibold ml-34 shadow-xl text-gray-600">{win}%</span>
+              <span className="absolute inset-0 flex items-center  justify-center text-lg font-semibold  shadow-xl text-gray-600">{win}%</span>
             </div>
         </div>
         <div className="mt-3 ">
