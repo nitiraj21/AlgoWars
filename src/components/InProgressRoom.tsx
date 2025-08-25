@@ -11,20 +11,21 @@ import Leaderboard from "./Leaderboard";
 import {
   PanelGroup, Panel, PanelResizeHandle,} from "react-resizable-panels";
 import TestResultDisplay from "./TestResult";
+import { useRouter } from "next/navigation";
 
 //@ts-ignore
 const LanguageSelector = ({ selectedLanguage, onSelect }) => {
     const languages = ['javascript', 'python', 'java', 'cpp'];
     return (
-        <div className="flex space-x-2  bg-gradient-to-r from-gray-500/15 to-gray-500/15 backdrop-blur-xl p-2 rounded-lg shadow-sm">
+        <div className="flex space-x-2  bg-gradient-to-r from-gray-500/15 to-gray-500/15 backdrop-blur-xl p-2 rounded-lg shadow-sm ">
             {languages.map(lang => (
                 <button
                     key={lang}
                     onClick={() => onSelect(lang)}
                     className={`px-4 py-2 text-sm font-semibold rounded-md transition-colors duration-200 ${
                         selectedLanguage === lang 
-                        ? 'bg-slate-200 text-black' 
-                        : ' bg-gradient-to-r from-gray-500/15 to-gray-500/15 backdrop-blur-xl text-gray-300 '
+                        ? 'bg-slate-700 text-white' 
+                        : ' bg-gradient-to-r from-gray-500/15 to-gray-500/15 backdrop-blur-xl text-gray-300 hover:bg-gray-800 cursor-pointer'
                     }`}
                 >
                     {lang.charAt(0).toUpperCase() + lang.slice(1)}
@@ -49,6 +50,7 @@ export default function InProgressRoom({room, session, roomCode, socketRef}: any
     const currentQuestion = room.questions[currentQuestionIndex];
     console.log(currentQuestion);
     const Description = currentQuestion.description
+    const router  = useRouter();
     //@ts-ignore
     const newDesc = Description.split(".").map(s => s.trim()).filter(Boolean);
     useEffect(() => {
@@ -101,12 +103,13 @@ export default function InProgressRoom({room, session, roomCode, socketRef}: any
 
     return (
         <div className="sm:h-full w-full p-3 mr-3  bg-[#121315] md:pt-1 pl-6 mr-6 min-h-screen ">
+
             <div className="w-auto grid grid-row justify-center items-center m-10 lg:mr-60 sm:grid grid-row-3 lg:flex justify-center items-center gap-6 my-4 lg:ml-60 md:pl-10">
                     <LanguageSelector selectedLanguage={language} onSelect={setLanguage} />
                     <Button
                       onClick={handleSubmit}
                       text={isSubmitting ? 'Submitting...' : 'Submit Code'}
-                      Class = {"bg-slate-700 text-white hover:bg-slate-200"}
+                      Class = {"bg-slate-700 text-white hover:bg-slate-500"}
   
                     />
                      <header className="flex justify-center items-center ">
@@ -119,16 +122,21 @@ export default function InProgressRoom({room, session, roomCode, socketRef}: any
     setOutput("");
   }}
   text="&larr;"
-  Class="bg-slate-700 text-white hover:bg-slate-200 text-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed"
+  Class="bg-slate-700 text-white hover:bg-slate-500 text-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed"
   disabled={currentQuestionIndex === 0}
 />
 
 <Button
   onClick={() => setQuestionIndex(prev => prev + 1)}
   text="&rarr;"
-  Class="bg-slate-700 text-white hover:bg-slate-200 text-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed"
+  Class="bg-slate-700 text-white hover:bg-slate-500 text-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed"
   disabled={currentQuestionIndex === room.questions.length - 1}
 />
+<Button
+            text="Exit Room"
+            Class="px-3 py-2 bg-slate-500 hover:bg=slate-600 couror-pointer"
+            onClick={()=>{router.push("/dashboard")}}
+            />
 
                     </div>
                 </div>

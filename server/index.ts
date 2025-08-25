@@ -153,7 +153,7 @@ io.on('connection', (socket) => {
           role: true,
           score: true,
           rank: true,
-          user: { select: { username: true } }
+          user: { select: { username: true , ProfilePic : true}}
         }
       });
   

@@ -102,7 +102,7 @@ export default function RoomPage() {
             <Button
               text="Exit to Home"
               onClick={() => router.push("/")}
-              Class="bg-[#2d3138] hover:bg-[#373c45] text-white font-semibold py-3 px-8 rounded-lg cursor-pointer transition-all duration-200 transform hover:scale-105 shadow-lg border border-[#3d4248]"
+              Class="bg-[#2d3138] hover:bg-[#373c45] text-white font-semibold py-3 px-8 rounded-lg cursor-pointer transition-all duration-200 transform hover:scale-105 shadow-lg"
             />
           </div>
         </div>

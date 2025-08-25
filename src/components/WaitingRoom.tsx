@@ -54,7 +54,7 @@ export default function WaitingRoom({room, session, handleStartMatch, isHost}: W
     {isHost && (
       <Button
         onClick={handleStartMatch}
-        Class={" text-lg backdrop-blur-xl bg-[#1c1d21]  mt-3 mr-3 hover:bg-gradient-to-r from-gray-500/15 to-gray-500/15"}
+        Class={" bg-gradient-to-r from-gray-500 to-gray-600 text-white cursor-pointer font-semibold py-3 px-4 rounded-lg hover:from-gray-600 hover:to-gray-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"}
       
         text= {"Start Match"}
       />

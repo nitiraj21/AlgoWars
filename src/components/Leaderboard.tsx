@@ -14,6 +14,7 @@ import {
 interface Participant {
   user?: {
       username?: string;
+      profilePic? :string
   };
   score: number;
 }
@@ -38,9 +39,9 @@ export default function Leaderboard({ participants }: LeaderboardProps) {
                 {[...participants]
                     .sort((a, b) => b.score - a.score)
                     .map((p, index) => ( 
-                        <TableRow key={p.user?.username || index}>
+                        <TableRow key={p.user?.username || index} className='hover:bg-slate-600 cursor-pointer'>
                             <TableCell className="text-center font-medium text-slate-200 ">{index + 1}</TableCell>
-                            <TableCell className="text-center font-medium text-slate-200">{p.user?.username} {index === 0 && p.score > 0 && <span>🥇</span>} {index === 1  && p.score > 0  && <span>🥈</span>} {index === 2  && p.score > 0  && <span>🥉</span>}</TableCell>
+                            <TableCell className="text-center font-medium text-slate-200"><img src={p.user?.profilePic}/>{p.user?.username} {index === 0 && p.score > 0 && <span>🥇</span>} {index === 1  && p.score > 0  && <span>🥈</span>} {index === 2  && p.score > 0  && <span>🥉</span>}</TableCell>
                             
                             <TableCell className="text-center font-bold text-slate-200">{p.score}</TableCell>
                         </TableRow>
