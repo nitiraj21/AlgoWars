@@ -51,6 +51,7 @@ export default function InProgressRoom({room, session, roomCode, socketRef}: any
     console.log(currentQuestion);
     const Description = currentQuestion.description
     const router  = useRouter();
+    const [similarQuestion, setSimilarQuestion] = useState(-1);
     //@ts-ignore
     const newDesc = Description.split(".").map(s => s.trim()).filter(Boolean);
     useEffect(() => {
@@ -81,12 +82,19 @@ export default function InProgressRoom({room, session, roomCode, socketRef}: any
 
         const data = await res.json();
         setOutput(data);
-
-        if(data.overallStatus === 'Accepted'){
+        let points = 15;
+        if(currentQuestion.difficulty === 'EASY'){
+          points = 5;
+        }
+        else if(currentQuestion.difficulty === 'MEDIUM'){
+          points = 10;
+        }
+        if(data.overallStatus === 'Accepted' && currentQuestionIndex != similarQuestion){
+          setSimilarQuestion(currentQuestionIndex);
           socketRef.current?.emit('correct-submission', {
             roomCode: roomCode,
             userEmail: session?.user?.email,
-            points: 5 
+            points: points 
           });
         }
       }
@@ -160,8 +168,13 @@ export default function InProgressRoom({room, session, roomCode, socketRef}: any
                 ))}
               </div>
               <h3 className="font-semibold mt-6 mb-2 text-white">Test Case Example:</h3>
-              <span className="p-4 rounded-lg text-md font-semibold text-white">
-                {`Input: ${JSON.stringify(displayTestCases.Input)}\nOutput: ${JSON.stringify(displayTestCases.Output)}`}
+              <span className="p-4 rounded-lg text-md font-lg text-white mb-3">
+                {`Input: ${JSON.stringify(displayTestCases.Input)}`}
+              </span>
+              <br></br>
+              <br></br>
+              <span className="p-4 rounded-lg text-md font-lg text-white">
+                    {` Output: ${JSON.stringify(displayTestCases.Output)}`}
               </span>
               <div className="text-white">
                 <h3 className="font-semibold mt-6 mb-2 text-white">Constraints</h3>

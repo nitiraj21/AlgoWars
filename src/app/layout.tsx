@@ -18,6 +18,9 @@ const firaCode = Fira_Code({
 export const metadata: Metadata = {
   title: "AlgoArena",
   description: "Real Time Multiplayer Coding Platform",
+  icons: {
+    icon: "/LogoHero.png",
+  },
 };
 
 export default function RootLayout({

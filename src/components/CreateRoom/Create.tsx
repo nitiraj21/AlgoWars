@@ -66,7 +66,7 @@ export default function CreateRoom() {
 <div className="flex justify-center items-center min-h-screen bg-[#0e0f11]">
 
           {/* Room Form */}
-          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl px-13 pb-6 pt-1 shadow-2xl">
+          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl px-16 pb-8 pt-4 shadow-2xl">
           {error && (
             <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
               {error}
@@ -121,7 +121,7 @@ export default function CreateRoom() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-gray-500 to-gray-600 text-white cursor-pointer font-semibold py-3 px-4 rounded-lg hover:from-gray-600 hover:to-gray-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-gray-500 to-gray-600 text-white shadow-lg cursor-pointer mt-4 font-semibold py-3 px-4 rounded-lg hover:from-gray-600 hover:to-gray-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
