@@ -31,6 +31,7 @@ export function useRoomSocket(roomCode: string | null) {
   const [room, setRoom] = useState<Room | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMatchLoading, setIsMatchLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const socketRef = useRef<Socket | null>(null);
   const [winner, setWinner] = useState<Winner | null>(null);
@@ -160,7 +161,9 @@ export function useRoomSocket(roomCode: string | null) {
 
   const startMatch = useCallback(() => {
     if (socketRef.current && roomCode) {
+      setIsMatchLoading(true);
       socketRef.current.emit('start-match', roomCode);
+      setIsMatchLoading(false);
     }
   }, [roomCode]);
 
@@ -198,6 +201,7 @@ export function useRoomSocket(roomCode: string | null) {
     finalRankings,
     isMatchFinished,
     getCurrentUserStats,
-    isCurrentUserWinner
+    isCurrentUserWinner,
+    isMatchLoading
   };
 }

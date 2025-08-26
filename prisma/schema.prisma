@@ -65,6 +65,7 @@ model Problem {
   tags            String[] 
   constraints     String   
   testCases       Json?
+  testCasesDisplay String?
   difficulty      Difficulty  @default(EASY)
   functionName    String?
   inputSignature  Json?

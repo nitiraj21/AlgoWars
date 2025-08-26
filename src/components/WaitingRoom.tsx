@@ -1,18 +1,21 @@
-
+"use client";
 import ParticipantList from "@/src/components/ParticipantList";
 import Button from "@/src/components/button";
 import Questions from "@/src/components/Questions";
 import { Room, RoomStatus } from "../types/global";
 import { Session } from "next-auth";
+import { useState } from "react";
 interface WaitingProps {
     room : Room;
     session : Session | null;
     handleStartMatch : ()=>void;
     isHost : boolean;
+    isMatchLoading : boolean;
 
 }
 
-export default function WaitingRoom({room, session, handleStartMatch, isHost}: WaitingProps){
+export default function WaitingRoom({room, session, handleStartMatch, isHost, isMatchLoading}: WaitingProps){
+  const [startMatch, setStartMatch] = useState(false);
 
     return (
 <div className="p-6 max-w-5xl mx-auto text-white bg-[#121315] min-h-screen min-w-screen">
@@ -52,12 +55,21 @@ export default function WaitingRoom({room, session, handleStartMatch, isHost}: W
   {/* Host Controls */}
   <div className="flex justify-center mt-10">
     {isHost && (
-      <Button
-        onClick={handleStartMatch}
-        Class={" bg-gradient-to-r from-gray-500 to-gray-600 text-white cursor-pointer font-semibold py-3 px-4 rounded-lg hover:from-gray-600 hover:to-gray-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"}
-      
-        text= {"Start Match"}
-      />
+      <button
+  onClick={handleStartMatch}
+  disabled={isMatchLoading}
+  className="bg-gradient-to-r from-gray-500 to-gray-600 text-white cursor-pointer font-semibold py-3 px-4 rounded-lg hover:from-gray-600 hover:to-gray-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+>
+  {isMatchLoading ? (
+    <div className="flex items-center justify-center">
+      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
+      Starting Match...
+    </div>
+  ) : (
+    "Start Match"
+  )}
+</button>
+
     )}
   </div>
 </div>

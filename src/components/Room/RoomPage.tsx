@@ -31,11 +31,11 @@ export default function RoomPage() {
     finalRankings,
     isMatchFinished,
     getCurrentUserStats,
-    isCurrentUserWinner  } = useRoomSocket(roomCode); 
+    isCurrentUserWinner, isMatchLoading  } = useRoomSocket(roomCode); 
   console.log(winner)
   const router = useRouter()
 
-  if (isLoading) return <div className="text-center mt-10">Loading room...</div>;
+  if (isLoading) return <div className="bg-black min-h-screen flex items-center justify-center"> <div className="animate-spin rounded-full h-16 w-16 border-5 border-white border-t-transparent mr-2"></div>;</div>
 
   if (error) {
     return <div className="text-center mt-10 text-red-500">Error: {error}</div>;
@@ -58,6 +58,7 @@ export default function RoomPage() {
         session = {session}
         handleStartMatch = {startMatch}
         isHost = {isHost}
+        isMatchLoading = {isMatchLoading}
       
       />
   );

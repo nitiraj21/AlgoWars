@@ -67,7 +67,7 @@ export async function POST (req :Request){
                 constraints: true, 
                 testCases: true,
                 functionName: true,
-                tags : true
+                tags : true,
               }
             }
           }
