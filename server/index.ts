@@ -14,9 +14,6 @@ const prisma = new PrismaClient();
 const app = express();
 const server = http.createServer(app);
 let MATCH_DURATION_MINUTES: number | null = null;
-
-MATCH_DURATION_MINUTES = 45;
-
 const io = new Server(server, {
   cors: {
     origin: 'http://localhost:3000',

@@ -55,8 +55,7 @@ export default function InProgressRoom({room, session, roomCode, socketRef}: any
     //@ts-ignore
     const newDesc = Description.split(".").map(s => s.trim()).filter(Boolean);
     useEffect(() => {
-      
-
+  
       if (currentQuestion.starterCode && typeof currentQuestion.starterCode === 'object') {
           const starter = (currentQuestion.starterCode as any)[language];
           setCode(starter || `// No starter code available for ${language}.`);

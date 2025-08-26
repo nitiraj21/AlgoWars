@@ -62,6 +62,15 @@ export default function RoomPage() {
       />
   );
   }
+  if(room.status == RoomStatus.IN_PROGRESS){
+    return(
+        <InProgressRoom
+          room={room}
+          session={session}
+          roomCode={roomCode}
+          socketRef={socketRef}
+          />
+    );}
   //old frontend
   if(room.status == RoomStatus.FINISHED){
     const sortedParticipants = [...room.participants].sort((a, b) => b.score - a.score);
@@ -79,7 +88,7 @@ export default function RoomPage() {
           {/* Winner Section */}
           <div className="text-center mb-8 animate-slide-up">
           <header className="text-center mb-6">
-          <h1 className="text-7xl font-thin tracking-wider mb-6 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+          <h1 className="text-7xl font-mono tracking-wider mb-6 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
             RESULTS
           </h1>
           <div className="w-24 h-px bg-white mx-auto mb-8"></div>
@@ -111,12 +120,4 @@ export default function RoomPage() {
 
     )
   }
-  return(
-      <InProgressRoom
-        room={room}
-        session={session}
-        roomCode={roomCode}
-        socketRef={socketRef}
-        />
-  );
 }
