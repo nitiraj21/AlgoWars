@@ -162,8 +162,10 @@ export function useRoomSocket(roomCode: string | null) {
   const startMatch = useCallback(() => {
     if (socketRef.current && roomCode) {
       setIsMatchLoading(true);
-      socketRef.current.emit('start-match', roomCode);
-      setIsMatchLoading(false);
+      socketRef.current.emit('start-match', roomCode, () => {
+        setIsMatchLoading(false);
+      });
+      
     }
   }, [roomCode]);
 
