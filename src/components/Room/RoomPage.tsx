@@ -81,7 +81,7 @@ export default function RoomPage() {
 
     return(
       <div className="bg-[#121315] min-h-screen flex  justify-center px-4 relative overflow-hidden">
-      <Confetti width={width} height={height} numberOfPieces={200} recycle={false} />
+      <Confetti width={width ?? undefined} height={height ?? undefined} numberOfPieces={200} recycle={false} />
       
       <div className="relative z-10 w-full max-w-5xl mx-auto space-y-4 my-20">
         {/* Main Winner Card - Matching room page styling */}
