@@ -6,8 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "on": "npm run build && npm run start",
     "lint": "next lint",
+    "postinstall": "prisma generate",
     "server": "nodemon server/index.ts"
   },
   "dependencies": {
