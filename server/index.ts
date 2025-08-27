@@ -193,21 +193,32 @@ io.on('connection', (socket) => {
   
   socket.on('start-match', async (roomCode) => {
     try {
-      let endTime = new Date();
-      if (MATCH_DURATION_MINUTES) {
-        endTime = new Date(Date.now() + MATCH_DURATION_MINUTES * 60 * 1000);
-      }
-
       const room = await prisma.room.findUnique({
         where: { code: roomCode },
-        select: { id: true }
+        select: { id: true, duration: true, status: true }
       });
-
+  
       if (!room) {
         console.error(`Start match failed: Room ${roomCode} not found.`);
+        socket.emit('error', { message: 'Room not found' });
         return;
       }
-
+  
+      // Prevent starting if already in progress
+      if (room.status === 'IN_PROGRESS') {
+        console.warn(`Room ${roomCode} already in progress`);
+        return;
+      }
+  
+      // Use the room's duration, not the global variable
+      const matchDurationMinutes = room.duration;
+      let endTime = null;
+  
+      if (matchDurationMinutes && matchDurationMinutes > 0) {
+        endTime = new Date(Date.now() + matchDurationMinutes * 60 * 1000);
+      }
+  
+      // Update room status and end time
       await prisma.room.update({
         where: { id: room.id },
         data: {
@@ -215,35 +226,57 @@ io.on('connection', (socket) => {
           matchEndedAt: endTime,
         },
       });
-
-      io.to(roomCode).emit('match-started');
+  
+      // Emit match started with complete information
+      io.to(roomCode).emit('match-started', {
+        endTime: endTime ? endTime.toISOString() : null,
+        duration: matchDurationMinutes,
+        startTime: new Date().toISOString()
+      });
       
-      if (MATCH_DURATION_MINUTES) {
+      console.log(`🚀 Match ${roomCode} started with duration: ${matchDurationMinutes} minutes`);
+      console.log(`⏰ Match will end at: ${endTime ? endTime.toISOString() : 'No time limit'}`);
+      
+      // Set up timeout for match end
+      if (matchDurationMinutes && matchDurationMinutes > 0) {
         setTimeout(async () => {
           try {
             const currentRoom = await prisma.room.findUnique({
               where: { code: roomCode },
-              select: { id: true }
+              select: { id: true, status: true }
             });
-
-            if (!currentRoom) return;
-
+  
+            if (!currentRoom || currentRoom.status !== 'IN_PROGRESS') {
+              console.log(`⚠️  Room ${roomCode} is no longer in progress, skipping timeout finish`);
+              return;
+            }
+  
+            console.log(`⏰ Time's up for room ${roomCode}, finishing match...`);
+  
             await prisma.room.update({
               where: { id: currentRoom.id },
-              data: { status: 'FINISHED' },
+              data: { 
+                status: 'FINISHED',
+              },
             });
-
-            // Use the new ranking system instead of just announcing winner
+  
             await finishMatchWithRanking(roomCode, currentRoom.id);
-
+            
+            io.to(roomCode).emit('match-ended', {
+              reason: 'timeout',
+              endedAt: new Date().toISOString()
+            });
+  
           } catch (error) {
             console.error(`Error finishing match for room ${roomCode}:`, error);
+            io.to(roomCode).emit('error', { message: 'Error ending match' });
           }
-        }, MATCH_DURATION_MINUTES * 60 * 1000);
+        }, matchDurationMinutes * 60 * 1000);
       }
-
+  
     } catch (error) {
       console.error(`Error starting match for room ${roomCode}:`, error);
+      socket.emit('error', { message: 'Error starting match' });
     }
   });
 

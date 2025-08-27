@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 type TimerProps = {
   endTime: string;
@@ -9,34 +9,74 @@ type TimerProps = {
 
 export default function Timer({ endTime, onTimerEnd }: TimerProps) {
   const getRemainingSeconds = () => {
+    if (!endTime) return 0;
+    
     const endDate = new Date(endTime).getTime();
     const now = Date.now();
     const difference = Math.floor((endDate - now) / 1000);
-    return difference > 0 ? difference : 0;
+    return Math.max(0, difference); // Ensure never negative
   };
 
- 
-  const [remainingSeconds, setRemainingSeconds] = useState(getRemainingSeconds);
+  const [remainingSeconds, setRemainingSeconds] = useState(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const hasEndedRef = useRef(false);
 
+  // Reset timer when endTime changes
   useEffect(() => {
-    const interval = setInterval(() => {
-      setRemainingSeconds(prevSeconds => {
-        if (prevSeconds <= 1) {
-          clearInterval(interval);
-          onTimerEnd(); 
-        }
-        return prevSeconds - 1;
-      });
-    }, 1000);
+    if (endTime) {
+      const initialSeconds = getRemainingSeconds();
+      setRemainingSeconds(initialSeconds);
+      hasEndedRef.current = false;
+      
+      // Clear any existing interval
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      
+      // Only start interval if there's time remaining
+      if (initialSeconds > 0) {
+        intervalRef.current = setInterval(() => {
+          setRemainingSeconds(prevSeconds => {
+            const newSeconds = Math.max(0, prevSeconds - 1);
+            
+            if (newSeconds === 0 && !hasEndedRef.current) {
+              hasEndedRef.current = true;
+              onTimerEnd();
+            }
+            
+            return newSeconds;
+          });
+        }, 1000);
+      } else if (!hasEndedRef.current) {
+        // Timer already expired
+        hasEndedRef.current = true;
+        onTimerEnd();
+      }
+    }
 
-    return () => clearInterval(interval);
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
   }, [endTime, onTimerEnd]);
 
   const formatTime = () => {
-    const minutes = Math.floor(remainingSeconds / 60);
-    const seconds = remainingSeconds % 60;
+    // Ensure we never display negative values
+    const safeSeconds = Math.max(0, remainingSeconds);
+    const minutes = Math.floor(safeSeconds / 60);
+    const seconds = safeSeconds % 60;
     return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   };
+
+  // Don't render if no endTime provided
+  if (!endTime) {
+    return (
+      <div className="text-2xl font-mono bg-slate-700 text-white px-4 py-1 rounded-lg">
+        <span>--:--</span>
+      </div>
+    );
+  }
 
   return (
     <div className="text-2xl font-mono bg-slate-700 text-white px-4 py-1 rounded-lg">

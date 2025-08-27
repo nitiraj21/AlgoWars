@@ -72,7 +72,7 @@ export function useRoomSocket(roomCode: string | null) {
 
         if (!sessionData?.user?.name) return;
 
-        const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000';
+        const socketUrl = 'http://13.235.48.154:5000';
         socket = io(socketUrl, { transports: ['websocket'] });
         socketRef.current = socket;
 
