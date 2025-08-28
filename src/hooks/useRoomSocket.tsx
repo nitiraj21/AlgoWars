@@ -72,7 +72,7 @@ export function useRoomSocket(roomCode: string | null) {
 
         if (!sessionData?.user?.name) return;
 
-        const socketUrl = 'http://13.235.48.154:5000';
+        const socketUrl = 'https://algowars.duckdns.org/';
         socket = io(socketUrl, { transports: ['websocket'] });
         socketRef.current = socket;
 
