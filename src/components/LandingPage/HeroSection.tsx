@@ -2,9 +2,11 @@
 import React from 'react'
 import { Spotlight } from '../ui/spotlight-new'
 import Button from '../button'
+import { useRouter } from 'next/navigation'
 
 
 export default function HeroSection() {
+  const router = useRouter();
   return (
 <div className="h-[40rem] w-full  rounded-md flex flex-col items-center justify-center relative overflow-hidden  md:mt-30 mb-6 md:mb-40 ">
   
@@ -33,6 +35,7 @@ export default function HeroSection() {
     <div className='flex justify-center items-center mt-10 '>
     <Button 
       text = {"Start the Battle"}
+      onClick={()=>{router.push('/signup')}}
       Class= {`
     bg-gradient-to-b from-zinc-200 to-zinc-400 
     rounded-lg shadow-[0_0_15px_0_rgba(0,0,0,0.4)]

@@ -13,7 +13,7 @@ async function MatchHistory() {
     }
 
     const data = await prisma.user.findUnique({
-        where: { username },
+        where: { username,},
         select: {
           username: true,
           matchHistory: {

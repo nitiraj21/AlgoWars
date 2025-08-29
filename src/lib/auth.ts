@@ -50,20 +50,20 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
 
   callbacks: {
-    // When user signs in with OAuth, ensure they're in your DB
+
     async signIn({ user, account, profile }) {
       if (account?.provider === 'google' || account?.provider === 'github') {
         let existingUser = await prisma.user.findUnique({
           where: { email: user.email! },
         })
 
-        // Auto-register if not found
+        const emailUsername = user.email!.split('@')[0].replace(/\s+/g, "_");
         if (!existingUser) {
           const googleProfile = profile as { picture?: string }
           existingUser = await prisma.user.create({
             data: {
               email: user.email!,
-              username: user.name || user.email!.split('@')[0].replace(" ", "_"),
+              username: emailUsername,
               password: '', // no password for oauth users
               isAdmin: false,
               ProfilePic : googleProfile.picture 

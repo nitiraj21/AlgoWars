@@ -43,7 +43,7 @@ const ComparisonTable = () => {
   ];
 
   return (
-    <div className="max-w-5xl mx-auto mt-25 mb-28 mx-5 rounded-2xl shadow-lg border-2 border-slate-600 pt-5 overflow-hidden z-50
+    <div className="max-w-5xl mx-auto mt-25 mb-28 rounded-2xl shadow-lg border-2 border-slate-600 pt-5 overflow-hidden z-50
      bg-gradient-to-r from-gray-700/15 to-gray-500/15 backdrop-blur-xl cursor-pointer
      transform hover:scale-103 transition-transform duration-400 ease-in-out hover:shadow-[0_0_40px_10px_rgba(80,120,200,0.2)]
      ">

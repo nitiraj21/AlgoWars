@@ -1,7 +1,10 @@
+"use client"
 import React from 'react'
 import Button from '../button'
+import { useRouter } from 'next/navigation'
 
 export default function CTA() {
+    const router = useRouter();
   return (
     <div className='z-50 mb-20 bg-black/80 mx-10 md:mx-30 lg:mx-50 xl:mx-120 transform hover:scale-103 transition-transform duration-400 ease-in-out min-w-[100px] overflow-hidden
          bg-gradient-to-r from-gray-700/15 to-gray-500/15 backdrop-blur-lg flex flex-col items-center justify-center
@@ -23,6 +26,7 @@ export default function CTA() {
         <div className='flex items-center justify-center '>
             <Button
                     text={"Join Now ⚔️"}
+                    onClick={()=>{router.push('/signup')}}
                     Class={`
                     bg-gradient-to-b from-zinc-200 to-zinc-400 
                     rounded-lg shadow-[0_0_15px_0_rgba(0,0,0,0.4)] text-lg

@@ -5,22 +5,33 @@ import { useState } from "react";
 
 export default function SignIn() {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleCredentialsSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
+    setError("")
     
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-
-    await signIn("credentials", {
+    
+    const res = await signIn("credentials", {
       email,
       password,
-      callbackUrl: "/dashboard",
+      redirect: false,
     });
-    
+
+
+
+    if (res?.error) {
+      setError("Invalid email or password");
+    } else {
+      window.location.href = "/dashboard"; 
+  
+    }
     setIsLoading(false);
+    
   };
 
   const handleGoogleSignIn = async () => {
@@ -88,6 +99,11 @@ export default function SignIn() {
                 "Sign In"
               )}
             </button>
+
+            {error && (
+        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
+            {error}
+        </div>)}
           </form>
 
           {/* Divider */}

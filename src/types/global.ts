@@ -17,6 +17,7 @@ export enum RoomStatus {
 
 export interface Room {
   name: string;
+  code : string
   host: { name: string };
   participants: Participant[];
   questions: {

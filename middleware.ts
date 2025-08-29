@@ -10,14 +10,15 @@ export async function middleware(request: NextRequest) {
 
   // Public routes
   const publicPaths = ["/signin", "/register"];
+  const isPublic = publicPaths.some((path) => pathname.startsWith(path));
 
   // If user is logged in and goes to signin/register -> redirect to dashboard
-  if (token && publicPaths.some(path => pathname.startsWith(path))) {
+  if (token && isPublic) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  // If user is NOT logged in and goes to a protected route -> redirect to signin
-  if (!token && !publicPaths.some(path => pathname.startsWith(path))) {
+  // If user is NOT logged in and tries to access anything except signin/register
+  if (!token && !isPublic) {
     return NextResponse.redirect(new URL("/signin", request.url));
   }
 

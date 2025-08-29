@@ -1,14 +1,15 @@
 'use client'
 import { useState } from 'react'
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import Button from '../button';
-import { Router } from 'next/router';
 
 export default function CreateRoom() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+
 
   const createRoom = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -66,7 +67,7 @@ export default function CreateRoom() {
 <div className="flex justify-center items-center min-h-screen bg-[#0e0f11]">
 
           {/* Room Form */}
-          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl px-16 pb-8 pt-4 shadow-2xl">
+          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl px-6 pb-8 pt-4 shadow-2xl">
           {error && (
             <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
               {error}
@@ -86,7 +87,7 @@ export default function CreateRoom() {
                 type="text"
                 required
                 placeholder="Enter Room name"
-                className="w-full px-7 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all duration-200"
+                className="w-full px-10 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all duration-200"
               />
             </div>
 
@@ -100,7 +101,7 @@ export default function CreateRoom() {
                 type="number"
                 required
                 placeholder="Duration"
-                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all duration-200"
+                className="w-full px-10 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all duration-200"
               />
             </div>
 
@@ -115,7 +116,7 @@ export default function CreateRoom() {
                 required
                 placeholder="Number of Questions"
                 minLength={6}
-                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all duration-200"
+                className="w-full px-10 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all duration-200"
               />
             </div>
             <button
