@@ -63,7 +63,7 @@ export const authOptions: NextAuthOptions = {
           existingUser = await prisma.user.create({
             data: {
               email: user.email!,
-              username: emailUsername,
+              username: user.name || user.email!.split('@')[0].replace(" ", "_"),
               password: '', // no password for oauth users
               isAdmin: false,
               ProfilePic : googleProfile.picture 
