@@ -5,7 +5,7 @@ import { Inter, Fira_Code } from "next/font/google";
 
 
 export const metadata: Metadata = {
-  title: "AlgoArena",
+  title: "AlgoWars",
   description: "Real Time Multiplayer Coding Platform",
   icons: {
     icon: "/LogoHero.png",
