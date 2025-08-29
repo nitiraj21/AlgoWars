@@ -25,17 +25,23 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null
-
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Missing email or password");
+        }
+      
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
-        })
-        if (!user) return null
-
-        const isValid = await bcrypt.compare(credentials.password, user.password)
-        if (!isValid) return null
-
-        return { id: user.id, email: user.email, name: user.username }
+        });
+        if (!user) {
+          throw new Error("No user found with this email");
+        }
+      
+        const isValid = await bcrypt.compare(credentials.password, user.password);
+        if (!isValid) {
+          throw new Error("Invalid password");
+        }
+      
+        return { id: user.id, email: user.email, name: user.username };
       },
     }),
 
@@ -52,27 +58,36 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
 
     async signIn({ user, account, profile }) {
-      if (account?.provider === 'google' || account?.provider === 'github') {
+      // ✅ Credentials login: just return true
+      if (account?.provider === "credentials") {
+        return true;
+      }
+    
+      // ✅ Google/GitHub login logic
+      if (account?.provider === "google" || account?.provider === "github") {
         let existingUser = await prisma.user.findUnique({
           where: { email: user.email! },
-        })
-
+        });
+    
         const emailUsername = user.email!.split('@')[0].replace(/\s+/g, "_");
         if (!existingUser) {
-          const googleProfile = profile as { picture?: string }
+          const googleProfile = profile as { picture?: string };
           existingUser = await prisma.user.create({
             data: {
               email: user.email!,
-              username: user.name || user.email!.split('@')[0].replace(" ", "_"),
+              username: user.name || emailUsername,
               password: '', // no password for oauth users
               isAdmin: false,
-              ProfilePic : googleProfile.picture 
+              ProfilePic: googleProfile.picture,
             },
-          })
+          });
         }
+        return true;
       }
-      return true
-    },
+    
+      return false; // block anything else
+    }
+    ,
 
     async jwt({ token, user }) {
       if (user) {

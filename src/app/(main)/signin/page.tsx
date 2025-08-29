@@ -19,16 +19,12 @@ export default function SignIn() {
     const res = await signIn("credentials", {
       email,
       password,
-      redirect: false,
+      redirect: false
     });
-
-
-
-    if (res?.error) {
-      setError("Invalid email or password");
-    } else {
-      window.location.href = "/dashboard"; 
-  
+    if(res?.ok){
+      window.location.href = "/dashboard"; }
+    else{
+      setError("Invalid Email or Password")
     }
     setIsLoading(false);
     
