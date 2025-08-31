@@ -67,16 +67,18 @@ export function useRoomSocket(roomCode: string | null) {
         const sessionData = await getSession();
         if (isMounted) setSession(sessionData);
 
-        // Initial data fetch
-        await fetchRoom(roomCode);
-
-        if (!sessionData?.user?.name) return;
+        if (!sessionData?.user?.name) {
+          setIsLoading(false);
+          return;
+        }
 
         const socketUrl = 'https://algowars.duckdns.org/';
         socket = io(socketUrl, { transports: ['websocket'] });
         socketRef.current = socket;
 
+        // Set up event listeners BEFORE connecting and joining
         socket.on('connect', () => {
+          console.log('Socket connected, joining room...');
           if (sessionData?.user?.name) {
             socket?.emit('join-room', roomCode, sessionData.user.name);
           }
@@ -90,6 +92,15 @@ export function useRoomSocket(roomCode: string | null) {
               if (!prevRoom) return null;
               return { ...prevRoom, participants: data.participants };
             });
+          }
+        });
+
+        // Listen for when THIS user successfully joins
+        socket.on('user-joined', async (data: { username: string }) => {
+          if (isMounted && data.username === sessionData?.user?.name) {
+            console.log("Current user joined successfully, fetching latest room data...");
+            // Fetch fresh room data when we successfully join
+            await fetchRoom(roomCode);
           }
         });
 
@@ -142,8 +153,12 @@ export function useRoomSocket(roomCode: string | null) {
           console.log('Socket disconnected:', reason);
         });
 
+        // Initial data fetch - do this after setting up listeners
+        await fetchRoom(roomCode);
+
       } catch (err) {
         if (isMounted) setError('Failed to connect or fetch room.');
+        setIsLoading(false);
       }
     };
 
