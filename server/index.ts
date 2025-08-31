@@ -31,6 +31,27 @@ function calculateXPByRank(rank: number): number {
   }
 }
 
+// Helper function to get and emit updated participants
+async function emitUpdatedParticipants(roomCode: string, roomId: string) {
+  try {
+    const updatedParticipants = await prisma.matchParticipant.findMany({
+      where: { roomId: roomId },
+      select: {
+        role: true,
+        score: true,
+        rank: true,
+        user: { select: { username: true, ProfilePic: true } }
+      },
+      orderBy: { score: 'desc' } // Order by score for consistent ranking
+    });
+
+    console.log(`[DEBUG] Emitting participants update for room ${roomCode}:`, updatedParticipants);
+    io.to(roomCode).emit('room-participants-updated', { participants: updatedParticipants });
+  } catch (error) {
+    console.error(`Error fetching updated participants for room ${roomCode}:`, error);
+  }
+}
+
 // Helper function to assign ranks and distribute XP
 async function finishMatchWithRanking(roomCode: string, roomId: string) {
   try {
@@ -114,6 +135,7 @@ io.on('connection', (socket) => {
 
   socket.on('join-room', async (roomCode: string, username: string) => {
     socket.join(roomCode);
+    console.log(`[DEBUG] User ${username} attempting to join room ${roomCode}`);
   
     try {
       const room = await prisma.room.findUnique({
@@ -123,14 +145,16 @@ io.on('connection', (socket) => {
       
       if (!room) {
         console.error(`Join-room failed: Room with code '${roomCode}' not found.`);
+        socket.emit('error', { message: 'Room not found' });
         return;
       }
 
-      if(room.status ==='WAITING'){
+      // Allow joining in WAITING and IN_PROGRESS states
+      if (room.status === 'FINISHED') {
+        console.error(`Join-room failed: Room ${roomCode} is finished.`);
+        socket.emit('error', { message: 'Room is finished' });
         return;
       }
-
-      
       
       const roomId = room.id;
       MATCH_DURATION_MINUTES = room.duration || null;
@@ -141,34 +165,48 @@ io.on('connection', (socket) => {
       
       if (!user) {
         console.error(`Join-room failed: User '${username}' not found.`);
+        socket.emit('error', { message: 'User not found' });
         return;
       }
-  
-      await prisma.matchParticipant.upsert({
+
+      // Check if user is already in the room
+      const existingParticipant = await prisma.matchParticipant.findUnique({
         where: { userId_roomId: { userId: user.id, roomId: roomId } },
-        update: {},
-        create: { userId: user.id, roomId: roomId, role: 'PARTICIPANT' },
       });
-  
-      const updatedParticipants = await prisma.matchParticipant.findMany({
-        where: { roomId: roomId },
-        select: {
-          role: true,
-          score: true,
-          rank: true,
-          user: { select: { username: true , ProfilePic : true}}
-        }
-      });
-  
-      io.to(roomCode).emit('room-participants-updated', { participants: updatedParticipants });
+
+      if (!existingParticipant) {
+        // Only create participant if they don't already exist
+        await prisma.matchParticipant.create({
+          data: { 
+            userId: user.id, 
+            roomId: roomId, 
+            role: 'PARTICIPANT',
+            score: 0,
+            rank: null
+          },
+        });
+        console.log(`[DEBUG] Created new participant for user ${username}`);
+      } else {
+        console.log(`[DEBUG] User ${username} already exists in room, updating connection`);
+      }
+
+      // Emit confirmation to the joining user
+      socket.emit('user-joined', { username: username });
+      console.log(`[DEBUG] Confirmed user ${username} joined room ${roomCode}`);
+
+      // Always emit updated participants list to ALL users in the room
+      await emitUpdatedParticipants(roomCode, roomId);
   
     } catch (error) {
       console.error('Error on join-room:', error);
+      socket.emit('error', { message: 'Failed to join room' });
     }
   });
   
   socket.on('disconnect', () => {
     console.log('❌ A user disconnected:', socket.id);
+    
+    // Handle cleanup for in-memory room tracking
     socket.rooms.forEach(roomId => {
       if (roomId === socket.id) return;
       if (roomUsers[roomId]) {
@@ -322,21 +360,9 @@ io.on('connection', (socket) => {
       });
       console.log("[DEBUG] Score incremented successfully in DB.");
   
-      const updatedRoom = await prisma.room.findUnique({
-        where: { id: roomId },
-        include: {
-          participants: {
-            include: { user: { select: { username: true, id: true } } },
-          },
-        },
-      });
+      // Use the helper function to emit updated participants
+      await emitUpdatedParticipants(roomCode, roomId);
       
-      if (updatedRoom) {
-        io.to(roomCode).emit('room-participants-updated', {
-          participants: updatedRoom.participants,
-        });
-        console.log("[DEBUG] Sent updated participants list to room.");
-      }
     } catch (error) {
       console.error('Error updating score:', error);
     }
