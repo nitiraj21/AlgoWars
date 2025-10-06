@@ -186,37 +186,22 @@ export async function POST(req: Request) {
         }, { status: 500 });
     }
 }
-
 async function checkRateLimit(email: string): Promise<{ allowed: boolean }> {
-    try {
-        // Check if Redis is available
-        const isAvailable = await redisClient.isAvailable();
-        if (!isAvailable) {
-            console.warn('Redis not available, skipping rate limit for:', email);
-            return { allowed: true }; // Fail open
-        }
+    const limit = 10;
+    const windowInSeconds = 60;
+    const key = `rate-limit:submit:${email}`;
+    const now = Date.now();
 
-        const limit = 10;
-        const windowInSeconds = 60;
-        const key = `rate-limit:submit:${email}`;
-        const now = Date.now();
+    const transaction = redisClient.multi();
+    transaction.zRemRangeByScore(key, 0, now - (windowInSeconds * 1000));
+    transaction.zAdd(key, { score: now, value: now.toString() });
+    transaction.zCard(key);
+    transaction.expire(key, windowInSeconds);
 
-        const transaction = await redisClient.multi();
-        transaction.zRemRangeByScore(key, 0, now - (windowInSeconds * 1000));
-        transaction.zAdd(key, { score: now, value: now.toString() });
-        transaction.zCard(key);
-        transaction.expire(key, windowInSeconds);
-
-        const results = await transaction.exec();
-        const reqCount = results[2] as unknown as number;
-        
-        return { allowed: reqCount <= limit };
-        
-    } catch (error) {
-        console.error('Rate limit check failed:', error);
-        // Fail open - allow request if Redis fails
-        return { allowed: true };
-    }
+    const results = await transaction.exec();
+    const reqCount = results[2] as unknown as number;
+    
+    return { allowed: reqCount <= limit };
 }
 
 async function executeTestCases(fullCode: string, lang: Language, testCases: TestCase[]): Promise<SubmissionResult[]> {
