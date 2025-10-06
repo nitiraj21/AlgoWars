@@ -465,7 +465,7 @@ const TestResultDisplay = ({ result }: { result: TestResult }) => {
                             <div>
                                 <p className="font-semibold text-red-400 mb-1">✗ Your Output:</p>
                                 <pre className="bg-gray-800 p-3 rounded text-sm text-red-300 border-l-4 border-red-500 max-h-32 overflow-y-auto font-mono">
-{failedCase.actualOutput || 'No output produced'}
+{failedCase.actualOutput }
                                 </pre>
                             </div>
                         </div>
