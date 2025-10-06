@@ -206,7 +206,7 @@ async function checkRateLimit(email: string): Promise<{ allowed: boolean }> {
 }
 
 async function executeTestCases(fullCode: string, lang: Language, testCases: TestCase[]): Promise<SubmissionResult[]> {
-    const judge0Url = process.env.JUDGE0_URL || 'http://43.205.136.152:2358';
+    const judge0Url = process.env.JUDGE0_URL || 'http://13.201.45.209';
     const languageConfig = LANGUAGE_CONFIG[lang];
     
     const judge0Headers = {
