@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/src/lib/prisma';
 import { getServerSession } from "next-auth";
-import { redisClient } from '@/src/lib/redis';
 
 const LANGUAGE_CONFIG = {
     javascript: {
@@ -86,14 +85,6 @@ export async function POST(req: Request) {
         const session = await getServerSession();
         if (!session?.user?.email) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
-
-        const rateLimitResult = await checkRateLimit(session.user.email);
-        if (!rateLimitResult.allowed) {
-            return NextResponse.json(
-                { error: "Too many requests. Please wait a minute" }, 
-                { status: 429 }
-            );
         }
 
         const { code: userCode, language, questionId } = await req.json();
@@ -187,27 +178,13 @@ export async function POST(req: Request) {
     }
 }
 
-async function checkRateLimit(email: string): Promise<{ allowed: boolean }> {
-    const limit = 10;
-    const windowInSeconds = 60;
-    const key = `rate-limit:submit:${email}`;
-    const now = Date.now();
 
-    const transaction = redisClient.multi();
-    transaction.zRemRangeByScore(key, 0, now - (windowInSeconds * 1000));
-    transaction.zAdd(key, { score: now, value: now.toString() });
-    transaction.zCard(key);
-    transaction.expire(key, windowInSeconds);
-
-    const results = await transaction.exec();
-    const reqCount = results[2] as unknown as number;
-    
-    return { allowed: reqCount <= limit };
-}
 
 async function executeTestCases(fullCode: string, lang: Language, testCases: TestCase[]): Promise<SubmissionResult[]> {
-    const judge0Url = process.env.JUDGE0_URL || 'http://13.201.45.209';
+    const judge0Url = process.env.JUDGE0_URL || 'http://13.201.45.209:2358';
     const languageConfig = LANGUAGE_CONFIG[lang];
+    console.log('Judge0 URL being used:', judge0Url);
+    console.log('Environment JUDGE0_URL:', process.env.JUDGE0_URL);
     
     const judge0Headers = {
         'Content-Type': 'application/json',
