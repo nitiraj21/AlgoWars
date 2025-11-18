@@ -73,7 +73,7 @@ export function useRoomSocket(roomCode: string | null) {
         }
 
         const socketUrl = 'https://algowars.duckdns.org/';
-        socket = io(socketUrl);
+        socket = io(socketUrl, { transports: ['websocket'] });
         socketRef.current = socket;
 
         // Set up event listeners BEFORE connecting and joining
