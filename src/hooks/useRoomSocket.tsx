@@ -72,7 +72,7 @@ export function useRoomSocket(roomCode: string | null) {
           return;
         }
 
-        const socketUrl = 'https://algowars.duckdns.org/';
+        const socketUrl = 'https://algosocket.onrender.com';
         socket = io(socketUrl, { transports: ['websocket'] });
         socketRef.current = socket;
 
