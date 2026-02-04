@@ -34,7 +34,7 @@ AlgoWars is a real-time, multiplayer coding duel platform where two or more user
 | **Backend**   | Node.js, Express, Prisma, PostgreSQL                                 |
 | **Real-Time** | Socket.IO                                                            |
 | **Auth**      | NextAuth                                                             |
-| **DevOps**    | Vercel (Frontend), Railway (optional backend), Redis (coming soon)   |
+| **DevOps**    | Vercel (Frontend), AWS EC2, Redis
 
 ---
 
