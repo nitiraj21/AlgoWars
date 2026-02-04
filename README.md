@@ -1,6 +1,6 @@
 # ⚔️ AlgoWars – Real-Time Competitive Coding Platform
 
-AlgoWars is a real-time, multiplayer coding duel platform where two or more users can join a room and compete head-to-head to solve coding problems — inspired by platforms like LeetCode Duel and Codeforces Arena.
+AlgoWars is a real-time, multiplayer coding duel platform where two or more users can join a room and compete head-to-head to solve coding problems
 
 ## 🔥 Features
 
